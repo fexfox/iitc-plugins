@@ -23,71 +23,24 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.hello = (function() {
-  var ID = 'PLUGIN_HELLO',
-      TITLE = 'Hello',
-      DESCRIPTIONS = "Hello IITC Plugin!";
-
-  function open() {
-    var dom = document.createElement('div');
-    dom.id = ID;
-    dom.textContent = DESCRIPTIONS;
-    
-    if(window.useAndroidPanes()) {
-      dom.classList.add('mobile');
-      document.body.appendChild(dom);
-    } else {
-      dialog({
-        html: dom,
-        dialogClass: 'ui-dialog-' + ID,
-        title: TITLE,
-        id: ID,
-        width: 700
-      });
-    }
-  }      
-  
-  function close() {
-    $('#' + ID).remove();    
+window.plugin.logfilter = (function() {
+  var ID = 'PLUGIN_LOG_FILTER',
+      DESCRIPTIONS = "log filter plug-in";
+      
+  function setup() {
   }
 
-  function onPaneChanged(pane) {
-    if(pane == ID) open();
-    else close();
-  }
-  
   return {
-    ID: ID,
-    TITLE: TITLE,
-    DESCRIPTIONS: DESCRIPTIONS,
-    open: open,
-    close: close,
-    onPaneChanged: onPaneChanged 
+    setup: setup
   };
 
 }());
 
 var setup = (function(plugin) {
   return function(){
-    if(window.useAndroidPanes()) {
-      android.addPane(plugin.ID, plugin.TITLE, "ic_action_paste");
-      addHook("paneChanged", plugin.onPaneChanged);
-    } else {
-      var dom = document.createElement('a');
-      dom.textContent = plugin.TITLE; 
-      dom.title = plugin.DESCRIPTIONS;
-      dom.accessKey = 'h';
-      dom.addEventListener('click', plugin.open);
-      
-      document.getElementById('toolbox').appendChild(dom);
-    }
-
-    $("<style>")
-      .prop("type", "text/css")
-      .html("@@INCLUDESTRING:plugins/hello.css@@")
-      .appendTo("head");
+    plugin.setup();
   };
-}(window.plugin.hello));
+}(window.plugin.logfilter));
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
