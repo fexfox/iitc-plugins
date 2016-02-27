@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160227.122416
+// @version        0.0.1.20160227.122839
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-02-27-122416] Log Filter
+// @description    [local-2016-02-27-122839] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160227.122416';
+plugin_info.dateTimeVersion = '20160227.122839';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -39,7 +39,16 @@ window.plugin.logfilter = (function() {
   var ID = 'PLUGIN_LOG_FILTER',
       DESCRIPTIONS = "log filter plug-in";
       
+  function createInputDom() {
+    var dom = document.createElement('input');
+    dom.id = ID;
+    dom.placeholder = 'agent name';
+    
+    return dom;
+  }
+
   function setup() {
+    document.getElementById('chat').appendChild(createInputDom());
   }
 
   return {
@@ -51,6 +60,11 @@ window.plugin.logfilter = (function() {
 var setup = (function(plugin) {
   return function(){
     plugin.setup();
+      
+    $("<style>")
+      .prop("type", "text/css")
+      .html("#PLUGIN_LOG_FILTER {\n  position: absolute;\n  top: 0;\n  width: 50%;\n}\n")
+      .appendTo("head");
   };
 }(window.plugin.logfilter));
 
