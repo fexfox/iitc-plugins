@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160228.151204
+// @version        0.0.1.20160228.160302
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-02-28-151204] Log Filter
+// @description    [local-2016-02-28-160302] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160228.151204';
+plugin_info.dateTimeVersion = '20160228.160302';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -67,8 +67,29 @@ window.plugin.logfilter = (function() {
     });
 
     var scrollBefore = scrollBottom(elm);
-    elm.html('<table>' + msgs + '</table>');
+    //elm.html('<table>' + msgs + '</table>');
+    elm.append(createTableDom($(msgs)));
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
+  }
+  
+  function createTableDom(rowDoms) {
+    var dF = document.createDocumentFragment();
+
+    for(var i = 0; i < rowDoms.length; i++) {
+      filterLogWithInput(rowDoms[i]);
+      dF.appendChild(rowDoms[i]);
+    }
+    
+    var oldTableDom = document.querySelector('#chatall table'); 
+    if(oldTableDom) {
+      oldTableDom.parentElement.removeChild(oldTableDom);
+      oldTableDom = null;
+    }
+    
+    var tableDom = document.createElement('table'); 
+    tableDom.appendChild(dF);
+    
+    return tableDom;
   }
   
   function filterLogWithInput(logRowDom) {
@@ -92,13 +113,7 @@ window.plugin.logfilter = (function() {
     input.dom.id = ID;
     input.dom.placeholder = 'agent name';
     input.dom.addEventListener('keyup', function() {
-      var tableDom = document.querySelector('#chatall table');
-      
-      if(!tableDom) return;
-      
-      for(var i = 0; i < tableDom.rows.length; i++) {
-        filterLogWithInput(tableDom.rows[i]);
-      }
+      window.chat.renderPublic(/*oldMsgsWereAdded*/ true);
     });
     
     return input;

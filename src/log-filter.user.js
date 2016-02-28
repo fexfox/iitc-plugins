@@ -55,8 +55,29 @@ window.plugin.logfilter = (function() {
     });
 
     var scrollBefore = scrollBottom(elm);
-    elm.html('<table>' + msgs + '</table>');
+    //elm.html('<table>' + msgs + '</table>');
+    elm.append(createTableDom($(msgs)));
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
+  }
+  
+  function createTableDom(rowDoms) {
+    var dF = document.createDocumentFragment();
+
+    for(var i = 0; i < rowDoms.length; i++) {
+      filterLogWithInput(rowDoms[i]);
+      dF.appendChild(rowDoms[i]);
+    }
+    
+    var oldTableDom = document.querySelector('#chatall table'); 
+    if(oldTableDom) {
+      oldTableDom.parentElement.removeChild(oldTableDom);
+      oldTableDom = null;
+    }
+    
+    var tableDom = document.createElement('table'); 
+    tableDom.appendChild(dF);
+    
+    return tableDom;
   }
   
   function filterLogWithInput(logRowDom) {
@@ -80,13 +101,7 @@ window.plugin.logfilter = (function() {
     input.dom.id = ID;
     input.dom.placeholder = 'agent name';
     input.dom.addEventListener('keyup', function() {
-      var tableDom = document.querySelector('#chatall table');
-      
-      if(!tableDom) return;
-      
-      for(var i = 0; i < tableDom.rows.length; i++) {
-        filterLogWithInput(tableDom.rows[i]);
-      }
+      window.chat.renderPublic(/*oldMsgsWereAdded*/ true);
     });
     
     return input;
