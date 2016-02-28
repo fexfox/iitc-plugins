@@ -30,10 +30,30 @@ window.plugin.logfilter = (function() {
         dom: null,
       };
   
+  function filterLog(logRowDom, s) {
+    if(!logRowDom.cells[1]) return;
+    if(!logRowDom.cells[1].querySelector('.nickname')) return;
+    
+    if(logRowDom.cells[1].querySelector('.nickname').textContent.search(s) !== 0) {
+      logRowDom.hidden = true;
+    } else {
+      logRowDom.hidden = false;
+    }
+  };
+
   function createInput() {
     input.dom = document.createElement('input');
     input.dom.id = ID;
     input.dom.placeholder = 'agent name';
+    input.dom.addEventListener('keyup', function() {
+      var tableDom = document.querySelector('#chatall table');
+      
+      if(!tableDom) return;
+      
+      for(var i = 0; i < tableDom.rows.length; i++) {
+        filterLog(tableDom.rows[i], input.dom.value);
+      }
+    });
     
     return input;
   }

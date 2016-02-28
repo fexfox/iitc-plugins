@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160228.130503
+// @version        0.0.1.20160228.130845
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-02-28-130503] Log Filter
+// @description    [local-2016-02-28-130845] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160228.130503';
+plugin_info.dateTimeVersion = '20160228.130845';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -42,10 +42,30 @@ window.plugin.logfilter = (function() {
         dom: null,
       };
   
+  function filterLog(logRowDom, s) {
+    if(!logRowDom.cells[1]) return;
+    if(!logRowDom.cells[1].querySelector('.nickname')) return;
+    
+    if(logRowDom.cells[1].querySelector('.nickname').textContent.search(s) !== 0) {
+      logRowDom.hidden = true;
+    } else {
+      logRowDom.hidden = false;
+    }
+  };
+
   function createInput() {
     input.dom = document.createElement('input');
     input.dom.id = ID;
     input.dom.placeholder = 'agent name';
+    input.dom.addEventListener('keyup', function() {
+      var tableDom = document.querySelector('#chatall table');
+      
+      if(!tableDom) return;
+      
+      for(var i = 0; i < tableDom.rows.length; i++) {
+        filterLog(tableDom.rows[i], input.dom.value);
+      }
+    });
     
     return input;
   }
