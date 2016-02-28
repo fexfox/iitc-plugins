@@ -31,15 +31,15 @@ window.plugin.logfilter = (function() {
       };
   
   function filterLog(logRowDom, s) {
-    if(!logRowDom.cells[1]) return;
-    if(!logRowDom.cells[1].querySelector('.nickname')) return;
+    var agentDom = logRowDom.querySelector('.nickname'); 
+    if(!agentDom) return;
     
-    if(logRowDom.cells[1].querySelector('.nickname').textContent.search(s) !== 0) {
+    if(agentDom.textContent.search(s) !== 0) {
       logRowDom.hidden = true;
     } else {
       logRowDom.hidden = false;
     }
-  };
+  }
 
   function createInput() {
     input.dom = document.createElement('input');
