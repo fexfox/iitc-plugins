@@ -25,18 +25,22 @@
 // use own namespace for plugin
 window.plugin.logfilter = (function() {
   var ID = 'PLUGIN_LOG_FILTER',
-      DESCRIPTIONS = "log filter plug-in";
-      
-  function createInputDom() {
-    var dom = document.createElement('input');
-    dom.id = ID;
-    dom.placeholder = 'agent name';
+      DESCRIPTIONS = "log filter plug-in",
+      input = {
+        dom: null,
+      };
+  
+  function createInput() {
+    input.dom = document.createElement('input');
+    input.dom.id = ID;
+    input.dom.placeholder = 'agent name';
     
-    return dom;
+    return input;
   }
 
   function setup() {
-    document.getElementById('chat').appendChild(createInputDom());
+    createInput();
+    document.getElementById('chat').appendChild(input.dom);
   }
 
   return {
