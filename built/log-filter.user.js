@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160228.161952
+// @version        0.0.1.20160228.170724
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-02-28-161952] Log Filter
+// @description    [local-2016-02-28-170724] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160228.161952';
+plugin_info.dateTimeVersion = '20160228.170724';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -86,9 +86,12 @@ window.plugin.logfilter = (function() {
       return;
     }
 
+    var margin = window.getComputedStyle(document.querySelector('#chatall table')).marginTop;
+    margin = Number(margin.match(/\d+/));
+
     if(scrollBefore === 0 || isOldMsgs) {
       box.data('ignoreNextScroll', true);
-      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore));
+      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore) + margin);
     }
   }
 
@@ -160,7 +163,7 @@ var setup = (function(plugin) {
       
     $("<style>")
       .prop("type", "text/css")
-      .html("#PLUGIN_LOG_FILTER {\n  position: absolute;\n  top: 0;\n  width: 50%;\n}\n")
+      .html("#PLUGIN_LOG_FILTER {\n  position: absolute;\n  top: 0;\n  width: 50%;\n}\n\n#chatall>table {\n  margin-top: 20px\n}")
       .appendTo("head");
   };
 }(window.plugin.logfilter));

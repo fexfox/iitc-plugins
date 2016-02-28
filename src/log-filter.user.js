@@ -74,9 +74,12 @@ window.plugin.logfilter = (function() {
       return;
     }
 
+    var margin = window.getComputedStyle(document.querySelector('#chatall table')).marginTop;
+    margin = Number(margin.match(/\d+/));
+
     if(scrollBefore === 0 || isOldMsgs) {
       box.data('ignoreNextScroll', true);
-      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore));
+      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore) + margin);
     }
   }
 
