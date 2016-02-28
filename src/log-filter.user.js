@@ -60,6 +60,26 @@ window.plugin.logfilter = (function() {
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
   }
   
+  //// copied from original code/chat.js @ rev.5298c98
+  // contains the logic to keep the correct scroll position.
+  var keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
+    // If scrolled down completely, keep it that way so new messages can
+    // be seen easily. If scrolled up, only need to fix scroll position
+    // when old messages are added. New messages added at the bottom don’t
+    // change the view and enabling this would make the chat scroll down
+    // for every added message, even if the user wants to read old stuff.
+
+    if(box.is(':hidden') && !isOldMsgs) {
+      box.data('needsScrollTop', 99999999);
+      return;
+    }
+
+    if(scrollBefore === 0 || isOldMsgs) {
+      box.data('ignoreNextScroll', true);
+      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore));
+    }
+  }
+
   function createTableDom(rowDoms) {
     var dF = document.createDocumentFragment();
 
@@ -110,6 +130,7 @@ window.plugin.logfilter = (function() {
   function setup() {
     // override original function following:
     window.chat.renderData = renderData;
+    window.chat.keepScrollPosition = keepScrollPosition;
     
     createInput();
     document.getElementById('chat').appendChild(input.dom);

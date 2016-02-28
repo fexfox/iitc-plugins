@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160228.160302
+// @version        0.0.1.20160228.161952
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-02-28-160302] Log Filter
+// @description    [local-2016-02-28-161952] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160228.160302';
+plugin_info.dateTimeVersion = '20160228.161952';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -72,6 +72,26 @@ window.plugin.logfilter = (function() {
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
   }
   
+  //// copied from original code/chat.js @ rev.5298c98
+  // contains the logic to keep the correct scroll position.
+  var keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
+    // If scrolled down completely, keep it that way so new messages can
+    // be seen easily. If scrolled up, only need to fix scroll position
+    // when old messages are added. New messages added at the bottom don’t
+    // change the view and enabling this would make the chat scroll down
+    // for every added message, even if the user wants to read old stuff.
+
+    if(box.is(':hidden') && !isOldMsgs) {
+      box.data('needsScrollTop', 99999999);
+      return;
+    }
+
+    if(scrollBefore === 0 || isOldMsgs) {
+      box.data('ignoreNextScroll', true);
+      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore));
+    }
+  }
+
   function createTableDom(rowDoms) {
     var dF = document.createDocumentFragment();
 
@@ -122,6 +142,7 @@ window.plugin.logfilter = (function() {
   function setup() {
     // override original function following:
     window.chat.renderData = renderData;
+    window.chat.keepScrollPosition = keepScrollPosition;
     
     createInput();
     document.getElementById('chat').appendChild(input.dom);
