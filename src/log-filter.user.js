@@ -30,6 +30,35 @@ window.plugin.logfilter = (function() {
         dom: null,
       };
   
+  //// copied from original code/chat.js @ rev.5298c98
+  // renders data from the data-hash to the element defined by the given
+  // ID. Set 3rd argument to true if it is likely that old data has been
+  // added. Latter is only required for scrolling.
+  var renderData = function(data, element, likelyWereOldMsgs) {
+    var elm = $('#'+element);
+    if(elm.is(':hidden')) return;
+
+    // discard guids and sort old to new
+  //TODO? stable sort, to preserve server message ordering? or sort by GUID if timestamps equal?
+    var vals = $.map(data, function(v, k) { return [v]; });
+    vals = vals.sort(function(a, b) { return a[0]-b[0]; });
+
+    // render to string with date separators inserted
+    var msgs = '';
+    var prevTime = null;
+    $.each(vals, function(ind, msg) {
+      var nextTime = new Date(msg[0]).toLocaleDateString();
+      if(prevTime && prevTime !== nextTime)
+        msgs += chat.renderDivider(nextTime);
+      msgs += msg[2];
+      prevTime = nextTime;
+    });
+
+    var scrollBefore = scrollBottom(elm);
+    elm.html('<table>' + msgs + '</table>');
+    chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
+  }
+  
   function filterLogWithInput(logRowDom) {
     if(!input.dom) return;
     filterLog(logRowDom, input.dom.value);
@@ -64,6 +93,9 @@ window.plugin.logfilter = (function() {
   }
 
   function setup() {
+    // override original function following:
+    window.chat.renderData = renderData;
+    
     createInput();
     document.getElementById('chat').appendChild(input.dom);
   }

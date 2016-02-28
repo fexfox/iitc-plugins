@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160228.145346
+// @version        0.0.1.20160228.151204
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-02-28-145346] Log Filter
+// @description    [local-2016-02-28-151204] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160228.145346';
+plugin_info.dateTimeVersion = '20160228.151204';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -41,6 +41,35 @@ window.plugin.logfilter = (function() {
       input = {
         dom: null,
       };
+  
+  //// copied from original code/chat.js @ rev.5298c98
+  // renders data from the data-hash to the element defined by the given
+  // ID. Set 3rd argument to true if it is likely that old data has been
+  // added. Latter is only required for scrolling.
+  var renderData = function(data, element, likelyWereOldMsgs) {
+    var elm = $('#'+element);
+    if(elm.is(':hidden')) return;
+
+    // discard guids and sort old to new
+  //TODO? stable sort, to preserve server message ordering? or sort by GUID if timestamps equal?
+    var vals = $.map(data, function(v, k) { return [v]; });
+    vals = vals.sort(function(a, b) { return a[0]-b[0]; });
+
+    // render to string with date separators inserted
+    var msgs = '';
+    var prevTime = null;
+    $.each(vals, function(ind, msg) {
+      var nextTime = new Date(msg[0]).toLocaleDateString();
+      if(prevTime && prevTime !== nextTime)
+        msgs += chat.renderDivider(nextTime);
+      msgs += msg[2];
+      prevTime = nextTime;
+    });
+
+    var scrollBefore = scrollBottom(elm);
+    elm.html('<table>' + msgs + '</table>');
+    chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
+  }
   
   function filterLogWithInput(logRowDom) {
     if(!input.dom) return;
@@ -76,6 +105,9 @@ window.plugin.logfilter = (function() {
   }
 
   function setup() {
+    // override original function following:
+    window.chat.renderData = renderData;
+    
     createInput();
     document.getElementById('chat').appendChild(input.dom);
   }
