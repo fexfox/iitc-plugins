@@ -30,6 +30,11 @@ window.plugin.logfilter = (function() {
         dom: null,
       };
   
+  function filterLogWithInput(logRowDom) {
+    if(!input.dom) return;
+    filterLog(logRowDom, input.dom.value);
+  }
+
   function filterLog(logRowDom, s) {
     var agentDom = logRowDom.querySelector('.nickname'); 
     if(!agentDom) return;
@@ -51,7 +56,7 @@ window.plugin.logfilter = (function() {
       if(!tableDom) return;
       
       for(var i = 0; i < tableDom.rows.length; i++) {
-        filterLog(tableDom.rows[i], input.dom.value);
+        filterLogWithInput(tableDom.rows[i]);
       }
     });
     
