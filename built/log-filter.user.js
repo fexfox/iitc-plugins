@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160228.173816
+// @version        0.0.1.20160228.184320
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-02-28-173816] Log Filter
+// @description    [local-2016-02-28-184320] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160228.173816';
+plugin_info.dateTimeVersion = '20160228.184320';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -86,19 +86,19 @@ window.plugin.logfilter = (function() {
       return;
     }
 
-    var margin = window.getComputedStyle(document.querySelector('#chatall table')).marginTop;
-    margin = Number(margin.match(/\d+/));
-
+    var chatDom = document.querySelector('#chatall');
+    var tableDom = chatDom.querySelector('table');
+    var margin = window.getComputedStyle(tableDom).marginTop;
     var offset = document.querySelector('#chatall').offsetHeight - document.querySelector('#chatall table').offsetHeight;
 
     if(offset > 0) {
-      offset = offset + 'px';
-      document.querySelector('#chatall table').style.marginBottom = offset;
+      tableDom.style.marginBottom = offset + 'px';
     }
 
     if(scrollBefore === 0 || isOldMsgs) {
       box.data('ignoreNextScroll', true);
-      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore) + margin);
+      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore)
+        + Number(margin.match(/\d+/)));
     }
   }
 

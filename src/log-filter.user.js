@@ -74,19 +74,19 @@ window.plugin.logfilter = (function() {
       return;
     }
 
-    var margin = window.getComputedStyle(document.querySelector('#chatall table')).marginTop;
-    margin = Number(margin.match(/\d+/));
-
+    var chatDom = document.querySelector('#chatall');
+    var tableDom = chatDom.querySelector('table');
+    var margin = window.getComputedStyle(tableDom).marginTop;
     var offset = document.querySelector('#chatall').offsetHeight - document.querySelector('#chatall table').offsetHeight;
 
     if(offset > 0) {
-      offset = offset + 'px';
-      document.querySelector('#chatall table').style.marginBottom = offset;
+      tableDom.style.marginBottom = offset + 'px';
     }
 
     if(scrollBefore === 0 || isOldMsgs) {
       box.data('ignoreNextScroll', true);
-      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore) + margin);
+      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore)
+        + Number(margin.match(/\d+/)));
     }
   }
 
