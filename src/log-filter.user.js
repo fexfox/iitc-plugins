@@ -119,7 +119,7 @@ window.plugin.logfilter = (function() {
     var agentDom = logRowDom.querySelector('.nickname'); 
     if(!agentDom) return;
     
-    if(agentDom.textContent.search(s) !== 0) {
+    if(agentDom.textContent.toLowerCase().search(s.toLowerCase()) !== 0) {
       logRowDom.hidden = true;
     } else {
       logRowDom.hidden = false;
