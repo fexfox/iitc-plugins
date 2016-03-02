@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160302.105628
+// @version        0.0.1.20160302.112747
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-02-105628] Log Filter
+// @description    [local-2016-03-02-112747] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160302.105628';
+plugin_info.dateTimeVersion = '20160302.112747';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -145,15 +145,15 @@ window.plugin.logfilter = (function() {
     input.dom.addEventListener('keyup', function() {
       switch(window.chat.getActive()) {
         case 'all':
-          window.chat.renderPublic(/*oldMsgsWereAdded*/ true);
+          window.chat.renderPublic(false);
           break;
           
         case 'faction':
-          window.chat.renderFaction(/*oldMsgsWereAdded*/ true);
+          window.chat.renderFaction(false);
           break;
           
         case 'alerts':
-          window.chat.renderAlerts(/*oldMsgsWereAdded*/ true);
+          window.chat.renderAlerts(false);
           break;
           
         default:

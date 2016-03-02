@@ -133,15 +133,15 @@ window.plugin.logfilter = (function() {
     input.dom.addEventListener('keyup', function() {
       switch(window.chat.getActive()) {
         case 'all':
-          window.chat.renderPublic(/*oldMsgsWereAdded*/ true);
+          window.chat.renderPublic(false);
           break;
           
         case 'faction':
-          window.chat.renderFaction(/*oldMsgsWereAdded*/ true);
+          window.chat.renderFaction(false);
           break;
           
         case 'alerts':
-          window.chat.renderAlerts(/*oldMsgsWereAdded*/ true);
+          window.chat.renderAlerts(false);
           break;
           
         default:
