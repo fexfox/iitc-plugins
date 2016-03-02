@@ -1,9 +1,12 @@
 #PLUGIN_LOG_FILTER {
-  position: absolute;
-  top: 0;
-  width: 50%;
+  width: 30%;
+  height: 24px;
 }
 
-#chatall>table {
-  margin-top: 20px
+#chat {
+  padding-bottom: 24px;
+}
+
+#chatall>table, #chatfaction>table, #chatalerts>table {
+  margin-top: 20px;
 }

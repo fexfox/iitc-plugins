@@ -158,7 +158,8 @@ window.plugin.logfilter = (function() {
     window.chat.keepScrollPosition = keepScrollPosition;
     
     createInput();
-    document.getElementById('chat').appendChild(input.dom);
+    var chatDom = document.getElementById('chat');
+    chatDom.insertBefore(input.dom, chatDom.firstElementChild)
   }
 
   return {

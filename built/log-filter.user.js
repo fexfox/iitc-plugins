@@ -170,7 +170,8 @@ window.plugin.logfilter = (function() {
     window.chat.keepScrollPosition = keepScrollPosition;
     
     createInput();
-    document.getElementById('chat').appendChild(input.dom);
+    var chatDom = document.getElementById('chat');
+    chatDom.insertBefore(input.dom, chatDom.firstElementChild)
   }
 
   return {
@@ -185,7 +186,7 @@ var setup = (function(plugin) {
       
     $("<style>")
       .prop("type", "text/css")
-      .html("#PLUGIN_LOG_FILTER {\n  position: absolute;\n  top: 0;\n  width: 50%;\n}\n\n#chatall>table {\n  margin-top: 20px\n}")
+      .html("#PLUGIN_LOG_FILTER {\n  width: 30%;\n  height: 24px;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  margin-top: 20px;\n}")
       .appendTo("head");
   };
 }(window.plugin.logfilter));
