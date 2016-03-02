@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160302.112747
+// @version        0.0.1.20160302.165714
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-02-112747] Log Filter
+// @description    [local-2016-03-02-165714] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160302.112747';
+plugin_info.dateTimeVersion = '20160302.165714';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -38,6 +38,7 @@ plugin_info.pluginId = 'log-filter';
 window.plugin.logfilter = (function() {
   var ID = 'PLUGIN_LOG_FILTER',
       DESCRIPTIONS = "log filter plug-in",
+      dom = null,
       input = {
         dom: null,
       };
@@ -140,7 +141,8 @@ window.plugin.logfilter = (function() {
 
   function createInput() {
     input.dom = document.createElement('input');
-    input.dom.id = ID;
+    input.dom.type = 'text';
+    input.dom.name = 'agent';
     input.dom.placeholder = 'agent name';
     input.dom.addEventListener('keyup', function() {
       switch(window.chat.getActive()) {
@@ -169,9 +171,14 @@ window.plugin.logfilter = (function() {
     window.chat.renderData = renderData;
     window.chat.keepScrollPosition = keepScrollPosition;
     
+    dom = document.createElement('form');
+    dom.id = ID;
+
     createInput();
+    dom.appendChild(input.dom);
+    
     var chatDom = document.getElementById('chat');
-    chatDom.insertBefore(input.dom, chatDom.firstElementChild)
+    chatDom.insertBefore(dom, chatDom.firstElementChild);
   }
 
   return {
@@ -186,7 +193,7 @@ var setup = (function(plugin) {
       
     $("<style>")
       .prop("type", "text/css")
-      .html("#PLUGIN_LOG_FILTER {\n  width: 30%;\n  height: 24px;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  margin-top: 20px;\n}")
+      .html("#PLUGIN_LOG_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  margin-top: 20px;\n}")
       .appendTo("head");
   };
 }(window.plugin.logfilter));

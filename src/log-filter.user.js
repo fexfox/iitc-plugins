@@ -26,6 +26,7 @@
 window.plugin.logfilter = (function() {
   var ID = 'PLUGIN_LOG_FILTER',
       DESCRIPTIONS = "log filter plug-in",
+      dom = null,
       input = {
         dom: null,
       };
@@ -128,7 +129,8 @@ window.plugin.logfilter = (function() {
 
   function createInput() {
     input.dom = document.createElement('input');
-    input.dom.id = ID;
+    input.dom.type = 'text';
+    input.dom.name = 'agent';
     input.dom.placeholder = 'agent name';
     input.dom.addEventListener('keyup', function() {
       switch(window.chat.getActive()) {
@@ -157,9 +159,14 @@ window.plugin.logfilter = (function() {
     window.chat.renderData = renderData;
     window.chat.keepScrollPosition = keepScrollPosition;
     
+    dom = document.createElement('form');
+    dom.id = ID;
+
     createInput();
+    dom.appendChild(input.dom);
+    
     var chatDom = document.getElementById('chat');
-    chatDom.insertBefore(input.dom, chatDom.firstElementChild)
+    chatDom.insertBefore(dom, chatDom.firstElementChild);
   }
 
   return {
