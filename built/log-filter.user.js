@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160301.60615
+// @version        0.0.1.20160302.105628
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-01-060615] Log Filter
+// @description    [local-2016-03-02-105628] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160301.60615';
+plugin_info.dateTimeVersion = '20160302.105628';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -68,7 +68,7 @@ window.plugin.logfilter = (function() {
 
     var scrollBefore = scrollBottom(elm);
     //elm.html('<table>' + msgs + '</table>');
-    elm.append(createTableDom($(msgs)));
+    elm.append(renderTableDom($(msgs)));
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
   }
   
@@ -86,10 +86,10 @@ window.plugin.logfilter = (function() {
       return;
     }
 
-    var chatDom = document.querySelector('#chatall');
+    var chatDom = document.querySelector('#chat' + window.chat.getActive());
     var tableDom = chatDom.querySelector('table');
     var margin = window.getComputedStyle(tableDom).marginTop;
-    var offset = document.querySelector('#chatall').offsetHeight - document.querySelector('#chatall table').offsetHeight;
+    var offset = chatDom.offsetHeight - tableDom.offsetHeight;
 
     if(offset > 0) {
       tableDom.style.marginBottom = offset + 'px';
@@ -102,7 +102,7 @@ window.plugin.logfilter = (function() {
     }
   }
 
-  function createTableDom(rowDoms) {
+  function renderTableDom(rowDoms) {
     var dF = document.createDocumentFragment();
 
     for(var i = 0; i < rowDoms.length; i++) {
@@ -110,7 +110,7 @@ window.plugin.logfilter = (function() {
       dF.appendChild(rowDoms[i]);
     }
     
-    var oldTableDom = document.querySelector('#chatall table'); 
+    var oldTableDom = document.querySelector('#chat' + window.chat.getActive() + ' table'); 
     if(oldTableDom) {
       oldTableDom.parentElement.removeChild(oldTableDom);
       oldTableDom = null;
@@ -143,7 +143,22 @@ window.plugin.logfilter = (function() {
     input.dom.id = ID;
     input.dom.placeholder = 'agent name';
     input.dom.addEventListener('keyup', function() {
-      window.chat.renderPublic(/*oldMsgsWereAdded*/ true);
+      switch(window.chat.getActive()) {
+        case 'all':
+          window.chat.renderPublic(/*oldMsgsWereAdded*/ true);
+          break;
+          
+        case 'faction':
+          window.chat.renderFaction(/*oldMsgsWereAdded*/ true);
+          break;
+          
+        case 'alerts':
+          window.chat.renderAlerts(/*oldMsgsWereAdded*/ true);
+          break;
+          
+        default:
+          break;
+      }
     });
     
     return input;

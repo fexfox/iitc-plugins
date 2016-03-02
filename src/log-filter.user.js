@@ -56,7 +56,7 @@ window.plugin.logfilter = (function() {
 
     var scrollBefore = scrollBottom(elm);
     //elm.html('<table>' + msgs + '</table>');
-    elm.append(createTableDom($(msgs)));
+    elm.append(renderTableDom($(msgs)));
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
   }
   
@@ -74,10 +74,10 @@ window.plugin.logfilter = (function() {
       return;
     }
 
-    var chatDom = document.querySelector('#chatall');
+    var chatDom = document.querySelector('#chat' + window.chat.getActive());
     var tableDom = chatDom.querySelector('table');
     var margin = window.getComputedStyle(tableDom).marginTop;
-    var offset = document.querySelector('#chatall').offsetHeight - document.querySelector('#chatall table').offsetHeight;
+    var offset = chatDom.offsetHeight - tableDom.offsetHeight;
 
     if(offset > 0) {
       tableDom.style.marginBottom = offset + 'px';
@@ -90,7 +90,7 @@ window.plugin.logfilter = (function() {
     }
   }
 
-  function createTableDom(rowDoms) {
+  function renderTableDom(rowDoms) {
     var dF = document.createDocumentFragment();
 
     for(var i = 0; i < rowDoms.length; i++) {
@@ -98,7 +98,7 @@ window.plugin.logfilter = (function() {
       dF.appendChild(rowDoms[i]);
     }
     
-    var oldTableDom = document.querySelector('#chatall table'); 
+    var oldTableDom = document.querySelector('#chat' + window.chat.getActive() + ' table'); 
     if(oldTableDom) {
       oldTableDom.parentElement.removeChild(oldTableDom);
       oldTableDom = null;
@@ -131,7 +131,22 @@ window.plugin.logfilter = (function() {
     input.dom.id = ID;
     input.dom.placeholder = 'agent name';
     input.dom.addEventListener('keyup', function() {
-      window.chat.renderPublic(/*oldMsgsWereAdded*/ true);
+      switch(window.chat.getActive()) {
+        case 'all':
+          window.chat.renderPublic(/*oldMsgsWereAdded*/ true);
+          break;
+          
+        case 'faction':
+          window.chat.renderFaction(/*oldMsgsWereAdded*/ true);
+          break;
+          
+        case 'alerts':
+          window.chat.renderAlerts(/*oldMsgsWereAdded*/ true);
+          break;
+          
+        default:
+          break;
+      }
     });
     
     return input;
