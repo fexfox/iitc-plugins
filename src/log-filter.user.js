@@ -162,15 +162,15 @@ window.plugin.logfilter = (function() {
     input.dom.addEventListener('keyup', function() {
       switch(window.chat.getActive()) {
         case 'all':
-          window.chat.renderPublic(false);
+          window.chat.renderPublic(true);
           break;
           
         case 'faction':
-          window.chat.renderFaction(false);
+          window.chat.renderFaction(true);
           break;
           
         case 'alerts':
-          window.chat.renderAlerts(false);
+          window.chat.renderAlerts(true);
           break;
           
         default:
