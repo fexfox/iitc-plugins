@@ -113,6 +113,8 @@ window.plugin.logfilter = (function() {
       box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore)
         + statusView.outerHeight());
       statusView.text('Now loading...');
+    } else if(box.scrollTop() === 0) {
+      statusView.text('No older logs.');
     }
   }
 
