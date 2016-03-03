@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160302.165714
+// @version        0.0.1.20160303.183620
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-02-165714] Log Filter
+// @description    [local-2016-03-03-183620] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160302.165714';
+plugin_info.dateTimeVersion = '20160303.183620';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -39,8 +39,31 @@ window.plugin.logfilter = (function() {
   var ID = 'PLUGIN_LOG_FILTER',
       DESCRIPTIONS = "log filter plug-in",
       dom = null,
-      input = {
+      logView = {
         dom: null,
+        logs: [
+          {
+            id: 'all',
+            dom: null,
+            log: {},
+            status: {}
+          },
+          {
+            id: 'faction',
+            dom: null,
+            log: {},
+            status: {}
+          },
+          {
+            id: 'alerts',
+            dom: null,
+            log: {},
+            status: {}
+          }
+        ]
+      },
+      input = {
+        dom: null
       };
   
   //// copied from original code/chat.js @ rev.5298c98
@@ -88,8 +111,9 @@ window.plugin.logfilter = (function() {
     }
 
     var chatDom = document.querySelector('#chat' + window.chat.getActive());
+    var statusDom = chatDom.querySelector('.status'); 
     var tableDom = chatDom.querySelector('table');
-    var margin = window.getComputedStyle(tableDom).marginTop;
+    var margin = window.getComputedStyle(statusDom).height;
     var offset = chatDom.offsetHeight - tableDom.offsetHeight;
 
     if(offset > 0) {
@@ -100,6 +124,7 @@ window.plugin.logfilter = (function() {
       box.data('ignoreNextScroll', true);
       box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore)
         + Number(margin.match(/\d+/)));
+      $('.status', box).text('Now loading...');
     }
   }
 
@@ -177,8 +202,15 @@ window.plugin.logfilter = (function() {
     createInput();
     dom.appendChild(input.dom);
     
-    var chatDom = document.getElementById('chat');
-    chatDom.insertBefore(dom, chatDom.firstElementChild);
+    logView.dom = document.getElementById('chat');
+    logView.dom.insertBefore(dom, logView.dom.firstElementChild);
+    
+    for(var i = 0; i < logView.logs.length; i++) {
+      logView.logs[i].dom = logView.dom.querySelector('#chat' + logView.logs[i].id);
+      logView.logs[i].status.dom = document.createElement('div');
+      logView.logs[i].status.dom.className = 'status';
+      logView.logs[i].dom.insertBefore(logView.logs[i].status.dom, logView.logs[i].dom.firstChildElement);
+    }
   }
 
   return {
@@ -193,7 +225,7 @@ var setup = (function(plugin) {
       
     $("<style>")
       .prop("type", "text/css")
-      .html("#PLUGIN_LOG_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  margin-top: 20px;\n}")
+      .html("#PLUGIN_LOG_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chat .status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}")
       .appendTo("head");
   };
 }(window.plugin.logfilter));

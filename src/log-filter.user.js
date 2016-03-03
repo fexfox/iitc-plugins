@@ -27,8 +27,31 @@ window.plugin.logfilter = (function() {
   var ID = 'PLUGIN_LOG_FILTER',
       DESCRIPTIONS = "log filter plug-in",
       dom = null,
-      input = {
+      logView = {
         dom: null,
+        logs: [
+          {
+            id: 'all',
+            dom: null,
+            log: {},
+            status: {}
+          },
+          {
+            id: 'faction',
+            dom: null,
+            log: {},
+            status: {}
+          },
+          {
+            id: 'alerts',
+            dom: null,
+            log: {},
+            status: {}
+          }
+        ]
+      },
+      input = {
+        dom: null
       };
   
   //// copied from original code/chat.js @ rev.5298c98
@@ -76,8 +99,9 @@ window.plugin.logfilter = (function() {
     }
 
     var chatDom = document.querySelector('#chat' + window.chat.getActive());
+    var statusDom = chatDom.querySelector('.status'); 
     var tableDom = chatDom.querySelector('table');
-    var margin = window.getComputedStyle(tableDom).marginTop;
+    var margin = window.getComputedStyle(statusDom).height;
     var offset = chatDom.offsetHeight - tableDom.offsetHeight;
 
     if(offset > 0) {
@@ -88,6 +112,7 @@ window.plugin.logfilter = (function() {
       box.data('ignoreNextScroll', true);
       box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore)
         + Number(margin.match(/\d+/)));
+      $('.status', box).text('Now loading...');
     }
   }
 
@@ -165,8 +190,15 @@ window.plugin.logfilter = (function() {
     createInput();
     dom.appendChild(input.dom);
     
-    var chatDom = document.getElementById('chat');
-    chatDom.insertBefore(dom, chatDom.firstElementChild);
+    logView.dom = document.getElementById('chat');
+    logView.dom.insertBefore(dom, logView.dom.firstElementChild);
+    
+    for(var i = 0; i < logView.logs.length; i++) {
+      logView.logs[i].dom = logView.dom.querySelector('#chat' + logView.logs[i].id);
+      logView.logs[i].status.dom = document.createElement('div');
+      logView.logs[i].status.dom.className = 'status';
+      logView.logs[i].dom.insertBefore(logView.logs[i].status.dom, logView.logs[i].dom.firstChildElement);
+    }
   }
 
   return {
