@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160303.183620
+// @version        0.0.1.20160303.194036
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-03-183620] Log Filter
+// @description    [local-2016-03-03-194036] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160303.183620';
+plugin_info.dateTimeVersion = '20160303.194036';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -110,21 +110,21 @@ window.plugin.logfilter = (function() {
       return;
     }
 
-    var chatDom = document.querySelector('#chat' + window.chat.getActive());
-    var statusDom = chatDom.querySelector('.status'); 
-    var tableDom = chatDom.querySelector('table');
-    var margin = window.getComputedStyle(statusDom).height;
-    var offset = chatDom.offsetHeight - tableDom.offsetHeight;
+    var logsTable = $('table', box);
+    // box[0].offsetHeight - logsTable[0].offsetHeight
+    var offset = box.outerHeight() - logsTable.outerHeight();
 
     if(offset > 0) {
-      tableDom.style.marginBottom = offset + 'px';
+      logsTable.css('margin-bottom', offset + 'px');
     }
+
+    var statusView = $('.status', box); 
 
     if(scrollBefore === 0 || isOldMsgs) {
       box.data('ignoreNextScroll', true);
       box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore)
-        + Number(margin.match(/\d+/)));
-      $('.status', box).text('Now loading...');
+        + statusView.outerHeight());
+      statusView.text('Now loading...');
     }
   }
 

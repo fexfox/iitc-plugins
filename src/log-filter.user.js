@@ -98,21 +98,21 @@ window.plugin.logfilter = (function() {
       return;
     }
 
-    var chatDom = document.querySelector('#chat' + window.chat.getActive());
-    var statusDom = chatDom.querySelector('.status'); 
-    var tableDom = chatDom.querySelector('table');
-    var margin = window.getComputedStyle(statusDom).height;
-    var offset = chatDom.offsetHeight - tableDom.offsetHeight;
+    var logsTable = $('table', box);
+    // box[0].offsetHeight - logsTable[0].offsetHeight
+    var offset = box.outerHeight() - logsTable.outerHeight();
 
     if(offset > 0) {
-      tableDom.style.marginBottom = offset + 'px';
+      logsTable.css('margin-bottom', offset + 'px');
     }
+
+    var statusView = $('.status', box); 
 
     if(scrollBefore === 0 || isOldMsgs) {
       box.data('ignoreNextScroll', true);
       box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore)
-        + Number(margin.match(/\d+/)));
-      $('.status', box).text('Now loading...');
+        + statusView.outerHeight());
+      statusView.text('Now loading...');
     }
   }
 
