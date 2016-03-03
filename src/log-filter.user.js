@@ -107,14 +107,13 @@ window.plugin.logfilter = (function() {
     }
 
     var statusView = $('.status', box); 
+    statusView.text('');
 
     if(scrollBefore === 0 || isOldMsgs) {
       box.data('ignoreNextScroll', true);
       box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore)
         + statusView.outerHeight());
       statusView.text('Now loading...');
-    } else if(box.scrollTop() === 0) {
-      statusView.text('No older logs.');
     }
   }
 
