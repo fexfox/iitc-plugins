@@ -16,3 +16,9 @@
 #chatall>table, #chatfaction>table, #chatalerts>table {
   table-layout: auto;
 }
+
+#chatall>table td:nth-child(2),
+#chatfaction>table td:nth-child(2),
+#chatalerts>table td:nth-child(2) {
+  width: 15ex;
+}
