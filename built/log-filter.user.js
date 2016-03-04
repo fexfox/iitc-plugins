@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160304.48
+// @version        0.0.1.20160304.2710
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-04-000048] Log Filter
+// @description    [local-2016-03-04-002710] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160304.48';
+plugin_info.dateTimeVersion = '20160304.2710';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -246,7 +246,7 @@ var setup = (function(plugin) {
       
     $("<style>")
       .prop("type", "text/css")
-      .html("#PLUGIN_LOG_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chat .status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}")
+      .html("#PLUGIN_LOG_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}")
       .appendTo("head");
   };
 }(window.plugin.logfilter));

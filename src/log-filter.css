@@ -7,7 +7,7 @@
   padding-bottom: 24px;
 }
 
-#chat .status {
+#chatall>.status, #chatfaction>.status, #chatalerts>.status {
   height: 20px;
   text-align: center;
   font-style: italic;
