@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160303.225406
+// @version        0.0.1.20160304.48
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-03-225406] Log Filter
+// @description    [local-2016-03-04-000048] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160303.225406';
+plugin_info.dateTimeVersion = '20160304.48';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -43,24 +43,31 @@ window.plugin.logfilter = (function() {
         dom: null,
         logs: [
           {
-            id: 'all',
+            channel: 'all',
             dom: null,
             log: {},
             status: {}
           },
           {
-            id: 'faction',
+            channel: 'faction',
             dom: null,
             log: {},
             status: {}
           },
           {
-            id: 'alerts',
+            channel: 'alerts',
             dom: null,
             log: {},
             status: {}
           }
-        ]
+        ],
+        getLogByChannel: function(channel) {
+          for(var i = 0; i < this.logs.length; i++) {
+            if(this.logs[i].channel === channel) return this.logs[i];
+          }
+          
+          return null;
+        }
       },
       input = {
         dom: null
@@ -211,7 +218,7 @@ window.plugin.logfilter = (function() {
     logView.dom.insertBefore(dom, logView.dom.firstElementChild);
     
     for(var i = 0; i < logView.logs.length; i++) {
-      logView.logs[i].dom = logView.dom.querySelector('#chat' + logView.logs[i].id);
+      logView.logs[i].dom = logView.dom.querySelector('#chat' + logView.logs[i].channel);
       logView.logs[i].status.dom = document.createElement('div');
       logView.logs[i].status.dom.className = 'status';
       logView.logs[i].dom.insertBefore(logView.logs[i].status.dom, logView.logs[i].dom.firstChildElement);

@@ -31,24 +31,31 @@ window.plugin.logfilter = (function() {
         dom: null,
         logs: [
           {
-            id: 'all',
+            channel: 'all',
             dom: null,
             log: {},
             status: {}
           },
           {
-            id: 'faction',
+            channel: 'faction',
             dom: null,
             log: {},
             status: {}
           },
           {
-            id: 'alerts',
+            channel: 'alerts',
             dom: null,
             log: {},
             status: {}
           }
-        ]
+        ],
+        getLogByChannel: function(channel) {
+          for(var i = 0; i < this.logs.length; i++) {
+            if(this.logs[i].channel === channel) return this.logs[i];
+          }
+          
+          return null;
+        }
       },
       input = {
         dom: null
@@ -199,7 +206,7 @@ window.plugin.logfilter = (function() {
     logView.dom.insertBefore(dom, logView.dom.firstElementChild);
     
     for(var i = 0; i < logView.logs.length; i++) {
-      logView.logs[i].dom = logView.dom.querySelector('#chat' + logView.logs[i].id);
+      logView.logs[i].dom = logView.dom.querySelector('#chat' + logView.logs[i].channel);
       logView.logs[i].status.dom = document.createElement('div');
       logView.logs[i].status.dom.className = 'status';
       logView.logs[i].dom.insertBefore(logView.logs[i].status.dom, logView.logs[i].dom.firstChildElement);
