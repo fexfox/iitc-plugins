@@ -246,7 +246,7 @@ var setup = (function(plugin) {
       
     $("<style>")
       .prop("type", "text/css")
-      .html("#PLUGIN_LOG_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chat .status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}")
+      .html("#PLUGIN_LOG_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chat .status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}")
       .appendTo("head");
   };
 }(window.plugin.logfilter));
