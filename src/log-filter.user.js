@@ -152,6 +152,25 @@ window.plugin.logfilter = (function() {
       logRowDom.hidden = false;
     }
   }
+  
+  function renderLogs(channel) {
+    switch(channel) {
+      case 'all':
+        window.chat.renderPublic(false);
+        break;
+        
+      case 'faction':
+        window.chat.renderFaction(false);
+        break;
+        
+      case 'alerts':
+        window.chat.renderAlerts(false);
+        break;
+        
+      default:
+        break;
+    }
+  }
 
   function createInput() {
     input.dom = document.createElement('input');
@@ -159,22 +178,7 @@ window.plugin.logfilter = (function() {
     input.dom.name = 'agent';
     input.dom.placeholder = 'agent name';
     input.dom.addEventListener('keyup', function() {
-      switch(window.chat.getActive()) {
-        case 'all':
-          window.chat.renderPublic(false);
-          break;
-          
-        case 'faction':
-          window.chat.renderFaction(false);
-          break;
-          
-        case 'alerts':
-          window.chat.renderAlerts(false);
-          break;
-          
-        default:
-          break;
-      }
+      renderLogs(window.chat.getActive());
     });
     
     return input;
