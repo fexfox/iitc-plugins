@@ -77,6 +77,13 @@ window.plugin.logfilter = (function() {
     var margin = window.getComputedStyle(document.querySelector('#chatall table')).marginTop;
     margin = Number(margin.match(/\d+/));
 
+    var offset = document.querySelector('#chatall').offsetHeight - document.querySelector('#chatall table').offsetHeight;
+
+    if(offset > 0) {
+      offset = offset + 'px';
+      document.querySelector('#chatall table').style.marginBottom = offset;
+    }
+
     if(scrollBefore === 0 || isOldMsgs) {
       box.data('ignoreNextScroll', true);
       box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore) + margin);
