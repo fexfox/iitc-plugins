@@ -175,15 +175,24 @@ window.plugin.logfilter = (function() {
   function renderLogs(channel) {
     switch(channel) {
       case 'all':
-        window.chat.renderPublic(false);
+        var logs = logView.getLogByChannel('all');
+        if(logs.dom && logs.dom.querySelector('table')) {
+          window.chat.renderPublic(false);
+        }
         break;
         
       case 'faction':
-        window.chat.renderFaction(false);
+        var logs = logView.getLogByChannel('faction');
+        if(logs.dom && logs.dom.querySelector('table')) {
+          window.chat.renderFaction(false);
+        }
         break;
         
       case 'alerts':
-        window.chat.renderAlerts(false);
+        var logs = logView.getLogByChannel('alerts');
+        if(logs.dom && logs.dom.querySelector('table')) {
+          window.chat.renderAlerts(false);
+        }
         break;
         
       default:
