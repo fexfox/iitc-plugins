@@ -231,6 +231,8 @@ window.plugin.logfilter = (function() {
   function clear() {
     input.dom.value = input.dom.defaultValue;
     window.plugin.logfilter.renderLogs(window.chat.getActive());
+    
+    document.getElementById('chattext').value = '';
   }
 
   function setup() {
