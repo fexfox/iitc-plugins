@@ -3,6 +3,15 @@
   height: 24px;
 }
 
+#PLUGIN_LOG_FILTER>button {
+  padding: 2px;
+  min-width: 40px;
+  color: #FFCE00;
+  border: 1px solid #FFCE00;
+  background-color: rgba(8, 48, 78, 0.9);
+  text-align: center;
+}
+
 #chat {
   padding-bottom: 24px;
 }
