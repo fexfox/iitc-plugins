@@ -216,6 +216,7 @@ window.plugin.commfilter = (function() {
   
   function clear() {
     input.dom.value = input.dom.defaultValue;
+    input.oldValue = input.dom.value;
     
     var channel = window.chat.getActive();
     
