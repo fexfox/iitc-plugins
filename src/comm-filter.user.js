@@ -29,26 +29,19 @@ window.plugin.commfilter = (function() {
       dom = null,
       comm = {
         dom: null,
-        channels: [
-          {
-            name: 'all',
-            dom: null
-          },
-          {
-            name: 'faction',
-            dom: null
-          },
-          {
-            name: 'alerts',
-            dom: null
-          }
-        ],
-        getLogByChannel: function(channel) {
-          for(var i = 0; i < this.channels.length; i++) {
-            if(this.channels[i].name === channel) return this.channels[i];
-          }
-          
-          return null;
+        channels: {}, // all, faction, alerts
+        Channel: function(name) {
+          return {
+            name: name,
+            dom: null, //TODO comm.dom.querySelector('#chat' + name)
+            hasLogs: function() {
+              if(this.dom && this.dom.querySelector('table')) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          };
         }
       },
       input = {
@@ -61,7 +54,11 @@ window.plugin.commfilter = (function() {
           dom.defaultValue = '';
           dom.placeholder = 'agent name';
           dom.addEventListener('keyup', function() {
-            if(this.isChanged()) window.plugin.commfilter.renderLogs(window.chat.getActive());
+            var channel = window.chat.getActive();
+            
+            if(this.isChanged() && comm.channels[channel].hasLogs()) {
+              window.plugin.commfilter.renderLogs(channel);
+            }
           }.bind(this));
           
           this.dom = dom;
@@ -160,8 +157,12 @@ window.plugin.commfilter = (function() {
       var agentDom = rowDoms[i].querySelector('.nickname');
       if(agentDom) {
         agentDom.addEventListener('click', function(){
-          input.dom.value = this.textContent;
-          window.plugin.commfilter.renderLogs(window.chat.getActive());
+          var channel = window.chat.getActive();
+          
+          if(comm.channels[channel].hasLogs()) {
+            input.dom.value = this.textContent;
+            window.plugin.commfilter.renderLogs(channel);
+          }
         });
       }
     }
@@ -197,24 +198,15 @@ window.plugin.commfilter = (function() {
   function renderLogs(channel) {
     switch(channel) {
       case 'all':
-        var logs = comm.getLogByChannel('all');
-        if(logs.dom && logs.dom.querySelector('table')) {
-          window.chat.renderPublic(false);
-        }
+        window.chat.renderPublic(false);
         break;
         
       case 'faction':
-        var logs = comm.getLogByChannel('faction');
-        if(logs.dom && logs.dom.querySelector('table')) {
-          window.chat.renderFaction(false);
-        }
+        window.chat.renderFaction(false);
         break;
         
       case 'alerts':
-        var logs = comm.getLogByChannel('alerts');
-        if(logs.dom && logs.dom.querySelector('table')) {
-          window.chat.renderAlerts(false);
-        }
+        window.chat.renderAlerts(false);
         break;
         
       default:
@@ -224,7 +216,10 @@ window.plugin.commfilter = (function() {
   
   function clear() {
     input.dom.value = input.dom.defaultValue;
-    window.plugin.commfilter.renderLogs(window.chat.getActive());
+    
+    var channel = window.chat.getActive();
+    
+    if(comm.channels[channel].hasLogs()) window.plugin.commfilter.renderLogs(channel);
     
     document.getElementById('chattext').value = '';
   }
@@ -246,14 +241,18 @@ window.plugin.commfilter = (function() {
     
     comm.dom = document.getElementById('chat');
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
-    
-    for(var i = 0; i < comm.channels.length; i++) {
-      comm.channels[i].dom = comm.dom.querySelector('#chat' + comm.channels[i].name);
+
+    comm.channels['all'] = new comm.Channel('all');
+    comm.channels['faction'] = new comm.Channel('faction');
+    comm.channels['alerts'] = new comm.Channel('alerts');
+
+    for(var channel in comm.channels) {
+      comm.channels[channel].dom = comm.dom.querySelector('#chat' + comm.channels[channel].name);
       
-      if(comm.channels[i].dom) {
+      if(comm.channels[channel].dom) {
         var dom = document.createElement('div');
         dom.className = 'status';
-        comm.channels[i].dom.insertBefore(dom, comm.channels[i].dom.firstChildElement);
+        comm.channels[channel].dom.insertBefore(dom, comm.channels[channel].dom.firstChildElement);
       }
     }
   }
