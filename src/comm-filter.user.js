@@ -1,12 +1,12 @@
 // ==UserScript==
-// @id             iitc-plugin-log-filter@udnp
-// @name           IITC plugin: Log Filter
-// @category       Log
+// @id             iitc-plugin-comm-filter@udnp
+// @name           IITC plugin: COMM Filter
+// @category       COMM
 // @version        0.0.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Log Filter
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
