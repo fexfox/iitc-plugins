@@ -23,7 +23,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.logfilter = (function() {
+window.plugin.commfilter = (function() {
   var ID = 'PLUGIN_LOG_FILTER',
       DESCRIPTIONS = "log filter plug-in",
       dom = null,
@@ -67,7 +67,7 @@ window.plugin.logfilter = (function() {
           dom.defaultValue = '';
           dom.placeholder = 'agent name';
           dom.addEventListener('keyup', function() {
-            if(this.isChanged()) window.plugin.logfilter.renderLogs(window.chat.getActive());
+            if(this.isChanged()) window.plugin.commfilter.renderLogs(window.chat.getActive());
           }.bind(this));
           
           this.dom = dom;
@@ -167,7 +167,7 @@ window.plugin.logfilter = (function() {
       if(agentDom) {
         agentDom.addEventListener('click', function(){
           input.dom.value = this.textContent;
-          window.plugin.logfilter.renderLogs(window.chat.getActive());
+          window.plugin.commfilter.renderLogs(window.chat.getActive());
         });
       }
     }
@@ -230,7 +230,7 @@ window.plugin.logfilter = (function() {
   
   function clear() {
     input.dom.value = input.dom.defaultValue;
-    window.plugin.logfilter.renderLogs(window.chat.getActive());
+    window.plugin.commfilter.renderLogs(window.chat.getActive());
     
     document.getElementById('chattext').value = '';
   }
@@ -277,7 +277,7 @@ var setup = (function(plugin) {
       .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
       .appendTo("head");
   };
-}(window.plugin.logfilter));
+}(window.plugin.commfilter));
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

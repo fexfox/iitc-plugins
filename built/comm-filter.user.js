@@ -2,11 +2,11 @@
 // @id             iitc-plugin-comm-filter@udnp
 // @name           IITC plugin: COMM Filter
 // @category       COMM
-// @version        0.0.1.20160305.153703
+// @version        0.0.1.20160305.154604
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-05-153703] COMM Filter
+// @description    [local-2016-03-05-154604] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160305.153703';
+plugin_info.dateTimeVersion = '20160305.154604';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -35,7 +35,7 @@ plugin_info.pluginId = 'comm-filter';
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.logfilter = (function() {
+window.plugin.commfilter = (function() {
   var ID = 'PLUGIN_LOG_FILTER',
       DESCRIPTIONS = "log filter plug-in",
       dom = null,
@@ -79,7 +79,7 @@ window.plugin.logfilter = (function() {
           dom.defaultValue = '';
           dom.placeholder = 'agent name';
           dom.addEventListener('keyup', function() {
-            if(this.isChanged()) window.plugin.logfilter.renderLogs(window.chat.getActive());
+            if(this.isChanged()) window.plugin.commfilter.renderLogs(window.chat.getActive());
           }.bind(this));
           
           this.dom = dom;
@@ -179,7 +179,7 @@ window.plugin.logfilter = (function() {
       if(agentDom) {
         agentDom.addEventListener('click', function(){
           input.dom.value = this.textContent;
-          window.plugin.logfilter.renderLogs(window.chat.getActive());
+          window.plugin.commfilter.renderLogs(window.chat.getActive());
         });
       }
     }
@@ -242,7 +242,7 @@ window.plugin.logfilter = (function() {
   
   function clear() {
     input.dom.value = input.dom.defaultValue;
-    window.plugin.logfilter.renderLogs(window.chat.getActive());
+    window.plugin.commfilter.renderLogs(window.chat.getActive());
     
     document.getElementById('chattext').value = '';
   }
@@ -289,7 +289,7 @@ var setup = (function(plugin) {
       .html("#PLUGIN_LOG_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#PLUGIN_LOG_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n")
       .appendTo("head");
   };
-}(window.plugin.logfilter));
+}(window.plugin.commfilter));
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
