@@ -61,14 +61,15 @@ window.plugin.logfilter = (function() {
         oldValue: null,
         dom: null,
         create: function() {
-          this.dom = document.createElement('input');
-          this.dom.type = 'text';
-          this.dom.name = 'agent';
-          this.dom.placeholder = 'agent name';
-          this.dom.addEventListener('keyup', function() {
+          var dom = document.createElement('input');
+          dom.type = 'text';
+          dom.name = 'agent';
+          dom.placeholder = 'agent name';
+          dom.addEventListener('keyup', function() {
             if(this.isChanged()) window.plugin.logfilter.renderLogs(window.chat.getActive());
           }.bind(this));
           
+          this.dom = dom;
           return this;
         },
         isChanged: function(){
