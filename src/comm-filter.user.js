@@ -29,29 +29,29 @@ window.plugin.commfilter = (function() {
       dom = null,
       comm = {
         dom: null,
-        logs: [
+        channels: [
           {
-            channel: 'all',
+            name: 'all',
             dom: null,
             log: {},
             status: {}
           },
           {
-            channel: 'faction',
+            name: 'faction',
             dom: null,
             log: {},
             status: {}
           },
           {
-            channel: 'alerts',
+            name: 'alerts',
             dom: null,
             log: {},
             status: {}
           }
         ],
         getLogByChannel: function(channel) {
-          for(var i = 0; i < this.logs.length; i++) {
-            if(this.logs[i].channel === channel) return this.logs[i];
+          for(var i = 0; i < this.channels.length; i++) {
+            if(this.channels[i].name === channel) return this.channels[i];
           }
           
           return null;
@@ -253,11 +253,11 @@ window.plugin.commfilter = (function() {
     comm.dom = document.getElementById('chat');
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
     
-    for(var i = 0; i < comm.logs.length; i++) {
-      comm.logs[i].dom = comm.dom.querySelector('#chat' + comm.logs[i].channel);
-      comm.logs[i].status.dom = document.createElement('div');
-      comm.logs[i].status.dom.className = 'status';
-      comm.logs[i].dom.insertBefore(comm.logs[i].status.dom, comm.logs[i].dom.firstChildElement);
+    for(var i = 0; i < comm.channels.length; i++) {
+      comm.channels[i].dom = comm.dom.querySelector('#chat' + comm.channels[i].name);
+      comm.channels[i].status.dom = document.createElement('div');
+      comm.channels[i].status.dom.className = 'status';
+      comm.channels[i].dom.insertBefore(comm.channels[i].status.dom, comm.channels[i].dom.firstChildElement);
     }
   }
 
