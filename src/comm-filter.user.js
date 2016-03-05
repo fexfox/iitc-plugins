@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160305.143248
+// @version        0.0.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      none
-// @downloadURL    none
-// @description    [local-2016-03-05-143248] Log Filter
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -18,19 +18,7 @@
 // @grant          none
 // ==/UserScript==
 
-
-function wrapper(plugin_info) {
-// ensure plugin framework is there, even if iitc is not yet loaded
-if(typeof window.plugin !== 'function') window.plugin = function() {};
-
-//PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
-//(leaving them in place might break the 'About IITC' page or break update checks)
-plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160305.143248';
-plugin_info.pluginId = 'log-filter';
-//END PLUGIN AUTHORS NOTE
-
-
+@@PLUGINSTART@@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
@@ -286,25 +274,11 @@ var setup = (function(plugin) {
       
     $("<style>")
       .prop("type", "text/css")
-      .html("#PLUGIN_LOG_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#PLUGIN_LOG_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n")
+      .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
       .appendTo("head");
   };
 }(window.plugin.logfilter));
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
-
-setup.info = plugin_info; //add the script info data to the function as a property
-if(!window.bootPlugins) window.bootPlugins = [];
-window.bootPlugins.push(setup);
-// if IITC has already booted, immediately run the 'setup' function
-if(window.iitcLoaded && typeof setup === 'function') setup();
-} // wrapper end
-// inject code into site context
-var script = document.createElement('script');
-var info = {};
-if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
-script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
-(document.body || document.head || document.documentElement).appendChild(script);
-
-
+@@PLUGINEND@@
