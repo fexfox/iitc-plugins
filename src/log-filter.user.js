@@ -78,6 +78,17 @@ window.plugin.logfilter = (function() {
           }
           else return false;
         }
+      },
+      reset = {
+        dom: null,
+        create: function() {
+          var dom = document.createElement('button');
+          dom.type = 'reset';
+          dom.textContent = 'X';
+          
+          this.dom = dom;
+          return this;
+        }
       };
   
   //// copied from original code/chat.js @ rev.5298c98
@@ -217,6 +228,9 @@ window.plugin.logfilter = (function() {
 
     input.create();
     dom.appendChild(input.dom);
+    
+    reset.create();
+    dom.appendChild(reset.dom);
     
     logView.dom = document.getElementById('chat');
     logView.dom.insertBefore(dom, logView.dom.firstElementChild);
