@@ -60,6 +60,17 @@ window.plugin.logfilter = (function() {
       input = {
         oldValue: null,
         dom: null,
+        create: function() {
+          this.dom = document.createElement('input');
+          this.dom.type = 'text';
+          this.dom.name = 'agent';
+          this.dom.placeholder = 'agent name';
+          this.dom.addEventListener('keyup', function() {
+            if(this.isChanged()) window.plugin.logfilter.renderLogs(window.chat.getActive());
+          }.bind(this));
+          
+          return this;
+        },
         isChanged: function(){
           if(this.dom && this.dom.value !== this.oldValue){
             this.oldValue = this.dom.value; 
@@ -196,18 +207,6 @@ window.plugin.logfilter = (function() {
     }
   }
 
-  function createInput() {
-    input.dom = document.createElement('input');
-    input.dom.type = 'text';
-    input.dom.name = 'agent';
-    input.dom.placeholder = 'agent name';
-    input.dom.addEventListener('keyup', function() {
-      if(input.isChanged()) renderLogs(window.chat.getActive());
-    });
-    
-    return input;
-  }
-
   function setup() {
     // override original function following:
     window.chat.renderData = renderData;
@@ -216,7 +215,7 @@ window.plugin.logfilter = (function() {
     dom = document.createElement('form');
     dom.id = ID;
 
-    createInput();
+    input.create();
     dom.appendChild(input.dom);
     
     logView.dom = document.getElementById('chat');
@@ -231,6 +230,7 @@ window.plugin.logfilter = (function() {
   }
 
   return {
+    renderLogs: renderLogs,
     setup: setup
   };
 

@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160304.124240
+// @version        0.0.1.20160305.63255
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-04-124240] Log Filter
+// @description    [local-2016-03-05-063255] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160304.124240';
+plugin_info.dateTimeVersion = '20160305.63255';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -72,6 +72,17 @@ window.plugin.logfilter = (function() {
       input = {
         oldValue: null,
         dom: null,
+        create: function() {
+          this.dom = document.createElement('input');
+          this.dom.type = 'text';
+          this.dom.name = 'agent';
+          this.dom.placeholder = 'agent name';
+          this.dom.addEventListener('keyup', function() {
+            if(this.isChanged()) window.plugin.logfilter.renderLogs(window.chat.getActive());
+          }.bind(this));
+          
+          return this;
+        },
         isChanged: function(){
           if(this.dom && this.dom.value !== this.oldValue){
             this.oldValue = this.dom.value; 
@@ -208,18 +219,6 @@ window.plugin.logfilter = (function() {
     }
   }
 
-  function createInput() {
-    input.dom = document.createElement('input');
-    input.dom.type = 'text';
-    input.dom.name = 'agent';
-    input.dom.placeholder = 'agent name';
-    input.dom.addEventListener('keyup', function() {
-      if(input.isChanged()) renderLogs(window.chat.getActive());
-    });
-    
-    return input;
-  }
-
   function setup() {
     // override original function following:
     window.chat.renderData = renderData;
@@ -228,7 +227,7 @@ window.plugin.logfilter = (function() {
     dom = document.createElement('form');
     dom.id = ID;
 
-    createInput();
+    input.create();
     dom.appendChild(input.dom);
     
     logView.dom = document.getElementById('chat');
@@ -243,6 +242,7 @@ window.plugin.logfilter = (function() {
   }
 
   return {
+    renderLogs: renderLogs,
     setup: setup
   };
 
