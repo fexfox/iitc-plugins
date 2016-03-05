@@ -2,11 +2,11 @@
 // @id             iitc-plugin-log-filter@udnp
 // @name           IITC plugin: Log Filter
 // @category       Log
-// @version        0.0.1.20160304.3505
+// @version        0.0.1.20160304.124240
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-04-003505] Log Filter
+// @description    [local-2016-03-04-124240] Log Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160304.3505';
+plugin_info.dateTimeVersion = '20160304.124240';
 plugin_info.pluginId = 'log-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -70,7 +70,15 @@ window.plugin.logfilter = (function() {
         }
       },
       input = {
-        dom: null
+        oldValue: null,
+        dom: null,
+        isChanged: function(){
+          if(this.dom && this.dom.value !== this.oldValue){
+            this.oldValue = this.dom.value; 
+            return true;
+          }
+          else return false;
+        }
       };
   
   //// copied from original code/chat.js @ rev.5298c98
@@ -206,7 +214,7 @@ window.plugin.logfilter = (function() {
     input.dom.name = 'agent';
     input.dom.placeholder = 'agent name';
     input.dom.addEventListener('keyup', function() {
-      renderLogs(window.chat.getActive());
+      if(input.isChanged()) renderLogs(window.chat.getActive());
     });
     
     return input;

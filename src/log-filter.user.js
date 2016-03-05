@@ -58,7 +58,15 @@ window.plugin.logfilter = (function() {
         }
       },
       input = {
-        dom: null
+        oldValue: null,
+        dom: null,
+        isChanged: function(){
+          if(this.dom && this.dom.value !== this.oldValue){
+            this.oldValue = this.dom.value; 
+            return true;
+          }
+          else return false;
+        }
       };
   
   //// copied from original code/chat.js @ rev.5298c98
@@ -194,7 +202,7 @@ window.plugin.logfilter = (function() {
     input.dom.name = 'agent';
     input.dom.placeholder = 'agent name';
     input.dom.addEventListener('keyup', function() {
-      renderLogs(window.chat.getActive());
+      if(input.isChanged()) renderLogs(window.chat.getActive());
     });
     
     return input;
