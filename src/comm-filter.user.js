@@ -27,7 +27,7 @@ window.plugin.commfilter = (function() {
   var ID = 'PLUGIN_LOG_FILTER',
       DESCRIPTIONS = "log filter plug-in",
       dom = null,
-      logView = {
+      comm = {
         dom: null,
         logs: [
           {
@@ -203,21 +203,21 @@ window.plugin.commfilter = (function() {
   function renderLogs(channel) {
     switch(channel) {
       case 'all':
-        var logs = logView.getLogByChannel('all');
+        var logs = comm.getLogByChannel('all');
         if(logs.dom && logs.dom.querySelector('table')) {
           window.chat.renderPublic(false);
         }
         break;
         
       case 'faction':
-        var logs = logView.getLogByChannel('faction');
+        var logs = comm.getLogByChannel('faction');
         if(logs.dom && logs.dom.querySelector('table')) {
           window.chat.renderFaction(false);
         }
         break;
         
       case 'alerts':
-        var logs = logView.getLogByChannel('alerts');
+        var logs = comm.getLogByChannel('alerts');
         if(logs.dom && logs.dom.querySelector('table')) {
           window.chat.renderAlerts(false);
         }
@@ -250,14 +250,14 @@ window.plugin.commfilter = (function() {
     reset.create();
     dom.appendChild(reset.dom);
     
-    logView.dom = document.getElementById('chat');
-    logView.dom.insertBefore(dom, logView.dom.firstElementChild);
+    comm.dom = document.getElementById('chat');
+    comm.dom.insertBefore(dom, comm.dom.firstElementChild);
     
-    for(var i = 0; i < logView.logs.length; i++) {
-      logView.logs[i].dom = logView.dom.querySelector('#chat' + logView.logs[i].channel);
-      logView.logs[i].status.dom = document.createElement('div');
-      logView.logs[i].status.dom.className = 'status';
-      logView.logs[i].dom.insertBefore(logView.logs[i].status.dom, logView.logs[i].dom.firstChildElement);
+    for(var i = 0; i < comm.logs.length; i++) {
+      comm.logs[i].dom = comm.dom.querySelector('#chat' + comm.logs[i].channel);
+      comm.logs[i].status.dom = document.createElement('div');
+      comm.logs[i].status.dom.className = 'status';
+      comm.logs[i].dom.insertBefore(comm.logs[i].status.dom, comm.logs[i].dom.firstChildElement);
     }
   }
 

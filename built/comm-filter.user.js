@@ -2,11 +2,11 @@
 // @id             iitc-plugin-comm-filter@udnp
 // @name           IITC plugin: COMM Filter
 // @category       COMM
-// @version        0.0.1.20160305.154604
+// @version        0.0.1.20160305.155300
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-05-154604] COMM Filter
+// @description    [local-2016-03-05-155300] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160305.154604';
+plugin_info.dateTimeVersion = '20160305.155300';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -39,7 +39,7 @@ window.plugin.commfilter = (function() {
   var ID = 'PLUGIN_LOG_FILTER',
       DESCRIPTIONS = "log filter plug-in",
       dom = null,
-      logView = {
+      comm = {
         dom: null,
         logs: [
           {
@@ -215,21 +215,21 @@ window.plugin.commfilter = (function() {
   function renderLogs(channel) {
     switch(channel) {
       case 'all':
-        var logs = logView.getLogByChannel('all');
+        var logs = comm.getLogByChannel('all');
         if(logs.dom && logs.dom.querySelector('table')) {
           window.chat.renderPublic(false);
         }
         break;
         
       case 'faction':
-        var logs = logView.getLogByChannel('faction');
+        var logs = comm.getLogByChannel('faction');
         if(logs.dom && logs.dom.querySelector('table')) {
           window.chat.renderFaction(false);
         }
         break;
         
       case 'alerts':
-        var logs = logView.getLogByChannel('alerts');
+        var logs = comm.getLogByChannel('alerts');
         if(logs.dom && logs.dom.querySelector('table')) {
           window.chat.renderAlerts(false);
         }
@@ -262,14 +262,14 @@ window.plugin.commfilter = (function() {
     reset.create();
     dom.appendChild(reset.dom);
     
-    logView.dom = document.getElementById('chat');
-    logView.dom.insertBefore(dom, logView.dom.firstElementChild);
+    comm.dom = document.getElementById('chat');
+    comm.dom.insertBefore(dom, comm.dom.firstElementChild);
     
-    for(var i = 0; i < logView.logs.length; i++) {
-      logView.logs[i].dom = logView.dom.querySelector('#chat' + logView.logs[i].channel);
-      logView.logs[i].status.dom = document.createElement('div');
-      logView.logs[i].status.dom.className = 'status';
-      logView.logs[i].dom.insertBefore(logView.logs[i].status.dom, logView.logs[i].dom.firstChildElement);
+    for(var i = 0; i < comm.logs.length; i++) {
+      comm.logs[i].dom = comm.dom.querySelector('#chat' + comm.logs[i].channel);
+      comm.logs[i].status.dom = document.createElement('div');
+      comm.logs[i].status.dom.className = 'status';
+      comm.logs[i].dom.insertBefore(comm.logs[i].status.dom, comm.logs[i].dom.firstChildElement);
     }
   }
 
