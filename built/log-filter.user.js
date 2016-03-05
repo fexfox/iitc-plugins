@@ -76,6 +76,7 @@ window.plugin.logfilter = (function() {
           var dom = document.createElement('input');
           dom.type = 'text';
           dom.name = 'agent';
+          dom.defaultValue = '';
           dom.placeholder = 'agent name';
           dom.addEventListener('keyup', function() {
             if(this.isChanged()) window.plugin.logfilter.renderLogs(window.chat.getActive());
@@ -239,6 +240,7 @@ window.plugin.logfilter = (function() {
     dom = document.createElement('form');
     dom.id = ID;
     dom.addEventListener('reset', function() {
+      input.dom.value = input.dom.defaultValue;
       window.plugin.logfilter.renderLogs(window.chat.getActive());
     });
 
