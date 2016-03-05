@@ -162,6 +162,14 @@ window.plugin.logfilter = (function() {
     for(var i = 0; i < rowDoms.length; i++) {
       filterLogWithInput(rowDoms[i]);
       dF.appendChild(rowDoms[i]);
+      
+      var agentDom = rowDoms[i].querySelector('.nickname');
+      if(agentDom) {
+        agentDom.addEventListener('click', function(){
+          input.dom.value = this.textContent;
+          window.plugin.logfilter.renderLogs(window.chat.getActive());
+        });
+      }
     }
     
     var oldTableDom = document.querySelector('#chat' + window.chat.getActive() + ' table'); 
