@@ -2,11 +2,11 @@
 // @id             iitc-plugin-comm-filter@udnp
 // @name           IITC plugin: COMM Filter
 // @category       COMM
-// @version        0.0.1.20160305.170420
+// @version        0.0.1.20160305.184049
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-05-170420] COMM Filter
+// @description    [local-2016-03-05-184049] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160305.170420';
+plugin_info.dateTimeVersion = '20160305.184049';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -44,21 +44,15 @@ window.plugin.commfilter = (function() {
         channels: [
           {
             name: 'all',
-            dom: null,
-            log: {},
-            status: {}
+            dom: null
           },
           {
             name: 'faction',
-            dom: null,
-            log: {},
-            status: {}
+            dom: null
           },
           {
             name: 'alerts',
-            dom: null,
-            log: {},
-            status: {}
+            dom: null
           }
         ],
         getLogByChannel: function(channel) {
@@ -267,9 +261,12 @@ window.plugin.commfilter = (function() {
     
     for(var i = 0; i < comm.channels.length; i++) {
       comm.channels[i].dom = comm.dom.querySelector('#chat' + comm.channels[i].name);
-      comm.channels[i].status.dom = document.createElement('div');
-      comm.channels[i].status.dom.className = 'status';
-      comm.channels[i].dom.insertBefore(comm.channels[i].status.dom, comm.channels[i].dom.firstChildElement);
+      
+      if(comm.channels[i].dom) {
+        var dom = document.createElement('div');
+        dom.className = 'status';
+        comm.channels[i].dom.insertBefore(dom, comm.channels[i].dom.firstChildElement);
+      }
     }
   }
 

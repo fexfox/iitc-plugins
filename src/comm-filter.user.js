@@ -32,21 +32,15 @@ window.plugin.commfilter = (function() {
         channels: [
           {
             name: 'all',
-            dom: null,
-            log: {},
-            status: {}
+            dom: null
           },
           {
             name: 'faction',
-            dom: null,
-            log: {},
-            status: {}
+            dom: null
           },
           {
             name: 'alerts',
-            dom: null,
-            log: {},
-            status: {}
+            dom: null
           }
         ],
         getLogByChannel: function(channel) {
@@ -255,9 +249,12 @@ window.plugin.commfilter = (function() {
     
     for(var i = 0; i < comm.channels.length; i++) {
       comm.channels[i].dom = comm.dom.querySelector('#chat' + comm.channels[i].name);
-      comm.channels[i].status.dom = document.createElement('div');
-      comm.channels[i].status.dom.className = 'status';
-      comm.channels[i].dom.insertBefore(comm.channels[i].status.dom, comm.channels[i].dom.firstChildElement);
+      
+      if(comm.channels[i].dom) {
+        var dom = document.createElement('div');
+        dom.className = 'status';
+        comm.channels[i].dom.insertBefore(dom, comm.channels[i].dom.firstChildElement);
+      }
     }
   }
 
