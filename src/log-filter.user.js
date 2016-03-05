@@ -225,6 +225,9 @@ window.plugin.logfilter = (function() {
     
     dom = document.createElement('form');
     dom.id = ID;
+    dom.addEventListener('reset', function() {
+      window.plugin.logfilter.renderLogs(window.chat.getActive());
+    });
 
     input.create();
     dom.appendChild(input.dom);
