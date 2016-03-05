@@ -227,6 +227,11 @@ window.plugin.logfilter = (function() {
         break;
     }
   }
+  
+  function clear() {
+    input.dom.value = input.dom.defaultValue;
+    window.plugin.logfilter.renderLogs(window.chat.getActive());
+  }
 
   function setup() {
     // override original function following:
@@ -235,10 +240,7 @@ window.plugin.logfilter = (function() {
     
     dom = document.createElement('form');
     dom.id = ID;
-    dom.addEventListener('reset', function() {
-      input.dom.value = input.dom.defaultValue;
-      window.plugin.logfilter.renderLogs(window.chat.getActive());
-    });
+    dom.addEventListener('reset', clear);
 
     input.create();
     dom.appendChild(input.dom);
