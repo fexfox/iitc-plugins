@@ -2,11 +2,11 @@
 // @id             iitc-plugin-comm-filter@udnp
 // @name           IITC plugin: COMM Filter
 // @category       COMM
-// @version        0.0.1.20160306.53049
+// @version        0.0.1.20160306.85205
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-06-053049] COMM Filter
+// @description    [local-2016-03-06-085205] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160306.53049';
+plugin_info.dateTimeVersion = '20160306.85205';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -73,12 +73,23 @@ window.plugin.commfilter = (function() {
           
           comm.dom = dom;
           
+          document.getElementById('chatcontrols').addEventListener('click', function() {
+            if(comm.checkChannelTab(event.target)) {
+              var channel = window.chat.getActive();
+              if(comm.channels[channel].hasLogs()) window.plugin.commfilter.renderLogs(channel);
+            }
+          });
+          
           return comm;
         },
         insertStatusViewTo: function(channelDom) {
           var dom = document.createElement('div');
           dom.className = 'status';
           channelDom.insertBefore(dom, channelDom.firstChildElement);
+        },
+        checkChannelTab: function(tab) {
+          if(tab.tagName.toLowerCase() === 'a' && tab.childElementCount === 0) return true;
+          else return false;
         }
       },
       input = {

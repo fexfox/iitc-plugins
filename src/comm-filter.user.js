@@ -61,12 +61,23 @@ window.plugin.commfilter = (function() {
           
           comm.dom = dom;
           
+          document.getElementById('chatcontrols').addEventListener('click', function() {
+            if(comm.checkChannelTab(event.target)) {
+              var channel = window.chat.getActive();
+              if(comm.channels[channel].hasLogs()) window.plugin.commfilter.renderLogs(channel);
+            }
+          });
+          
           return comm;
         },
         insertStatusViewTo: function(channelDom) {
           var dom = document.createElement('div');
           dom.className = 'status';
           channelDom.insertBefore(dom, channelDom.firstChildElement);
+        },
+        checkChannelTab: function(tab) {
+          if(tab.tagName.toLowerCase() === 'a' && tab.childElementCount === 0) return true;
+          else return false;
         }
       },
       input = {
