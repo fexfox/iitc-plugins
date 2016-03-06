@@ -24,8 +24,8 @@
 
 // use own namespace for plugin
 window.plugin.commfilter = (function() {
-  var ID = 'PLUGIN_LOG_FILTER',
-      DESCRIPTIONS = "log filter plug-in",
+  var ID = 'PLUGIN_COMM_FILTER',
+      DESCRIPTIONS = "COMM Filter plug-in",
       dom = null,
       comm = { //TODO change this to singleton
         dom: null,
