@@ -64,7 +64,7 @@ window.plugin.commfilter = (function() {
           document.getElementById('chatcontrols').addEventListener('click', function() {
             if(comm.checkChannelTab(event.target)) {
               var channel = window.chat.getActive();
-              if(comm.channels[channel].hasLogs()) window.plugin.commfilter.renderLogs(channel);
+              if(comm.channels[channel].hasLogs()) renderLogs(channel);
             }
           });
           
@@ -93,7 +93,7 @@ window.plugin.commfilter = (function() {
             var channel = window.chat.getActive();
             
             if(this.isChanged() && comm.channels[channel].hasLogs()) {
-              window.plugin.commfilter.renderLogs(channel);
+              renderLogs(channel);
             }
           }.bind(this));
           
@@ -197,7 +197,7 @@ window.plugin.commfilter = (function() {
           
           if(comm.channels[channel].hasLogs()) {
             input.dom.value = this.textContent;
-            window.plugin.commfilter.renderLogs(channel);
+            renderLogs(channel);
           }
         });
       }
@@ -256,7 +256,7 @@ window.plugin.commfilter = (function() {
     
     var channel = window.chat.getActive();
     
-    if(comm.channels[channel].hasLogs()) window.plugin.commfilter.renderLogs(channel);
+    if(comm.channels[channel].hasLogs()) renderLogs(channel);
     
     document.getElementById('chattext').value = '';
   }
@@ -282,7 +282,6 @@ window.plugin.commfilter = (function() {
   }
 
   return {
-    renderLogs: renderLogs,
     setup: setup
   };
 
