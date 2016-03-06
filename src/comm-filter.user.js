@@ -27,13 +27,13 @@ window.plugin.commfilter = (function() {
   var ID = 'PLUGIN_LOG_FILTER',
       DESCRIPTIONS = "log filter plug-in",
       dom = null,
-      comm = {
+      comm = { //TODO change this to singleton
         dom: null,
         channels: {}, // all, faction, alerts
         Channel: function(name) {
           return {
             name: name,
-            dom: null, //TODO comm.dom.querySelector('#chat' + name)
+            dom: null,
             hasLogs: function() {
               if(this.dom && this.dom.querySelector('table')) {
                 return true;
@@ -42,6 +42,31 @@ window.plugin.commfilter = (function() {
               }
             }
           };
+        },
+        create: function() {
+          var dom = document.getElementById('chat');
+          if(!dom) return null;
+          
+          var channels = [new comm.Channel('all'), new comm.Channel('faction'), new comm.Channel('alerts')];
+          
+          for(var i = 0; i < channels.length; i++) {
+            channels[i].dom = dom.querySelector('#chat' + channels[i].name);
+            
+            if(channels[i].dom) {
+              comm.insertStatusViewTo(channels[i].dom);
+            }
+            
+            comm.channels[channels[i].name] = channels[i];
+          }
+          
+          comm.dom = dom;
+          
+          return comm;
+        },
+        insertStatusViewTo: function(channelDom) {
+          var dom = document.createElement('div');
+          dom.className = 'status';
+          channelDom.insertBefore(dom, channelDom.firstChildElement);
         }
       },
       input = {
@@ -226,6 +251,8 @@ window.plugin.commfilter = (function() {
   }
 
   function setup() {
+    if(!comm.create()) return;
+        
     // override original function following:
     window.chat.renderData = renderData;
     window.chat.keepScrollPosition = keepScrollPosition;
@@ -240,22 +267,7 @@ window.plugin.commfilter = (function() {
     reset.create();
     dom.appendChild(reset.dom);
     
-    comm.dom = document.getElementById('chat');
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
-
-    comm.channels['all'] = new comm.Channel('all');
-    comm.channels['faction'] = new comm.Channel('faction');
-    comm.channels['alerts'] = new comm.Channel('alerts');
-
-    for(var channel in comm.channels) {
-      comm.channels[channel].dom = comm.dom.querySelector('#chat' + comm.channels[channel].name);
-      
-      if(comm.channels[channel].dom) {
-        var dom = document.createElement('div');
-        dom.className = 'status';
-        comm.channels[channel].dom.insertBefore(dom, comm.channels[channel].dom.firstChildElement);
-      }
-    }
   }
 
   return {
