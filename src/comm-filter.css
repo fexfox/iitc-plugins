@@ -1,9 +1,9 @@
-#PLUGIN_LOG_FILTER>input {
+#PLUGIN_COMM_FILTER>input {
   width: 30%;
   height: 24px;
 }
 
-#PLUGIN_LOG_FILTER>button {
+#PLUGIN_COMM_FILTER>button {
   padding: 2px;
   min-width: 40px;
   color: #FFCE00;

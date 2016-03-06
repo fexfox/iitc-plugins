@@ -1,12 +1,12 @@
 // ==UserScript==
-// @id             iitc-plugin-log-filter@udnp
-// @name           IITC plugin: Log Filter
-// @category       Log
-// @version        0.0.1.@@DATETIMEVERSION@@
+// @id             iitc-plugin-comm-filter@udnp
+// @name           IITC plugin: COMM Filter
+// @category       COMM
+// @version        0.0.1.20160306.90651
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      @@UPDATEURL@@
-// @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Log Filter
+// @updateURL      none
+// @downloadURL    none
+// @description    [local-2016-03-06-090651] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -18,43 +18,78 @@
 // @grant          none
 // ==/UserScript==
 
-@@PLUGINSTART@@
+
+function wrapper(plugin_info) {
+// ensure plugin framework is there, even if iitc is not yet loaded
+if(typeof window.plugin !== 'function') window.plugin = function() {};
+
+//PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
+//(leaving them in place might break the 'About IITC' page or break update checks)
+plugin_info.buildName = 'local';
+plugin_info.dateTimeVersion = '20160306.90651';
+plugin_info.pluginId = 'comm-filter';
+//END PLUGIN AUTHORS NOTE
+
+
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.logfilter = (function() {
-  var ID = 'PLUGIN_LOG_FILTER',
-      DESCRIPTIONS = "log filter plug-in",
+window.plugin.commfilter = (function() {
+  var ID = 'PLUGIN_COMM_FILTER',
+      DESCRIPTIONS = "COMM Filter plug-in",
       dom = null,
-      logView = {
+      comm = { //TODO change this to singleton
         dom: null,
-        logs: [
-          {
-            channel: 'all',
+        channels: {}, // all, faction, alerts
+        Channel: function(name) {
+          return {
+            name: name,
             dom: null,
-            log: {},
-            status: {}
-          },
-          {
-            channel: 'faction',
-            dom: null,
-            log: {},
-            status: {}
-          },
-          {
-            channel: 'alerts',
-            dom: null,
-            log: {},
-            status: {}
-          }
-        ],
-        getLogByChannel: function(channel) {
-          for(var i = 0; i < this.logs.length; i++) {
-            if(this.logs[i].channel === channel) return this.logs[i];
+            hasLogs: function() {
+              if(this.dom && this.dom.querySelector('table')) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          };
+        },
+        create: function() {
+          var dom = document.getElementById('chat');
+          if(!dom) return null;
+          
+          var channels = [new comm.Channel('all'), new comm.Channel('faction'), new comm.Channel('alerts')];
+          
+          for(var i = 0; i < channels.length; i++) {
+            channels[i].dom = dom.querySelector('#chat' + channels[i].name);
+            
+            if(channels[i].dom) {
+              comm.insertStatusViewTo(channels[i].dom);
+            }
+            
+            comm.channels[channels[i].name] = channels[i];
           }
           
-          return null;
+          comm.dom = dom;
+          
+          document.getElementById('chatcontrols').addEventListener('click', function() {
+            if(comm.checkChannelTab(event.target)) {
+              var channel = window.chat.getActive();
+              if(comm.channels[channel].hasLogs()) renderLogs(channel);
+            }
+          });
+          
+          return comm;
+        },
+        insertStatusViewTo: function(channelDom) {
+          var dom = document.createElement('div');
+          dom.className = 'status';
+          channelDom.insertBefore(dom, channelDom.firstChildElement);
+        },
+        checkChannelTab: function(tab) {
+          if(tab.tagName.toLowerCase() === 'a' && tab.childElementCount === 0) return true;
+          else return false;
         }
       },
       input = {
@@ -67,7 +102,11 @@ window.plugin.logfilter = (function() {
           dom.defaultValue = '';
           dom.placeholder = 'agent name';
           dom.addEventListener('keyup', function() {
-            if(this.isChanged()) window.plugin.logfilter.renderLogs(window.chat.getActive());
+            var channel = window.chat.getActive();
+            
+            if(this.isChanged() && comm.channels[channel].hasLogs()) {
+              renderLogs(channel);
+            }
           }.bind(this));
           
           this.dom = dom;
@@ -166,8 +205,12 @@ window.plugin.logfilter = (function() {
       var agentDom = rowDoms[i].querySelector('.nickname');
       if(agentDom) {
         agentDom.addEventListener('click', function(){
-          input.dom.value = this.textContent;
-          window.plugin.logfilter.renderLogs(window.chat.getActive());
+          var channel = window.chat.getActive();
+          
+          if(comm.channels[channel].hasLogs()) {
+            input.dom.value = this.textContent;
+            renderLogs(channel);
+          }
         });
       }
     }
@@ -203,24 +246,15 @@ window.plugin.logfilter = (function() {
   function renderLogs(channel) {
     switch(channel) {
       case 'all':
-        var logs = logView.getLogByChannel('all');
-        if(logs.dom && logs.dom.querySelector('table')) {
-          window.chat.renderPublic(false);
-        }
+        window.chat.renderPublic(false);
         break;
         
       case 'faction':
-        var logs = logView.getLogByChannel('faction');
-        if(logs.dom && logs.dom.querySelector('table')) {
-          window.chat.renderFaction(false);
-        }
+        window.chat.renderFaction(false);
         break;
         
       case 'alerts':
-        var logs = logView.getLogByChannel('alerts');
-        if(logs.dom && logs.dom.querySelector('table')) {
-          window.chat.renderAlerts(false);
-        }
+        window.chat.renderAlerts(false);
         break;
         
       default:
@@ -230,12 +264,18 @@ window.plugin.logfilter = (function() {
   
   function clear() {
     input.dom.value = input.dom.defaultValue;
-    window.plugin.logfilter.renderLogs(window.chat.getActive());
+    input.oldValue = input.dom.value;
+    
+    var channel = window.chat.getActive();
+    
+    if(comm.channels[channel].hasLogs()) renderLogs(channel);
     
     document.getElementById('chattext').value = '';
   }
 
   function setup() {
+    if(!comm.create()) return;
+        
     // override original function following:
     window.chat.renderData = renderData;
     window.chat.keepScrollPosition = keepScrollPosition;
@@ -250,19 +290,10 @@ window.plugin.logfilter = (function() {
     reset.create();
     dom.appendChild(reset.dom);
     
-    logView.dom = document.getElementById('chat');
-    logView.dom.insertBefore(dom, logView.dom.firstElementChild);
-    
-    for(var i = 0; i < logView.logs.length; i++) {
-      logView.logs[i].dom = logView.dom.querySelector('#chat' + logView.logs[i].channel);
-      logView.logs[i].status.dom = document.createElement('div');
-      logView.logs[i].status.dom.className = 'status';
-      logView.logs[i].dom.insertBefore(logView.logs[i].status.dom, logView.logs[i].dom.firstChildElement);
-    }
+    comm.dom.insertBefore(dom, comm.dom.firstElementChild);
   }
 
   return {
-    renderLogs: renderLogs,
     setup: setup
   };
 
@@ -274,11 +305,25 @@ var setup = (function(plugin) {
       
     $("<style>")
       .prop("type", "text/css")
-      .html("@@INCLUDESTRING:plugins/log-filter.css@@")
+      .html("#PLUGIN_COMM_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n")
       .appendTo("head");
   };
-}(window.plugin.logfilter));
+}(window.plugin.commfilter));
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
-@@PLUGINEND@@
+
+setup.info = plugin_info; //add the script info data to the function as a property
+if(!window.bootPlugins) window.bootPlugins = [];
+window.bootPlugins.push(setup);
+// if IITC has already booted, immediately run the 'setup' function
+if(window.iitcLoaded && typeof setup === 'function') setup();
+} // wrapper end
+// inject code into site context
+var script = document.createElement('script');
+var info = {};
+if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
+script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
+(document.body || document.head || document.documentElement).appendChild(script);
+
+
