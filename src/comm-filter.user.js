@@ -193,6 +193,12 @@ window.plugin.commfilter = (function() {
       var agentDom = rowDoms[i].querySelector('.nickname');
       if(agentDom) {
         agentDom.addEventListener('click', function(){
+          // tentative: to avoid a problem on Android that causes cached chat logs reset,
+          //            call event.stopImmediatePropagation() in this.
+          //            So IITC default action that inputs @agentname automatically 
+          //            to the #chattext box is blocked.
+          event.stopImmediatePropagation()
+
           var channel = window.chat.getActive();
           
           if(comm.channels[channel].hasLogs()) {

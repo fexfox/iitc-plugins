@@ -2,11 +2,11 @@
 // @id             iitc-plugin-comm-filter@udnp
 // @name           IITC plugin: COMM Filter
 // @category       COMM
-// @version        0.0.1.20160306.90651
+// @version        0.0.1.20160306.141344
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-06-090651] COMM Filter
+// @description    [local-2016-03-06-141344] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160306.90651';
+plugin_info.dateTimeVersion = '20160306.141344';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -205,6 +205,12 @@ window.plugin.commfilter = (function() {
       var agentDom = rowDoms[i].querySelector('.nickname');
       if(agentDom) {
         agentDom.addEventListener('click', function(){
+          // tentative: to avoid a problem on Android that causes cached chat logs reset,
+          //            call event.stopImmediatePropagation() in this.
+          //            So IITC default action that inputs @agentname automatically 
+          //            to the #chattext box is blocked.
+          event.stopImmediatePropagation()
+
           var channel = window.chat.getActive();
           
           if(comm.channels[channel].hasLogs()) {
