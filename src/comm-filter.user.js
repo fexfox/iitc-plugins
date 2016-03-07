@@ -205,7 +205,7 @@ window.plugin.commfilter = (function() {
     var dF = document.createDocumentFragment();
 
     for(var i = 0; i < rowDoms.length; i++) {
-      filterLogWithInput(rowDoms[i]);
+      filterLog(rowDoms[i]);
       dF.appendChild(rowDoms[i]);
     }
     
@@ -221,12 +221,18 @@ window.plugin.commfilter = (function() {
     return tableDom;
   }
   
-  function filterLogWithInput(logRowDom) {
+  function filterLog(logRowDom) {
+    // filtering by input textbox
+    filterLogByInput(logRowDom);
+  }
+  
+  function filterLogByInput(logRowDom) {
     if(!input.dom) return;
-    filterLog(logRowDom, input.dom.value);
+    
+    filterLogByAgent(logRowDom, input.dom.value);
   }
 
-  function filterLog(logRowDom, s) {
+  function filterLogByAgent(logRowDom, s) {
     var agentDom = logRowDom.querySelector('.nickname'); 
     if(!agentDom) return;
     

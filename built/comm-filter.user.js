@@ -2,11 +2,11 @@
 // @id             iitc-plugin-comm-filter@udnp
 // @name           IITC plugin: COMM Filter
 // @category       COMM
-// @version        0.0.1.20160307.123011
+// @version        0.0.1.20160307.143125
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-07-123011] COMM Filter
+// @description    [local-2016-03-07-143125] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160307.123011';
+plugin_info.dateTimeVersion = '20160307.143125';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -217,7 +217,7 @@ window.plugin.commfilter = (function() {
     var dF = document.createDocumentFragment();
 
     for(var i = 0; i < rowDoms.length; i++) {
-      filterLogWithInput(rowDoms[i]);
+      filterLog(rowDoms[i]);
       dF.appendChild(rowDoms[i]);
     }
     
@@ -233,12 +233,18 @@ window.plugin.commfilter = (function() {
     return tableDom;
   }
   
-  function filterLogWithInput(logRowDom) {
+  function filterLog(logRowDom) {
+    // filtering by input textbox
+    filterLogByInput(logRowDom);
+  }
+  
+  function filterLogByInput(logRowDom) {
     if(!input.dom) return;
-    filterLog(logRowDom, input.dom.value);
+    
+    filterLogByAgent(logRowDom, input.dom.value);
   }
 
-  function filterLog(logRowDom, s) {
+  function filterLogByAgent(logRowDom, s) {
     var agentDom = logRowDom.querySelector('.nickname'); 
     if(!agentDom) return;
     
