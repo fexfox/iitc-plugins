@@ -2,11 +2,11 @@
 // @id             iitc-plugin-comm-filter@udnp
 // @name           IITC plugin: COMM Filter
 // @category       COMM
-// @version        0.0.1.20160307.143125
+// @version        0.0.1.20160307.144831
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-07-143125] COMM Filter
+// @description    [local-2016-03-07-144831] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160307.143125';
+plugin_info.dateTimeVersion = '20160307.144831';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -150,7 +150,7 @@ window.plugin.commfilter = (function() {
         }
       };
   
-  //// copied from original code/chat.js @ rev.5298c98
+  //// based on original iitc/code/chat.js @ rev.5298c98
   // renders data from the data-hash to the element defined by the given
   // ID. Set 3rd argument to true if it is likely that old data has been
   // added. Latter is only required for scrolling.
@@ -180,7 +180,7 @@ window.plugin.commfilter = (function() {
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
   }
   
-  //// copied from original code/chat.js @ rev.5298c98
+  //// based on original iitc/code/chat.js @ rev.5298c98
   // contains the logic to keep the correct scroll position.
   var keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
     // If scrolled down completely, keep it that way so new messages can
@@ -233,6 +233,12 @@ window.plugin.commfilter = (function() {
     return tableDom;
   }
   
+  //// based on original iitc/code/chat.js @ rev.5298c98
+  function renderDivider(text) {
+    var d = ' ──────────────────────────────────────────────────────────────────────────';
+    return '<tr><td colspan="3" style="padding-top:3px"><summary>─ ' + text + d + '</summary></td></tr>';
+  }
+
   function filterLog(logRowDom) {
     // filtering by input textbox
     filterLogByInput(logRowDom);
@@ -288,8 +294,9 @@ window.plugin.commfilter = (function() {
   function setup() {
     if(!comm.create()) return;
         
-    // override original function following:
+    // override original functions following:
     window.chat.renderData = renderData;
+    window.chat.renderDivider = renderDivider;
     window.chat.keepScrollPosition = keepScrollPosition;
     
     dom = document.createElement('form');

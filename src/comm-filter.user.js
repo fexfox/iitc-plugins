@@ -138,7 +138,7 @@ window.plugin.commfilter = (function() {
         }
       };
   
-  //// copied from original code/chat.js @ rev.5298c98
+  //// based on original iitc/code/chat.js @ rev.5298c98
   // renders data from the data-hash to the element defined by the given
   // ID. Set 3rd argument to true if it is likely that old data has been
   // added. Latter is only required for scrolling.
@@ -168,7 +168,7 @@ window.plugin.commfilter = (function() {
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
   }
   
-  //// copied from original code/chat.js @ rev.5298c98
+  //// based on original iitc/code/chat.js @ rev.5298c98
   // contains the logic to keep the correct scroll position.
   var keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
     // If scrolled down completely, keep it that way so new messages can
@@ -221,6 +221,12 @@ window.plugin.commfilter = (function() {
     return tableDom;
   }
   
+  //// based on original iitc/code/chat.js @ rev.5298c98
+  function renderDivider(text) {
+    var d = ' ──────────────────────────────────────────────────────────────────────────';
+    return '<tr><td colspan="3" style="padding-top:3px"><summary>─ ' + text + d + '</summary></td></tr>';
+  }
+
   function filterLog(logRowDom) {
     // filtering by input textbox
     filterLogByInput(logRowDom);
@@ -276,8 +282,9 @@ window.plugin.commfilter = (function() {
   function setup() {
     if(!comm.create()) return;
         
-    // override original function following:
+    // override original functions following:
     window.chat.renderData = renderData;
+    window.chat.renderDivider = renderDivider;
     window.chat.keepScrollPosition = keepScrollPosition;
     
     dom = document.createElement('form');
