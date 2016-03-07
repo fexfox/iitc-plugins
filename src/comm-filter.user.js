@@ -223,8 +223,7 @@ window.plugin.commfilter = (function() {
   
   //// based on original iitc/code/chat.js @ rev.5298c98
   function renderDivider(text) {
-    var d = ' ──────────────────────────────────────────────────────────────────────────';
-    return '<tr><td colspan="3" style="padding-top:3px"><summary>─ ' + text + d + '</summary></td></tr>';
+    return '<tr class="divider"><td colspan="3"><summary>' + text + '</summary></td></tr>';
   }
 
   function filterLog(logRowDom) {
