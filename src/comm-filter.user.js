@@ -61,6 +61,24 @@ window.plugin.commfilter = (function() {
           
           comm.dom = dom;
           
+          // filtering by agent name clicked/tapped in COMM       
+          dom.addEventListener('click', function(){
+            if(!event.target.classList.contains('nickname')) return;
+            
+            // tentative: to avoid a problem on Android that causes cached chat logs reset,
+            //            call event.stopImmediatePropagation() in this.
+            //            So IITC default action that inputs @agentname automatically 
+            //            to the #chattext box is blocked.
+            event.stopImmediatePropagation()
+
+            var channel = window.chat.getActive();
+            
+            if(comm.channels[channel].hasLogs()) {
+              input.dom.value = event.target.textContent;
+              renderLogs(channel);
+            }
+          });
+          
           document.getElementById('chatcontrols').addEventListener('click', function() {
             if(comm.checkChannelTab(event.target)) {
               var channel = window.chat.getActive();
@@ -189,24 +207,6 @@ window.plugin.commfilter = (function() {
     for(var i = 0; i < rowDoms.length; i++) {
       filterLogWithInput(rowDoms[i]);
       dF.appendChild(rowDoms[i]);
-      
-      var agentDom = rowDoms[i].querySelector('.nickname');
-      if(agentDom) {
-        agentDom.addEventListener('click', function(){
-          // tentative: to avoid a problem on Android that causes cached chat logs reset,
-          //            call event.stopImmediatePropagation() in this.
-          //            So IITC default action that inputs @agentname automatically 
-          //            to the #chattext box is blocked.
-          event.stopImmediatePropagation()
-
-          var channel = window.chat.getActive();
-          
-          if(comm.channels[channel].hasLogs()) {
-            input.dom.value = this.textContent;
-            renderLogs(channel);
-          }
-        });
-      }
     }
     
     var oldTableDom = document.querySelector('#chat' + window.chat.getActive() + ' table'); 

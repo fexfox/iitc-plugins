@@ -2,11 +2,11 @@
 // @id             iitc-plugin-comm-filter@udnp
 // @name           IITC plugin: COMM Filter
 // @category       COMM
-// @version        0.0.1.20160306.141344
+// @version        0.0.1.20160307.123011
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-06-141344] COMM Filter
+// @description    [local-2016-03-07-123011] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160306.141344';
+plugin_info.dateTimeVersion = '20160307.123011';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -72,6 +72,24 @@ window.plugin.commfilter = (function() {
           }
           
           comm.dom = dom;
+          
+          // filtering by agent name clicked/tapped in COMM       
+          dom.addEventListener('click', function(){
+            if(!event.target.classList.contains('nickname')) return;
+            
+            // tentative: to avoid a problem on Android that causes cached chat logs reset,
+            //            call event.stopImmediatePropagation() in this.
+            //            So IITC default action that inputs @agentname automatically 
+            //            to the #chattext box is blocked.
+            event.stopImmediatePropagation()
+
+            var channel = window.chat.getActive();
+            
+            if(comm.channels[channel].hasLogs()) {
+              input.dom.value = event.target.textContent;
+              renderLogs(channel);
+            }
+          });
           
           document.getElementById('chatcontrols').addEventListener('click', function() {
             if(comm.checkChannelTab(event.target)) {
@@ -201,24 +219,6 @@ window.plugin.commfilter = (function() {
     for(var i = 0; i < rowDoms.length; i++) {
       filterLogWithInput(rowDoms[i]);
       dF.appendChild(rowDoms[i]);
-      
-      var agentDom = rowDoms[i].querySelector('.nickname');
-      if(agentDom) {
-        agentDom.addEventListener('click', function(){
-          // tentative: to avoid a problem on Android that causes cached chat logs reset,
-          //            call event.stopImmediatePropagation() in this.
-          //            So IITC default action that inputs @agentname automatically 
-          //            to the #chattext box is blocked.
-          event.stopImmediatePropagation()
-
-          var channel = window.chat.getActive();
-          
-          if(comm.channels[channel].hasLogs()) {
-            input.dom.value = this.textContent;
-            renderLogs(channel);
-          }
-        });
-      }
     }
     
     var oldTableDom = document.querySelector('#chat' + window.chat.getActive() + ' table'); 
