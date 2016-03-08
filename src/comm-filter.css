@@ -31,3 +31,23 @@
 #chatalerts>table td:nth-child(2) {
   width: 15ex;
 }
+
+/* hack chat.js divider */
+#chatall>table tr.divider,
+#chatfaction>table tr.divider,
+#chatalerts>table tr.divider {
+  border-top: solid 1px #bbb;
+}
+
+#chatall>table tr.divider>td,
+#chatfaction>table tr.divider>td,
+#chatalerts>table tr.divider>td {
+  padding-top: 3px;
+}
+
+#chatall>table tr.divider summary,
+#chatfaction>table tr.divider summary,
+#chatalerts>table tr.divider summary {
+  box-sizing: border-box;
+  padding-left: 2ex;
+}
