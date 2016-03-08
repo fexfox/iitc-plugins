@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.1.0.20160308.114801
+// @version        0.1.0.20160308.122706
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-08-114801] COMM Filter
+// @description    [local-2016-03-08-122706] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160308.114801';
+plugin_info.dateTimeVersion = '20160308.122706';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -154,25 +154,32 @@ window.plugin.commfilter = (function() {
       };
   
   function filter(logRowDom) {
+    filterAgent(logRowDom);
+  }
+  
+  function filterAgent(logRowDom) {
+    var agentDom = logRowDom.querySelector('.nickname'); 
+    if(!agentDom) return;
+    
     if(input.dom && input.dom.value) {
       var agentsList = input.dom.value.split(/\s+/);
       logRowDom.hidden = true;
       
       for(var i = 0; i < agentsList.length; i++) {
-        if(agentsList[i] && logRowDom.hidden) filterAgent(logRowDom, agentsList[i]);
+        if(agentsList[i] && logRowDom.hidden) {
+          if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
+            logRowDom.hidden = false;
+          } else {
+            logRowDom.hidden = true;
+          }
+        }
       }
     }
   }
   
-  function filterAgent(logRowDom, s) {
-    var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return;
-    
-    if(agentDom.textContent.toLowerCase().search(s.toLowerCase()) !== 0) {
-      logRowDom.hidden = true;
-    } else {
-      logRowDom.hidden = false;
-    }
+  function checkWordPrefix(prefix, word) {
+    if(word.search(prefix) === 0) return true;
+    else return false;
   }
   
   function renderLogs(channel) {

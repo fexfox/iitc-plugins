@@ -142,25 +142,32 @@ window.plugin.commfilter = (function() {
       };
   
   function filter(logRowDom) {
+    filterAgent(logRowDom);
+  }
+  
+  function filterAgent(logRowDom) {
+    var agentDom = logRowDom.querySelector('.nickname'); 
+    if(!agentDom) return;
+    
     if(input.dom && input.dom.value) {
       var agentsList = input.dom.value.split(/\s+/);
       logRowDom.hidden = true;
       
       for(var i = 0; i < agentsList.length; i++) {
-        if(agentsList[i] && logRowDom.hidden) filterAgent(logRowDom, agentsList[i]);
+        if(agentsList[i] && logRowDom.hidden) {
+          if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
+            logRowDom.hidden = false;
+          } else {
+            logRowDom.hidden = true;
+          }
+        }
       }
     }
   }
   
-  function filterAgent(logRowDom, s) {
-    var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return;
-    
-    if(agentDom.textContent.toLowerCase().search(s.toLowerCase()) !== 0) {
-      logRowDom.hidden = true;
-    } else {
-      logRowDom.hidden = false;
-    }
+  function checkWordPrefix(prefix, word) {
+    if(word.search(prefix) === 0) return true;
+    else return false;
   }
   
   function renderLogs(channel) {
