@@ -3,7 +3,7 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      @@UPDATEURL@@
@@ -142,18 +142,32 @@ window.plugin.commfilter = (function() {
       };
   
   function filter(logRowDom) {
-    if(input.dom) filterAgent(logRowDom, input.dom.value);
+    filterAgent(logRowDom);
   }
   
-  function filterAgent(logRowDom, s) {
+  function filterAgent(logRowDom) {
     var agentDom = logRowDom.querySelector('.nickname'); 
     if(!agentDom) return;
     
-    if(agentDom.textContent.toLowerCase().search(s.toLowerCase()) !== 0) {
+    if(input.dom && input.dom.value) {
+      var agentsList = input.dom.value.split(/\s+/);
       logRowDom.hidden = true;
-    } else {
-      logRowDom.hidden = false;
+      
+      for(var i = 0; i < agentsList.length; i++) {
+        if(agentsList[i] && logRowDom.hidden) {
+          if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
+            logRowDom.hidden = false;
+          } else {
+            logRowDom.hidden = true;
+          }
+        }
+      }
     }
+  }
+  
+  function checkWordPrefix(prefix, word) {
+    if(word.search(prefix) === 0) return true;
+    else return false;
   }
   
   function renderLogs(channel) {
