@@ -91,6 +91,7 @@ window.plugin.commfilter = (function() {
             }
           });
           
+          // refreshing filtered logs on COMM tabs changed
           document.getElementById('chatcontrols').addEventListener('click', function() {
             if(comm.checkChannelTab(event.target)) {
               var channel = window.chat.getActive();
