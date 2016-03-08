@@ -205,7 +205,7 @@ window.plugin.commfilter = (function() {
     var dF = document.createDocumentFragment();
 
     for(var i = 0; i < rowDoms.length; i++) {
-      filterLog(rowDoms[i]);
+      filter(rowDoms[i]);
       dF.appendChild(rowDoms[i]);
     }
     
@@ -226,18 +226,11 @@ window.plugin.commfilter = (function() {
     return '<tr class="divider"><td colspan="3"><summary>' + text + '</summary></td></tr>';
   }
 
-  function filterLog(logRowDom) {
-    // filtering by input textbox
-    filterLogByInput(logRowDom);
+  function filter(logRowDom) {
+    if(input.dom) filterAgent(logRowDom, input.dom.value);
   }
   
-  function filterLogByInput(logRowDom) {
-    if(!input.dom) return;
-    
-    filterLogByAgent(logRowDom, input.dom.value);
-  }
-
-  function filterLogByAgent(logRowDom, s) {
+  function filterAgent(logRowDom, s) {
     var agentDom = logRowDom.querySelector('.nickname'); 
     if(!agentDom) return;
     
