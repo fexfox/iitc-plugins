@@ -2,11 +2,11 @@
 // @id             iitc-plugin-comm-filter@udnp
 // @name           IITC plugin: COMM Filter
 // @category       COMM
-// @version        0.0.1.20160307.180020
+// @version        0.0.1.20160308.11156
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-07-180020] COMM Filter
+// @description    [local-2016-03-08-011156] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160307.180020';
+plugin_info.dateTimeVersion = '20160308.11156';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -150,94 +150,6 @@ window.plugin.commfilter = (function() {
         }
       };
   
-  //// based on original iitc/code/chat.js @ rev.5298c98
-  // renders data from the data-hash to the element defined by the given
-  // ID. Set 3rd argument to true if it is likely that old data has been
-  // added. Latter is only required for scrolling.
-  var renderData = function(data, element, likelyWereOldMsgs) {
-    var elm = $('#'+element);
-    if(elm.is(':hidden')) return;
-
-    // discard guids and sort old to new
-  //TODO? stable sort, to preserve server message ordering? or sort by GUID if timestamps equal?
-    var vals = $.map(data, function(v, k) { return [v]; });
-    vals = vals.sort(function(a, b) { return a[0]-b[0]; });
-
-    // render to string with date separators inserted
-    var msgs = '';
-    var prevTime = null;
-    $.each(vals, function(ind, msg) {
-      var nextTime = new Date(msg[0]).toLocaleDateString();
-      if(prevTime && prevTime !== nextTime)
-        msgs += chat.renderDivider(nextTime);
-      msgs += msg[2];
-      prevTime = nextTime;
-    });
-
-    var scrollBefore = scrollBottom(elm);
-    //elm.html('<table>' + msgs + '</table>');
-    elm.append(renderTableDom($(msgs)));
-    chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
-  }
-  
-  //// based on original iitc/code/chat.js @ rev.5298c98
-  // contains the logic to keep the correct scroll position.
-  var keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
-    // If scrolled down completely, keep it that way so new messages can
-    // be seen easily. If scrolled up, only need to fix scroll position
-    // when old messages are added. New messages added at the bottom don’t
-    // change the view and enabling this would make the chat scroll down
-    // for every added message, even if the user wants to read old stuff.
-
-    if(box.is(':hidden') && !isOldMsgs) {
-      box.data('needsScrollTop', 99999999);
-      return;
-    }
-
-    var logsTable = $('table', box);
-    // box[0].offsetHeight - logsTable[0].offsetHeight
-    var offset = box.outerHeight() - logsTable.outerHeight();
-
-    if(offset > 0) {
-      logsTable.css('margin-bottom', offset + 'px');
-    }
-
-    var statusView = $('.status', box); 
-    statusView.text('');
-
-    if(scrollBefore === 0 || isOldMsgs) {
-      box.data('ignoreNextScroll', true);
-      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore)
-        + statusView.outerHeight());
-      statusView.text('Now loading...');
-    }
-  }
-
-  function renderTableDom(rowDoms) {
-    var dF = document.createDocumentFragment();
-
-    for(var i = 0; i < rowDoms.length; i++) {
-      filter(rowDoms[i]);
-      dF.appendChild(rowDoms[i]);
-    }
-    
-    var oldTableDom = document.querySelector('#chat' + window.chat.getActive() + ' table'); 
-    if(oldTableDom) {
-      oldTableDom.parentElement.removeChild(oldTableDom);
-      oldTableDom = null;
-    }
-    
-    var tableDom = document.createElement('table'); 
-    tableDom.appendChild(dF);
-    
-    return tableDom;
-  }
-  
-  //// based on original iitc/code/chat.js @ rev.5298c98
-  function renderDivider(text) {
-    return '<tr class="divider"><td colspan="3"><summary>' + text + '</summary></td></tr>';
-  }
-
   function filter(logRowDom) {
     if(input.dom) filterAgent(logRowDom, input.dom.value);
   }
@@ -286,11 +198,6 @@ window.plugin.commfilter = (function() {
   function setup() {
     if(!comm.create()) return;
         
-    // override original functions following:
-    window.chat.renderData = renderData;
-    window.chat.renderDivider = renderDivider;
-    window.chat.keepScrollPosition = keepScrollPosition;
-    
     dom = document.createElement('form');
     dom.id = ID;
     dom.addEventListener('reset', clear);
@@ -305,12 +212,109 @@ window.plugin.commfilter = (function() {
   }
 
   return {
+    filter: filter,
     setup: setup
   };
 
 }());
 
 var setup = (function(plugin) {
+  if(!window.chat) return; 
+  
+  // override and append functions following:
+  
+  //// based on original iitc/code/chat.js @ rev.5298c98
+  // renders data from the data-hash to the element defined by the given
+  // ID. Set 3rd argument to true if it is likely that old data has been
+  // added. Latter is only required for scrolling.
+  window.chat.renderData = function(data, element, likelyWereOldMsgs) {
+    var elm = $('#'+element);
+    if(elm.is(':hidden')) return;
+
+    // discard guids and sort old to new
+  //TODO? stable sort, to preserve server message ordering? or sort by GUID if timestamps equal?
+    var vals = $.map(data, function(v, k) { return [v]; });
+    vals = vals.sort(function(a, b) { return a[0]-b[0]; });
+
+    // render to string with date separators inserted
+    var msgs = '';
+    var prevTime = null;
+    $.each(vals, function(ind, msg) {
+      var nextTime = new Date(msg[0]).toLocaleDateString();
+      if(prevTime && prevTime !== nextTime)
+        msgs += chat.renderDivider(nextTime);
+      msgs += msg[2];
+      prevTime = nextTime;
+    });
+
+    var scrollBefore = scrollBottom(elm);
+    //elm.html('<table>' + msgs + '</table>');
+    elm.append(chat.renderTableDom($(msgs)));
+    chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
+  }
+
+  //// based on original iitc/code/chat.js @ rev.5298c98
+  // contains the logic to keep the correct scroll position.
+  window.chat.keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
+    // If scrolled down completely, keep it that way so new messages can
+    // be seen easily. If scrolled up, only need to fix scroll position
+    // when old messages are added. New messages added at the bottom don’t
+    // change the view and enabling this would make the chat scroll down
+    // for every added message, even if the user wants to read old stuff.
+
+    if(box.is(':hidden') && !isOldMsgs) {
+      box.data('needsScrollTop', 99999999);
+      return;
+    }
+
+    var logsTable = $('table', box);
+    // box[0].offsetHeight - logsTable[0].offsetHeight
+    var offset = box.outerHeight() - logsTable.outerHeight();
+
+    if(offset > 0) {
+      logsTable.css('margin-bottom', offset + 'px');
+    }
+
+    var statusView = $('.status', box); 
+    statusView.text('');
+
+    if(scrollBefore === 0 || isOldMsgs) {
+      box.data('ignoreNextScroll', true);
+      box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore)
+        + statusView.outerHeight());
+      statusView.text('Now loading...');
+    }
+  }
+
+  //// based on original iitc/code/chat.js @ rev.5298c98
+  window.chat.renderDivider = function(text) {
+    return '<tr class="divider"><td colspan="3"><summary>' + text + '</summary></td></tr>';
+  }
+  
+  window.chat.renderTableDom = function(rowDoms) {
+    var dF = document.createDocumentFragment();
+
+    for(var i = 0; i < rowDoms.length; i++) {
+      chat.filter(rowDoms[i]);
+      dF.appendChild(rowDoms[i]);
+    }
+    
+    var oldTableDom = document.querySelector('#chat' + window.chat.getActive() + ' table'); 
+    if(oldTableDom) {
+      oldTableDom.parentElement.removeChild(oldTableDom);
+      oldTableDom = null;
+    }
+    
+    var tableDom = document.createElement('table'); 
+    tableDom.appendChild(dF);
+    
+    return tableDom;
+  }
+
+  window.chat.filter = function(rowDom) {
+    plugin.filter(rowDom);
+  }
+
   return function(){
     plugin.setup();
       
