@@ -1,12 +1,14 @@
 // ==UserScript==
 // @id             iitc-plugin-comm-filter@udnp
 // @name           IITC plugin: COMM Filter
+// @author         udnp
 // @category       COMM
-// @version        0.0.1.20160308.11156
+// @version        0.1.0.20160308.20535
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @source         https://github.com/udnp/iitc-plugins
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-08-011156] COMM Filter
+// @description    [local-2016-03-08-020535] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160308.11156';
+plugin_info.dateTimeVersion = '20160308.20535';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
