@@ -142,7 +142,14 @@ window.plugin.commfilter = (function() {
       };
   
   function filter(logRowDom) {
-    if(input.dom) filterAgent(logRowDom, input.dom.value);
+    if(input.dom && input.dom.value) {
+      var agentsList = input.dom.value.split(/\s+/);
+      logRowDom.hidden = true;
+      
+      for(var i = 0; i < agentsList.length; i++) {
+        if(agentsList[i] && logRowDom.hidden) filterAgent(logRowDom, agentsList[i]);
+      }
+    }
   }
   
   function filterAgent(logRowDom, s) {
