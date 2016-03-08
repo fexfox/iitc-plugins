@@ -1,0 +1,53 @@
+#PLUGIN_COMM_FILTER>input {
+  width: 30%;
+  height: 24px;
+}
+
+#PLUGIN_COMM_FILTER>button {
+  padding: 2px;
+  min-width: 40px;
+  color: #FFCE00;
+  border: 1px solid #FFCE00;
+  background-color: rgba(8, 48, 78, 0.9);
+  text-align: center;
+}
+
+#chat {
+  padding-bottom: 24px;
+}
+
+#chatall>.status, #chatfaction>.status, #chatalerts>.status {
+  height: 20px;
+  text-align: center;
+  font-style: italic;
+}
+
+#chatall>table, #chatfaction>table, #chatalerts>table {
+  table-layout: auto;
+}
+
+#chatall>table td:nth-child(2),
+#chatfaction>table td:nth-child(2),
+#chatalerts>table td:nth-child(2) {
+  width: 15ex;
+}
+
+/* hack chat.js divider */
+#chatall>table tr.divider,
+#chatfaction>table tr.divider,
+#chatalerts>table tr.divider {
+  border-top: solid 1px #bbb;
+}
+
+#chatall>table tr.divider>td,
+#chatfaction>table tr.divider>td,
+#chatalerts>table tr.divider>td {
+  padding-top: 3px;
+}
+
+#chatall>table tr.divider summary,
+#chatfaction>table tr.divider summary,
+#chatalerts>table tr.divider summary {
+  box-sizing: border-box;
+  padding-left: 2ex;
+}
