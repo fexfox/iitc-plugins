@@ -1,9 +1,11 @@
 // ==UserScript==
 // @id             iitc-plugin-comm-filter@udnp
 // @name           IITC plugin: COMM Filter
+// @author         udnp
 // @category       COMM
 // @version        0.1.0.20160308.20535
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @source         https://github.com/udnp/iitc-plugins
 // @updateURL      none
 // @downloadURL    none
 // @description    [local-2016-03-08-020535] COMM Filter
