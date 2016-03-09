@@ -173,6 +173,11 @@ window.plugin.commfilter = (function() {
     }
   }
   
+  function filterOutAlert(logRowDom) {
+    var alertDom = logRowDom.querySelector('.system_narrowcast');
+    if(alertDom) logRowDom.hidden = true;
+  }
+  
   function checkWordPrefix(prefix, word) {
     if(word.search(prefix) === 0) return true;
     else return false;
@@ -226,6 +231,7 @@ window.plugin.commfilter = (function() {
 
   return {
     filter: filter,
+    filterOutAlert: filterOutAlert,
     setup: setup
   };
 
@@ -326,6 +332,10 @@ var setup = (function(plugin) {
 
   window.chat.filter = function(rowDom) {
     plugin.filter(rowDom);
+    
+    if(chat.getActive() === 'all') {
+      plugin.filterOutAlert(rowDom);
+    }
   }
 
   return function(){

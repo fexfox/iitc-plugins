@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.2.0.20160309.73702
+// @version        0.2.0.20160309.121959
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-09-073702] COMM Filter
+// @description    [local-2016-03-09-121959] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160309.73702';
+plugin_info.dateTimeVersion = '20160309.121959';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -185,6 +185,11 @@ window.plugin.commfilter = (function() {
     }
   }
   
+  function filterOutAlert(logRowDom) {
+    var alertDom = logRowDom.querySelector('.system_narrowcast');
+    if(alertDom) logRowDom.hidden = true;
+  }
+  
   function checkWordPrefix(prefix, word) {
     if(word.search(prefix) === 0) return true;
     else return false;
@@ -238,6 +243,7 @@ window.plugin.commfilter = (function() {
 
   return {
     filter: filter,
+    filterOutAlert: filterOutAlert,
     setup: setup
   };
 
@@ -338,6 +344,10 @@ var setup = (function(plugin) {
 
   window.chat.filter = function(rowDom) {
     plugin.filter(rowDom);
+    
+    if(chat.getActive() === 'all') {
+      plugin.filterOutAlert(rowDom);
+    }
   }
 
   return function(){
