@@ -142,16 +142,22 @@ window.plugin.commfilter = (function() {
       };
   
   function filter(logRowDom) {
+    if(!logRowDom) return;
+    
+    logRowDom.hidden = true;
+        
     filterAgent(logRowDom);
   }
   
   function filterAgent(logRowDom) {
     var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return;
+    if(!agentDom) {
+      logRowDom.hidden = false;
+      return;
+    }
     
     if(input.dom && input.dom.value) {
       var agentsList = input.dom.value.split(/\s+/);
-      logRowDom.hidden = true;
       
       for(var i = 0; i < agentsList.length; i++) {
         if(agentsList[i] && logRowDom.hidden) {
@@ -162,6 +168,8 @@ window.plugin.commfilter = (function() {
           }
         }
       }
+    } else {
+      logRowDom.hidden = false;
     }
   }
   

@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.2.0.20160308.123632
+// @version        0.2.0.20160309.73702
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-08-123632] COMM Filter
+// @description    [local-2016-03-09-073702] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160308.123632';
+plugin_info.dateTimeVersion = '20160309.73702';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -154,16 +154,22 @@ window.plugin.commfilter = (function() {
       };
   
   function filter(logRowDom) {
+    if(!logRowDom) return;
+    
+    logRowDom.hidden = true;
+        
     filterAgent(logRowDom);
   }
   
   function filterAgent(logRowDom) {
     var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return;
+    if(!agentDom) {
+      logRowDom.hidden = false;
+      return;
+    }
     
     if(input.dom && input.dom.value) {
       var agentsList = input.dom.value.split(/\s+/);
-      logRowDom.hidden = true;
       
       for(var i = 0; i < agentsList.length; i++) {
         if(agentsList[i] && logRowDom.hidden) {
@@ -174,6 +180,8 @@ window.plugin.commfilter = (function() {
           }
         }
       }
+    } else {
+      logRowDom.hidden = false;
     }
   }
   
