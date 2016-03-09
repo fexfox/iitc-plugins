@@ -88,7 +88,7 @@ window.plugin.commfilter = (function() {
             var channel = window.chat.getActive();
             
             if(comm.channels[channel].hasLogs()) {
-              input.dom.value = event.target.textContent;
+              inputAgent.dom.value = event.target.textContent;
               renderLogs(channel);
             }
           });
@@ -113,7 +113,7 @@ window.plugin.commfilter = (function() {
           else return false;
         }
       },
-      input = {
+      inputAgent = {
         oldValue: null,
         dom: null,
         create: function() {
@@ -141,7 +141,7 @@ window.plugin.commfilter = (function() {
           else return false;
         }
       },
-      reset = {
+      resetAgent = {
         dom: null,
         create: function() {
           var dom = document.createElement('button');
@@ -168,8 +168,8 @@ window.plugin.commfilter = (function() {
       return;
     }
     
-    if(input.dom && input.dom.value) {
-      var agentsList = input.dom.value.split(/\s+/);
+    if(inputAgent.dom && inputAgent.dom.value) {
+      var agentsList = inputAgent.dom.value.split(/\s+/);
       
       for(var i = 0; i < agentsList.length; i++) {
         if(agentsList[i] && logRowDom.hidden) {
@@ -214,9 +214,9 @@ window.plugin.commfilter = (function() {
     }
   }
   
-  function clear() {
-    input.dom.value = input.dom.defaultValue;
-    input.oldValue = input.dom.value;
+  function resetInput() {
+    inputAgent.dom.value = inputAgent.dom.defaultValue;
+    inputAgent.oldValue = inputAgent.dom.value;
     
     var channel = window.chat.getActive();
     
@@ -230,13 +230,13 @@ window.plugin.commfilter = (function() {
         
     dom = document.createElement('form');
     dom.id = ID;
-    dom.addEventListener('reset', clear);
+    dom.addEventListener('reset', resetInput);
 
-    input.create();
-    dom.appendChild(input.dom);
+    inputAgent.create();
+    dom.appendChild(inputAgent.dom);
     
-    reset.create();
-    dom.appendChild(reset.dom);
+    resetAgent.create();
+    dom.appendChild(resetAgent.dom);
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
   }
