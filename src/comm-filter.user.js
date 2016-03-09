@@ -331,22 +331,22 @@ var setup = (function(plugin) {
   }
 
   window.chat.filter = function(rowDom) {
-    plugin.filter(rowDom);
+    plugin.commfilter.filter(rowDom);
     
     if(chat.getActive() === 'all') {
-      plugin.filterOutAlert(rowDom);
+      plugin.commfilter.filterOutAlert(rowDom);
     }
   }
 
   return function(){
-    plugin.setup();
+    plugin.commfilter.setup();
       
     $("<style>")
       .prop("type", "text/css")
       .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
       .appendTo("head");
   };
-}(window.plugin.commfilter));
+}(window.plugin));
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
