@@ -2,11 +2,11 @@
 // @id             iitc-plugin-hello@udnp
 // @name           IITC plugin: hello
 // @category       Hello
-// @version        0.0.1.20160223.220523
+// @version        0.0.2.20160310.214300
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-02-23-220523] Hello!
+// @description    [local-2016-03-10-214300] Hello!
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160223.220523';
+plugin_info.dateTimeVersion = '20160310.214300';
 plugin_info.pluginId = 'hello';
 //END PLUGIN AUTHORS NOTE
 
@@ -68,38 +68,41 @@ window.plugin.hello = (function() {
     else close();
   }
   
+  function setup() {
+    if(window.useAndroidPanes()) {
+      android.addPane(ID, TITLE, "ic_action_paste");
+      addHook("paneChanged", onPaneChanged);
+    } else {
+      var dom = document.createElement('a');
+      dom.textContent = TITLE; 
+      dom.title = DESCRIPTIONS;
+      dom.accessKey = 'h';
+      dom.addEventListener('click', open);
+      
+      document.getElementById('toolbox').appendChild(dom);
+    }
+  }
+  
   return {
     ID: ID,
     TITLE: TITLE,
     DESCRIPTIONS: DESCRIPTIONS,
     open: open,
     close: close,
-    onPaneChanged: onPaneChanged 
+    onPaneChanged: onPaneChanged,
+    setup: setup
   };
 
 }());
 
-var setup = (function(plugin) {
-  return function(){
-    if(window.useAndroidPanes()) {
-      android.addPane(plugin.ID, plugin.TITLE, "ic_action_paste");
-      addHook("paneChanged", plugin.onPaneChanged);
-    } else {
-      var dom = document.createElement('a');
-      dom.textContent = plugin.TITLE; 
-      dom.title = plugin.DESCRIPTIONS;
-      dom.accessKey = 'h';
-      dom.addEventListener('click', plugin.open);
-      
-      document.getElementById('toolbox').appendChild(dom);
-    }
+var setup = function(){
+  window.plugin.hello.setup();
 
-    $("<style>")
-      .prop("type", "text/css")
-      .html("#PLUGIN_HELLO.mobile {\n  background: transparent;\n  border: 0 none !important;\n  height: 100% !important;\n  width: 100% !important;\n  left: 0 !important;\n  top: 0 !important;\n  position: absolute;\n  overflow: auto;\n}\n")
-      .appendTo("head");
-  };
-}(window.plugin.hello));
+  $("<style>")
+    .prop("type", "text/css")
+    .html("#PLUGIN_HELLO.mobile {\n  background: transparent;\n  border: 0 none !important;\n  height: 100% !important;\n  width: 100% !important;\n  left: 0 !important;\n  top: 0 !important;\n  position: absolute;\n  overflow: auto;\n}\n")
+    .appendTo("head");
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

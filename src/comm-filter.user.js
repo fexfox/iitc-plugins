@@ -3,7 +3,7 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.3.0.@@DATETIMEVERSION@@
+// @version        0.3.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      @@UPDATEURL@@
@@ -234,7 +234,7 @@ window.plugin.commfilter = (function() {
 
 }());
 
-var setup = (function(plugin) {
+var setup = function(){
   if(!window.chat) return; 
   
   // override and append functions following:
@@ -330,23 +330,21 @@ var setup = (function(plugin) {
   window.chat.filter = function(rowDom) {
     if(!rowDom) return;
 
-    plugin.commfilter.resetFilter(rowDom);
-    plugin.commfilter.filterAgent(rowDom);
+    window.plugin.commfilter.resetFilter(rowDom);
+    window.plugin.commfilter.filterAgent(rowDom);
 
     if(chat.getActive() === 'all') {
-      plugin.commfilter.filterOutAlert(rowDom);
+      window.plugin.commfilter.filterOutAlert(rowDom);
     }
   }
 
-  return function(){
-    plugin.commfilter.setup();
-      
-    $("<style>")
-      .prop("type", "text/css")
-      .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
-      .appendTo("head");
-  };
-}(window.plugin));
+  window.plugin.commfilter.setup();
+    
+  $("<style>")
+    .prop("type", "text/css")
+    .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
+    .appendTo("head");
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
