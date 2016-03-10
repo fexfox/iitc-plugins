@@ -56,38 +56,41 @@ window.plugin.hello = (function() {
     else close();
   }
   
+  function setup() {
+    if(window.useAndroidPanes()) {
+      android.addPane(ID, TITLE, "ic_action_paste");
+      addHook("paneChanged", onPaneChanged);
+    } else {
+      var dom = document.createElement('a');
+      dom.textContent = TITLE; 
+      dom.title = DESCRIPTIONS;
+      dom.accessKey = 'h';
+      dom.addEventListener('click', open);
+      
+      document.getElementById('toolbox').appendChild(dom);
+    }
+  }
+  
   return {
     ID: ID,
     TITLE: TITLE,
     DESCRIPTIONS: DESCRIPTIONS,
     open: open,
     close: close,
-    onPaneChanged: onPaneChanged 
+    onPaneChanged: onPaneChanged,
+    setup: setup
   };
 
 }());
 
-var setup = (function(plugin) {
-  return function(){
-    if(window.useAndroidPanes()) {
-      android.addPane(plugin.ID, plugin.TITLE, "ic_action_paste");
-      addHook("paneChanged", plugin.onPaneChanged);
-    } else {
-      var dom = document.createElement('a');
-      dom.textContent = plugin.TITLE; 
-      dom.title = plugin.DESCRIPTIONS;
-      dom.accessKey = 'h';
-      dom.addEventListener('click', plugin.open);
-      
-      document.getElementById('toolbox').appendChild(dom);
-    }
+var setup = function(){
+  window.plugin.hello.setup();
 
-    $("<style>")
-      .prop("type", "text/css")
-      .html("@@INCLUDESTRING:plugins/hello.css@@")
-      .appendTo("head");
-  };
-}(window.plugin.hello));
+  $("<style>")
+    .prop("type", "text/css")
+    .html("@@INCLUDESTRING:plugins/hello.css@@")
+    .appendTo("head");
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
