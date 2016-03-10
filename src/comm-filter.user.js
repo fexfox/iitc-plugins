@@ -144,8 +144,7 @@ window.plugin.commfilter = (function() {
   function filter(logRowDom) {
     if(!logRowDom) return;
     
-    logRowDom.hidden = true;
-        
+    resetFilter(logRowDom);        
     filterAgent(logRowDom);
   }
   
@@ -176,6 +175,10 @@ window.plugin.commfilter = (function() {
   function filterOutAlert(logRowDom) {
     var alertDom = logRowDom.querySelector('.system_narrowcast');
     if(alertDom) logRowDom.hidden = true;
+  }
+  
+  function resetFilter(logRowDom) {
+    logRowDom.hidden = true;
   }
   
   function checkWordPrefix(prefix, word) {
