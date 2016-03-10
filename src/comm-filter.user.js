@@ -3,7 +3,7 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.3.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      @@UPDATEURL@@
@@ -76,7 +76,7 @@ window.plugin.commfilter = (function() {
             var channel = window.chat.getActive();
             
             if(comm.channels[channel].hasLogs()) {
-              input.dom.value = event.target.textContent;
+              inputAgent.dom.value = event.target.textContent;
               renderLogs(channel);
             }
           });
@@ -101,7 +101,7 @@ window.plugin.commfilter = (function() {
           else return false;
         }
       },
-      input = {
+      inputAgent = {
         oldValue: null,
         dom: null,
         create: function() {
@@ -129,7 +129,7 @@ window.plugin.commfilter = (function() {
           else return false;
         }
       },
-      reset = {
+      resetAgent = {
         dom: null,
         create: function() {
           var dom = document.createElement('button');
@@ -141,17 +141,15 @@ window.plugin.commfilter = (function() {
         }
       };
   
-  function filter(logRowDom) {
-    filterAgent(logRowDom);
-  }
-  
   function filterAgent(logRowDom) {
     var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return;
+    if(!agentDom) {
+      logRowDom.hidden = false;
+      return;
+    }
     
-    if(input.dom && input.dom.value) {
-      var agentsList = input.dom.value.split(/\s+/);
-      logRowDom.hidden = true;
+    if(inputAgent.dom && inputAgent.dom.value) {
+      var agentsList = inputAgent.dom.value.split(/\s+/);
       
       for(var i = 0; i < agentsList.length; i++) {
         if(agentsList[i] && logRowDom.hidden) {
@@ -162,7 +160,18 @@ window.plugin.commfilter = (function() {
           }
         }
       }
+    } else {
+      logRowDom.hidden = false;
     }
+  }
+  
+  function filterOutAlert(logRowDom) {
+    var alertDom = logRowDom.querySelector('.system_narrowcast');
+    if(alertDom) logRowDom.hidden = true;
+  }
+  
+  function resetFilter(logRowDom) {
+    logRowDom.hidden = true;
   }
   
   function checkWordPrefix(prefix, word) {
@@ -189,9 +198,9 @@ window.plugin.commfilter = (function() {
     }
   }
   
-  function clear() {
-    input.dom.value = input.dom.defaultValue;
-    input.oldValue = input.dom.value;
+  function resetInput() {
+    inputAgent.dom.value = inputAgent.dom.defaultValue;
+    inputAgent.oldValue = inputAgent.dom.value;
     
     var channel = window.chat.getActive();
     
@@ -205,19 +214,21 @@ window.plugin.commfilter = (function() {
         
     dom = document.createElement('form');
     dom.id = ID;
-    dom.addEventListener('reset', clear);
+    dom.addEventListener('reset', resetInput);
 
-    input.create();
-    dom.appendChild(input.dom);
+    inputAgent.create();
+    dom.appendChild(inputAgent.dom);
     
-    reset.create();
-    dom.appendChild(reset.dom);
+    resetAgent.create();
+    dom.appendChild(resetAgent.dom);
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
   }
 
   return {
-    filter: filter,
+    filterAgent: filterAgent,
+    filterOutAlert: filterOutAlert,
+    resetFilter: resetFilter,
     setup: setup
   };
 
@@ -317,18 +328,25 @@ var setup = (function(plugin) {
   }
 
   window.chat.filter = function(rowDom) {
-    plugin.filter(rowDom);
+    if(!rowDom) return;
+
+    plugin.commfilter.resetFilter(rowDom);
+    plugin.commfilter.filterAgent(rowDom);
+
+    if(chat.getActive() === 'all') {
+      plugin.commfilter.filterOutAlert(rowDom);
+    }
   }
 
   return function(){
-    plugin.setup();
+    plugin.commfilter.setup();
       
     $("<style>")
       .prop("type", "text/css")
       .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
       .appendTo("head");
   };
-}(window.plugin.commfilter));
+}(window.plugin));
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
