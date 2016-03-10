@@ -2,7 +2,7 @@
 // @id             iitc-plugin-hello@udnp
 // @name           IITC plugin: hello
 // @category       Hello
-// @version        0.0.1.@@DATETIMEVERSION@@
+// @version        0.0.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
