@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.2.0.20160310.3102
+// @version        0.2.0.20160310.3701
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-10-003102] COMM Filter
+// @description    [local-2016-03-10-003701] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160310.3102';
+plugin_info.dateTimeVersion = '20160310.3701';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -153,13 +153,6 @@ window.plugin.commfilter = (function() {
         }
       };
   
-  function filter(logRowDom) {
-    if(!logRowDom) return;
-    
-    resetFilter(logRowDom);        
-    filterAgent(logRowDom);
-  }
-  
   function filterAgent(logRowDom) {
     var agentDom = logRowDom.querySelector('.nickname'); 
     if(!agentDom) {
@@ -245,8 +238,9 @@ window.plugin.commfilter = (function() {
   }
 
   return {
-    filter: filter,
+    filterAgent: filterAgent,
     filterOutAlert: filterOutAlert,
+    resetFilter: resetFilter,
     setup: setup
   };
 
@@ -346,8 +340,11 @@ var setup = (function(plugin) {
   }
 
   window.chat.filter = function(rowDom) {
-    plugin.commfilter.filter(rowDom);
-    
+    if(!rowDom) return;
+
+    plugin.commfilter.resetFilter(rowDom);
+    plugin.commfilter.filterAgent(rowDom);
+
     if(chat.getActive() === 'all') {
       plugin.commfilter.filterOutAlert(rowDom);
     }

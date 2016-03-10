@@ -141,13 +141,6 @@ window.plugin.commfilter = (function() {
         }
       };
   
-  function filter(logRowDom) {
-    if(!logRowDom) return;
-    
-    resetFilter(logRowDom);        
-    filterAgent(logRowDom);
-  }
-  
   function filterAgent(logRowDom) {
     var agentDom = logRowDom.querySelector('.nickname'); 
     if(!agentDom) {
@@ -233,8 +226,9 @@ window.plugin.commfilter = (function() {
   }
 
   return {
-    filter: filter,
+    filterAgent: filterAgent,
     filterOutAlert: filterOutAlert,
+    resetFilter: resetFilter,
     setup: setup
   };
 
@@ -334,8 +328,11 @@ var setup = (function(plugin) {
   }
 
   window.chat.filter = function(rowDom) {
-    plugin.commfilter.filter(rowDom);
-    
+    if(!rowDom) return;
+
+    plugin.commfilter.resetFilter(rowDom);
+    plugin.commfilter.filterAgent(rowDom);
+
     if(chat.getActive() === 'all') {
       plugin.commfilter.filterOutAlert(rowDom);
     }
