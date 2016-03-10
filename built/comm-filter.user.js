@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.2.0.20160308.123632
+// @version        0.2.0.20160310.3701
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-08-123632] COMM Filter
+// @description    [local-2016-03-10-003701] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160308.123632';
+plugin_info.dateTimeVersion = '20160310.3701';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -88,7 +88,7 @@ window.plugin.commfilter = (function() {
             var channel = window.chat.getActive();
             
             if(comm.channels[channel].hasLogs()) {
-              input.dom.value = event.target.textContent;
+              inputAgent.dom.value = event.target.textContent;
               renderLogs(channel);
             }
           });
@@ -113,7 +113,7 @@ window.plugin.commfilter = (function() {
           else return false;
         }
       },
-      input = {
+      inputAgent = {
         oldValue: null,
         dom: null,
         create: function() {
@@ -141,7 +141,7 @@ window.plugin.commfilter = (function() {
           else return false;
         }
       },
-      reset = {
+      resetAgent = {
         dom: null,
         create: function() {
           var dom = document.createElement('button');
@@ -153,17 +153,15 @@ window.plugin.commfilter = (function() {
         }
       };
   
-  function filter(logRowDom) {
-    filterAgent(logRowDom);
-  }
-  
   function filterAgent(logRowDom) {
     var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return;
+    if(!agentDom) {
+      logRowDom.hidden = false;
+      return;
+    }
     
-    if(input.dom && input.dom.value) {
-      var agentsList = input.dom.value.split(/\s+/);
-      logRowDom.hidden = true;
+    if(inputAgent.dom && inputAgent.dom.value) {
+      var agentsList = inputAgent.dom.value.split(/\s+/);
       
       for(var i = 0; i < agentsList.length; i++) {
         if(agentsList[i] && logRowDom.hidden) {
@@ -174,7 +172,18 @@ window.plugin.commfilter = (function() {
           }
         }
       }
+    } else {
+      logRowDom.hidden = false;
     }
+  }
+  
+  function filterOutAlert(logRowDom) {
+    var alertDom = logRowDom.querySelector('.system_narrowcast');
+    if(alertDom) logRowDom.hidden = true;
+  }
+  
+  function resetFilter(logRowDom) {
+    logRowDom.hidden = true;
   }
   
   function checkWordPrefix(prefix, word) {
@@ -201,9 +210,9 @@ window.plugin.commfilter = (function() {
     }
   }
   
-  function clear() {
-    input.dom.value = input.dom.defaultValue;
-    input.oldValue = input.dom.value;
+  function resetInput() {
+    inputAgent.dom.value = inputAgent.dom.defaultValue;
+    inputAgent.oldValue = inputAgent.dom.value;
     
     var channel = window.chat.getActive();
     
@@ -217,19 +226,21 @@ window.plugin.commfilter = (function() {
         
     dom = document.createElement('form');
     dom.id = ID;
-    dom.addEventListener('reset', clear);
+    dom.addEventListener('reset', resetInput);
 
-    input.create();
-    dom.appendChild(input.dom);
+    inputAgent.create();
+    dom.appendChild(inputAgent.dom);
     
-    reset.create();
-    dom.appendChild(reset.dom);
+    resetAgent.create();
+    dom.appendChild(resetAgent.dom);
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
   }
 
   return {
-    filter: filter,
+    filterAgent: filterAgent,
+    filterOutAlert: filterOutAlert,
+    resetFilter: resetFilter,
     setup: setup
   };
 
@@ -329,18 +340,25 @@ var setup = (function(plugin) {
   }
 
   window.chat.filter = function(rowDom) {
-    plugin.filter(rowDom);
+    if(!rowDom) return;
+
+    plugin.commfilter.resetFilter(rowDom);
+    plugin.commfilter.filterAgent(rowDom);
+
+    if(chat.getActive() === 'all') {
+      plugin.commfilter.filterOutAlert(rowDom);
+    }
   }
 
   return function(){
-    plugin.setup();
+    plugin.commfilter.setup();
       
     $("<style>")
       .prop("type", "text/css")
       .html("#PLUGIN_COMM_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n\n/* hack chat.js divider */\n#chatall>table tr.divider,\n#chatfaction>table tr.divider,\n#chatalerts>table tr.divider {\n  border-top: solid 1px #bbb;\n}\n\n#chatall>table tr.divider>td,\n#chatfaction>table tr.divider>td,\n#chatalerts>table tr.divider>td {\n  padding-top: 3px;\n}\n\n#chatall>table tr.divider summary,\n#chatfaction>table tr.divider summary,\n#chatalerts>table tr.divider summary {\n  box-sizing: border-box;\n  padding-left: 2ex;\n}\n")
       .appendTo("head");
   };
-}(window.plugin.commfilter));
+}(window.plugin));
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
