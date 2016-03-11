@@ -32,6 +32,14 @@
   width: 15ex;
 }
 
+#chat {
+  height: 84px; /* 60px + 24px */
+}
+
+#chatcontrols {
+  bottom: 106px; /* 82px + 24px */
+}
+
 /* hack chat.js divider */
 #chatall>table tr.divider,
 #chatfaction>table tr.divider,
