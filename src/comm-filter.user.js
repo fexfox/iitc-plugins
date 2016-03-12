@@ -3,7 +3,7 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.3.2.@@DATETIMEVERSION@@
+// @version        0.3.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      @@UPDATEURL@@
@@ -88,6 +88,11 @@ window.plugin.commfilter = (function() {
               if(comm.channels[channel].hasLogs()) renderLogs(channel);
             }
           });
+          
+          // tentatively to show 3 log lines on minimized
+          if(window.useAndroidPanes()) {
+            dom.classList.add('expand');
+          }
           
           return comm;
         },
