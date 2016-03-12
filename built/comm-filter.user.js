@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.3.2.20160311.22151
+// @version        0.3.2.20160312.171235
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-11-022151] COMM Filter
+// @description    [local-2016-03-11-115307] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160311.22151';
+plugin_info.dateTimeVersion = '20160311.115307';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -100,6 +100,11 @@ window.plugin.commfilter = (function() {
               if(comm.channels[channel].hasLogs()) renderLogs(channel);
             }
           });
+          
+          // tentatively to show 3 log lines on minimized
+          if(window.useAndroidPanes()) {
+            dom.classList.add('expand');
+          }
           
           return comm;
         },

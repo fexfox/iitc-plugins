@@ -89,6 +89,11 @@ window.plugin.commfilter = (function() {
             }
           });
           
+          // tentatively to show 3 log lines on minimized
+          if(window.useAndroidPanes()) {
+            dom.classList.add('expand');
+          }
+          
           return comm;
         },
         insertStatusViewTo: function(channelDom) {
