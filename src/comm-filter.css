@@ -32,10 +32,12 @@
   width: 15ex;
 }
 
+/* tentatively to show 3 log lines on minimized */
 #chat {
   height: 84px; /* 60px + 24px */
 }
 
+/* tentatively to show 3 log lines on minimized */
 #chatcontrols {
   bottom: 106px; /* 82px + 24px */
 }
