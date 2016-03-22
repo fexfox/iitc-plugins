@@ -228,6 +228,11 @@ window.plugin.commfilter = (function() {
     dom.appendChild(resetAgent.dom);
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
+    
+    $("<style>")
+      .prop("type", "text/css")
+      .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
+      .appendTo("head");
   }
 
   return {
@@ -345,11 +350,6 @@ var setup = function(){
   }
 
   window.plugin.commfilter.setup();
-    
-  $("<style>")
-    .prop("type", "text/css")
-    .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
-    .appendTo("head");
 };
 
 // PLUGIN END //////////////////////////////////////////////////////////
