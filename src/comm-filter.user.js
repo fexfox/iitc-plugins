@@ -3,7 +3,7 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.3.3.@@DATETIMEVERSION@@
+// @version        0.3.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      @@UPDATEURL@@
@@ -138,8 +138,9 @@ window.plugin.commfilter = (function() {
         dom: null,
         create: function() {
           var dom = document.createElement('button');
-          dom.type = 'reset';
+          dom.type = 'button';
           dom.textContent = 'X';
+          dom.addEventListener('click', resetInput);
           
           this.dom = dom;
           return this;
@@ -217,9 +218,8 @@ window.plugin.commfilter = (function() {
   function setup() {
     if(!comm.create()) return;
         
-    dom = document.createElement('form');
+    dom = document.createElement('header');
     dom.id = ID;
-    dom.addEventListener('reset', resetInput);
 
     inputAgent.create();
     dom.appendChild(inputAgent.dom);
