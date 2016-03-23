@@ -269,8 +269,8 @@ var setup = function(){
     });
 
     var scrollBefore = scrollBottom(elm);
-    //elm.html('<table>' + msgs + '</table>');
-    elm.append(chat.renderTableDom($(msgs)));
+    if(!window.plugin.commfilter) elm.html('<table>' + msgs + '</table>');    
+    else elm.append(chat.renderTableDom($(msgs)));
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
   }
 
@@ -334,6 +334,7 @@ var setup = function(){
 
   window.chat.filter = function(rowDom) {
     if(!rowDom) return;
+    if(!window.plugin.commfilter) return;
 
     window.plugin.commfilter.resetFilter(rowDom);
     window.plugin.commfilter.filterAgent(rowDom);
