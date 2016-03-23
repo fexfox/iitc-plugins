@@ -1,3 +1,7 @@
+#PLUGIN_COMM_FILTER {
+  height: 24px;
+}
+
 #PLUGIN_COMM_FILTER>input {
   width: 30%;
   height: 24px;

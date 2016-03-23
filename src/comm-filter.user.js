@@ -138,8 +138,9 @@ window.plugin.commfilter = (function() {
         dom: null,
         create: function() {
           var dom = document.createElement('button');
-          dom.type = 'reset';
+          dom.type = 'button';
           dom.textContent = 'X';
+          dom.addEventListener('click', resetInput);
           
           this.dom = dom;
           return this;
@@ -217,9 +218,8 @@ window.plugin.commfilter = (function() {
   function setup() {
     if(!comm.create()) return;
         
-    dom = document.createElement('form');
+    dom = document.createElement('header');
     dom.id = ID;
-    dom.addEventListener('reset', resetInput);
 
     inputAgent.create();
     dom.appendChild(inputAgent.dom);
