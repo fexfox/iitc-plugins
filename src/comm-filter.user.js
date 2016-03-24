@@ -119,7 +119,7 @@ window.plugin.commfilter = (function() {
           var dom = document.createElement('input');
           dom.type = 'text';
           dom.placeholder = 'agent name';
-          dom.addEventListener('keyup', function() {
+          dom.addEventListener('input', function() {
             var channel = window.chat.getActive();
             
             if(this.isChanged() && comm.channels[channel].hasLogs()) {
