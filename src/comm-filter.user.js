@@ -76,7 +76,7 @@ window.plugin.commfilter = (function() {
             var channel = window.chat.getActive();
             
             if(comm.channels[channel].hasLogs()) {
-              inputAgent.dom.value = event.target.textContent;
+              inputAgent.value = event.target.textContent;
               renderLogs(channel);
             }
           });
@@ -109,13 +109,17 @@ window.plugin.commfilter = (function() {
       inputAgent = {
         oldValue: null,
         dom: null,
+        get name() {return this.dom ? this.dom.name : null;},
+        set name(value) {if(this.dom) this.dom.name = value;},
+        get value() {return this.dom ? this.dom.value : null;},
+        set value(value) {if(this.dom) this.dom.value = value;},
+        get defaultValue() {return this.dom ? this.dom.defaultValue : null;},
+        set defaultValue(value) {if(this.dom) this.dom.defaultValue = value;},
         create: function() {
           var dom = document.createElement('input');
           dom.type = 'text';
-          dom.name = 'agent';
-          dom.defaultValue = '';
           dom.placeholder = 'agent name';
-          dom.addEventListener('keyup', function() {
+          dom.addEventListener('input', function() {
             var channel = window.chat.getActive();
             
             if(this.isChanged() && comm.channels[channel].hasLogs()) {
@@ -124,11 +128,15 @@ window.plugin.commfilter = (function() {
           }.bind(this));
           
           this.dom = dom;
+          this.name = 'agent';
+          this.defaultValue = '';
+          this.value = this.defaultValue;
+
           return this;
         },
         isChanged: function(){
-          if(this.dom && this.dom.value !== this.oldValue){
-            this.oldValue = this.dom.value; 
+          if(this.value !== this.oldValue){
+            this.oldValue = this.value; 
             return true;
           }
           else return false;
@@ -154,8 +162,8 @@ window.plugin.commfilter = (function() {
       return;
     }
     
-    if(inputAgent.dom && inputAgent.dom.value) {
-      var agentsList = inputAgent.dom.value.split(/\s+/);
+    if(inputAgent.value) {
+      var agentsList = inputAgent.value.split(/\s+/);
       
       for(var i = 0; i < agentsList.length; i++) {
         if(agentsList[i] && logRowDom.hidden) {
@@ -205,8 +213,8 @@ window.plugin.commfilter = (function() {
   }
   
   function resetInput() {
-    inputAgent.dom.value = inputAgent.dom.defaultValue;
-    inputAgent.oldValue = inputAgent.dom.value;
+    inputAgent.value = inputAgent.defaultValue;
+    inputAgent.oldValue = inputAgent.value;
     
     var channel = window.chat.getActive();
     
@@ -228,6 +236,11 @@ window.plugin.commfilter = (function() {
     dom.appendChild(resetAgent.dom);
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
+    
+    $("<style>")
+      .prop("type", "text/css")
+      .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
+      .appendTo("head");
   }
 
   return {
@@ -269,8 +282,8 @@ var setup = function(){
     });
 
     var scrollBefore = scrollBottom(elm);
-    //elm.html('<table>' + msgs + '</table>');
-    elm.append(chat.renderTableDom($(msgs)));
+    if(!window.plugin.commfilter) elm.html('<table>' + msgs + '</table>');    
+    else elm.append(chat.renderTableDom($(msgs)));
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
   }
 
@@ -334,6 +347,7 @@ var setup = function(){
 
   window.chat.filter = function(rowDom) {
     if(!rowDom) return;
+    if(!window.plugin.commfilter) return;
 
     window.plugin.commfilter.resetFilter(rowDom);
     window.plugin.commfilter.filterAgent(rowDom);
@@ -344,11 +358,6 @@ var setup = function(){
   }
 
   window.plugin.commfilter.setup();
-    
-  $("<style>")
-    .prop("type", "text/css")
-    .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
-    .appendTo("head");
 };
 
 // PLUGIN END //////////////////////////////////////////////////////////

@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.3.4.20160323.170022
+// @version        0.3.4.20160324.202845
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.meta.js
 // @downloadURL    https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.user.js
-// @description    [local-2016-03-23-170022] COMM Filter
+// @description    [local-2016-03-24-202845] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160323.170022';
+plugin_info.dateTimeVersion = '20160324.202845';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -88,7 +88,7 @@ window.plugin.commfilter = (function() {
             var channel = window.chat.getActive();
             
             if(comm.channels[channel].hasLogs()) {
-              inputAgent.dom.value = event.target.textContent;
+              inputAgent.value = event.target.textContent;
               renderLogs(channel);
             }
           });
@@ -121,13 +121,17 @@ window.plugin.commfilter = (function() {
       inputAgent = {
         oldValue: null,
         dom: null,
+        get name() {return this.dom ? this.dom.name : null;},
+        set name(value) {if(this.dom) this.dom.name = value;},
+        get value() {return this.dom ? this.dom.value : null;},
+        set value(value) {if(this.dom) this.dom.value = value;},
+        get defaultValue() {return this.dom ? this.dom.defaultValue : null;},
+        set defaultValue(value) {if(this.dom) this.dom.defaultValue = value;},
         create: function() {
           var dom = document.createElement('input');
           dom.type = 'text';
-          dom.name = 'agent';
-          dom.defaultValue = '';
           dom.placeholder = 'agent name';
-          dom.addEventListener('keyup', function() {
+          dom.addEventListener('input', function() {
             var channel = window.chat.getActive();
             
             if(this.isChanged() && comm.channels[channel].hasLogs()) {
@@ -136,11 +140,15 @@ window.plugin.commfilter = (function() {
           }.bind(this));
           
           this.dom = dom;
+          this.name = 'agent';
+          this.defaultValue = '';
+          this.value = this.defaultValue;
+
           return this;
         },
         isChanged: function(){
-          if(this.dom && this.dom.value !== this.oldValue){
-            this.oldValue = this.dom.value; 
+          if(this.value !== this.oldValue){
+            this.oldValue = this.value; 
             return true;
           }
           else return false;
@@ -166,8 +174,8 @@ window.plugin.commfilter = (function() {
       return;
     }
     
-    if(inputAgent.dom && inputAgent.dom.value) {
-      var agentsList = inputAgent.dom.value.split(/\s+/);
+    if(inputAgent.value) {
+      var agentsList = inputAgent.value.split(/\s+/);
       
       for(var i = 0; i < agentsList.length; i++) {
         if(agentsList[i] && logRowDom.hidden) {
@@ -217,8 +225,8 @@ window.plugin.commfilter = (function() {
   }
   
   function resetInput() {
-    inputAgent.dom.value = inputAgent.dom.defaultValue;
-    inputAgent.oldValue = inputAgent.dom.value;
+    inputAgent.value = inputAgent.defaultValue;
+    inputAgent.oldValue = inputAgent.value;
     
     var channel = window.chat.getActive();
     
@@ -240,6 +248,11 @@ window.plugin.commfilter = (function() {
     dom.appendChild(resetAgent.dom);
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
+    
+    $("<style>")
+      .prop("type", "text/css")
+      .html("#PLUGIN_COMM_FILTER {\n  height: 24px;\n}\n\n#PLUGIN_COMM_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n\n/* tentatively to show 3 log lines on minimized */\n#chat {\n  height: 84px; /* 60px + 24px */\n}\n\n/* tentatively to show 3 log lines on minimized */\n#chatcontrols {\n  bottom: 106px; /* 82px + 24px */\n}\n\n/* hack chat.js divider */\n#chatall>table tr.divider,\n#chatfaction>table tr.divider,\n#chatalerts>table tr.divider {\n  border-top: solid 1px #bbb;\n}\n\n#chatall>table tr.divider>td,\n#chatfaction>table tr.divider>td,\n#chatalerts>table tr.divider>td {\n  padding-top: 3px;\n}\n\n#chatall>table tr.divider summary,\n#chatfaction>table tr.divider summary,\n#chatalerts>table tr.divider summary {\n  box-sizing: border-box;\n  padding-left: 2ex;\n}\n")
+      .appendTo("head");
   }
 
   return {
@@ -281,8 +294,8 @@ var setup = function(){
     });
 
     var scrollBefore = scrollBottom(elm);
-    //elm.html('<table>' + msgs + '</table>');
-    elm.append(chat.renderTableDom($(msgs)));
+    if(!window.plugin.commfilter) elm.html('<table>' + msgs + '</table>');    
+    else elm.append(chat.renderTableDom($(msgs)));
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
   }
 
@@ -346,6 +359,7 @@ var setup = function(){
 
   window.chat.filter = function(rowDom) {
     if(!rowDom) return;
+    if(!window.plugin.commfilter) return;
 
     window.plugin.commfilter.resetFilter(rowDom);
     window.plugin.commfilter.filterAgent(rowDom);
@@ -356,11 +370,6 @@ var setup = function(){
   }
 
   window.plugin.commfilter.setup();
-    
-  $("<style>")
-    .prop("type", "text/css")
-    .html("#PLUGIN_COMM_FILTER {\n  height: 24px;\n}\n\n#PLUGIN_COMM_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n\n/* tentatively to show 3 log lines on minimized */\n#chat {\n  height: 84px; /* 60px + 24px */\n}\n\n/* tentatively to show 3 log lines on minimized */\n#chatcontrols {\n  bottom: 106px; /* 82px + 24px */\n}\n\n/* hack chat.js divider */\n#chatall>table tr.divider,\n#chatfaction>table tr.divider,\n#chatalerts>table tr.divider {\n  border-top: solid 1px #bbb;\n}\n\n#chatall>table tr.divider>td,\n#chatfaction>table tr.divider>td,\n#chatalerts>table tr.divider>td {\n  padding-top: 3px;\n}\n\n#chatall>table tr.divider summary,\n#chatfaction>table tr.divider summary,\n#chatalerts>table tr.divider summary {\n  box-sizing: border-box;\n  padding-left: 2ex;\n}\n")
-    .appendTo("head");
 };
 
 // PLUGIN END //////////////////////////////////////////////////////////
