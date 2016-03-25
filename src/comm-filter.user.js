@@ -111,8 +111,24 @@ window.plugin.commfilter = (function() {
         }
       },
       inputAgent = {
-        oldValue: null,
         dom: null,
+        textbox: {
+          dom: null,
+          create: function() {
+            var dom = document.createElement('input');
+            dom.type = 'text';
+            dom.placeholder = 'agent name';
+            dom.addEventListener('input', function() {
+              var channel = window.chat.getActive();
+              
+              if(inputAgent.isChanged() && comm.channels[channel].hasLogs()) {
+                renderLogs(channel);
+              }
+            });
+            
+            this.dom = dom;
+          }
+        },
         reset: {
           dom: null,
           resetInput: function() {
@@ -135,30 +151,26 @@ window.plugin.commfilter = (function() {
             return this;
           }
         },
-        get name() {return this.dom ? this.dom.name : null;},
-        set name(value) {if(this.dom) this.dom.name = value;},
-        get value() {return this.dom ? this.dom.value : null;},
-        set value(value) {if(this.dom) this.dom.value = value;},
-        get defaultValue() {return this.dom ? this.dom.defaultValue : null;},
-        set defaultValue(value) {if(this.dom) this.dom.defaultValue = value;},
+        oldValue: null,
+        get name() {return this.textbox.dom ? this.textbox.dom.name : null;},
+        set name(value) {if(this.textbox.dom) this.textbox.dom.name = value;},
+        get value() {return this.textbox.dom ? this.textbox.dom.value : null;},
+        set value(value) {if(this.textbox.dom) this.textbox.dom.value = value;},
+        get defaultValue() {return this.textbox.dom ? this.textbox.dom.defaultValue : null;},
+        set defaultValue(value) {if(this.textbox.dom) this.textbox.dom.defaultValue = value;},
         create: function() {
-          var dom = document.createElement('input');
-          dom.type = 'text';
-          dom.placeholder = 'agent name';
-          dom.addEventListener('input', function() {
-            var channel = window.chat.getActive();
-            
-            if(this.isChanged() && comm.channels[channel].hasLogs()) {
-              renderLogs(channel);
-            }
-          }.bind(this));
+          this.textbox.create();
+          this.reset.create();
           
-          this.dom = dom;
           this.name = 'agent';
           this.defaultValue = '';
           this.value = this.defaultValue;
           
-          this.reset.create();
+          var df = document.createDocumentFragment();
+          df.appendChild(this.textbox.dom);
+          df.appendChild(this.reset.dom);
+          
+          this.dom = df;
 
           return this;
         },
@@ -236,7 +248,6 @@ window.plugin.commfilter = (function() {
 
     inputAgent.create();
     dom.appendChild(inputAgent.dom);
-    dom.appendChild(inputAgent.reset.dom);
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
     
