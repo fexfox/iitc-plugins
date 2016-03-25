@@ -76,7 +76,11 @@ window.plugin.commfilter = (function() {
             var channel = window.chat.getActive();
             
             if(comm.channels[channel].hasLogs()) {
-              inputAgent.value = event.target.textContent;
+              if(!inputAgent.value) {
+                inputAgent.value = event.target.textContent;
+              } else {
+                inputAgent.value = inputAgent.value + ' ' + event.target.textContent;
+              }
               renderLogs(channel);
             }
           });
