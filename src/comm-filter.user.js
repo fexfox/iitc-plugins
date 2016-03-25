@@ -112,6 +112,7 @@ window.plugin.commfilter = (function() {
       },
       inputAgent = {
         dom: null,
+        
         textbox: {
           dom: null,
           create: function() {
@@ -129,28 +130,22 @@ window.plugin.commfilter = (function() {
             this.dom = dom;
           }
         },
+        
         reset: {
           dom: null,
-          resetInput: function() {
-            inputAgent.value = inputAgent.defaultValue;
-            inputAgent.oldValue = inputAgent.value;
-            
-            var channel = window.chat.getActive();
-            
-            if(comm.channels[channel].hasLogs()) renderLogs(channel);
-            
-            document.getElementById('chattext').value = '';
-          },
           create: function() {
             var dom = document.createElement('button');
             dom.type = 'button';
             dom.textContent = 'X';
-            dom.addEventListener('click', this.resetInput);
+            dom.addEventListener('click', function() {
+              inputAgent.clear();
+            });
             
             this.dom = dom;
             return this;
           }
         },
+        
         oldValue: null,
         get name() {return this.textbox.dom ? this.textbox.dom.name : null;},
         set name(value) {if(this.textbox.dom) this.textbox.dom.name = value;},
@@ -158,6 +153,18 @@ window.plugin.commfilter = (function() {
         set value(value) {if(this.textbox.dom) this.textbox.dom.value = value;},
         get defaultValue() {return this.textbox.dom ? this.textbox.dom.defaultValue : null;},
         set defaultValue(value) {if(this.textbox.dom) this.textbox.dom.defaultValue = value;},
+        
+        clear: function() {
+          this.oldValue = this.value;
+          this.value = this.defaultValue;
+          
+          var channel = window.chat.getActive();
+          
+          if(comm.channels[channel].hasLogs()) renderLogs(channel);
+          
+          document.getElementById('chattext').value = '';
+        },
+        
         create: function() {
           this.textbox.create();
           this.reset.create();
@@ -174,6 +181,7 @@ window.plugin.commfilter = (function() {
 
           return this;
         },
+        
         isChanged: function(){
           if(this.value !== this.oldValue){
             this.oldValue = this.value; 
