@@ -113,6 +113,28 @@ window.plugin.commfilter = (function() {
       inputAgent = {
         oldValue: null,
         dom: null,
+        reset: {
+          dom: null,
+          resetInput: function() {
+            inputAgent.value = inputAgent.defaultValue;
+            inputAgent.oldValue = inputAgent.value;
+            
+            var channel = window.chat.getActive();
+            
+            if(comm.channels[channel].hasLogs()) renderLogs(channel);
+            
+            document.getElementById('chattext').value = '';
+          },
+          create: function() {
+            var dom = document.createElement('button');
+            dom.type = 'button';
+            dom.textContent = 'X';
+            dom.addEventListener('click', this.resetInput);
+            
+            this.dom = dom;
+            return this;
+          }
+        },
         get name() {return this.dom ? this.dom.name : null;},
         set name(value) {if(this.dom) this.dom.name = value;},
         get value() {return this.dom ? this.dom.value : null;},
@@ -135,6 +157,8 @@ window.plugin.commfilter = (function() {
           this.name = 'agent';
           this.defaultValue = '';
           this.value = this.defaultValue;
+          
+          this.reset.create();
 
           return this;
         },
@@ -144,18 +168,6 @@ window.plugin.commfilter = (function() {
             return true;
           }
           else return false;
-        }
-      },
-      resetAgent = {
-        dom: null,
-        create: function() {
-          var dom = document.createElement('button');
-          dom.type = 'button';
-          dom.textContent = 'X';
-          dom.addEventListener('click', resetInput);
-          
-          this.dom = dom;
-          return this;
         }
       };
   
@@ -216,17 +228,6 @@ window.plugin.commfilter = (function() {
     }
   }
   
-  function resetInput() {
-    inputAgent.value = inputAgent.defaultValue;
-    inputAgent.oldValue = inputAgent.value;
-    
-    var channel = window.chat.getActive();
-    
-    if(comm.channels[channel].hasLogs()) renderLogs(channel);
-    
-    document.getElementById('chattext').value = '';
-  }
-
   function setup() {
     if(!comm.create()) return;
         
@@ -235,9 +236,7 @@ window.plugin.commfilter = (function() {
 
     inputAgent.create();
     dom.appendChild(inputAgent.dom);
-    
-    resetAgent.create();
-    dom.appendChild(resetAgent.dom);
+    dom.appendChild(inputAgent.reset.dom);
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
     
