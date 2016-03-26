@@ -81,7 +81,8 @@ window.plugin.commfilter = (function() {
               } else {
                 inputAgent.value = inputAgent.value + ' ' + event.target.textContent;
               }
-              renderLogs(channel);
+
+              inputAgent.fireInputEvent();
             }
           });
           
@@ -157,10 +158,7 @@ window.plugin.commfilter = (function() {
         clear: function() {
           this.oldValue = this.value;
           this.value = this.defaultValue;
-          
-          var channel = window.chat.getActive();
-          
-          if(comm.channels[channel].hasLogs()) renderLogs(channel);
+          this.fireInputEvent();
           
           document.getElementById('chattext').value = '';
         },
@@ -180,6 +178,10 @@ window.plugin.commfilter = (function() {
           this.dom = df;
 
           return this;
+        },
+        
+        fireInputEvent: function() {
+          if(this.textbox.dom) this.textbox.dom.dispatchEvent(new Event('input', {bubbles: true}));
         },
         
         isChanged: function(){
