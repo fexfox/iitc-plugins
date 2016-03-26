@@ -113,6 +113,13 @@ window.plugin.commfilter = (function() {
       },
       inputAgent = {
         dom: null,
+        oldValue: null,
+        get name() {return this.textbox.dom ? this.textbox.dom.name : null;},
+        set name(value) {if(this.textbox.dom) this.textbox.dom.name = value;},
+        get value() {return this.textbox.dom ? this.textbox.dom.value : null;},
+        set value(value) {if(this.textbox.dom) this.textbox.dom.value = value;},
+        get defaultValue() {return this.textbox.dom ? this.textbox.dom.defaultValue : null;},
+        set defaultValue(value) {if(this.textbox.dom) this.textbox.dom.defaultValue = value;},
         
         textbox: {
           dom: null,
@@ -146,14 +153,6 @@ window.plugin.commfilter = (function() {
             return this;
           }
         },
-        
-        oldValue: null,
-        get name() {return this.textbox.dom ? this.textbox.dom.name : null;},
-        set name(value) {if(this.textbox.dom) this.textbox.dom.name = value;},
-        get value() {return this.textbox.dom ? this.textbox.dom.value : null;},
-        set value(value) {if(this.textbox.dom) this.textbox.dom.value = value;},
-        get defaultValue() {return this.textbox.dom ? this.textbox.dom.defaultValue : null;},
-        set defaultValue(value) {if(this.textbox.dom) this.textbox.dom.defaultValue = value;},
         
         clear: function() {
           this.oldValue = this.value;
