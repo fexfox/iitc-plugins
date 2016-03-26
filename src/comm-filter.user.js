@@ -32,6 +32,7 @@ window.plugin.commfilter = (function() {
       comm = { //TODO change this to singleton
         dom: null,
         channels: {}, // all, faction, alerts
+        
         Channel: function(name) {
           return {
             name: name,
@@ -45,6 +46,7 @@ window.plugin.commfilter = (function() {
             }
           };
         },
+        
         create: function() {
           var dom = document.getElementById('chat');
           if(!dom) return null;
@@ -101,16 +103,19 @@ window.plugin.commfilter = (function() {
           
           return comm;
         },
+        
         insertStatusViewTo: function(channelDom) {
           var dom = document.createElement('div');
           dom.className = 'status';
           channelDom.insertBefore(dom, channelDom.firstChildElement);
         },
+        
         checkChannelTab: function(tab) {
           if(tab.tagName.toLowerCase() === 'a' && tab.childElementCount === 0) return true;
           else return false;
         }
       },
+      
       inputAgent = {
         dom: null,
         oldValue: null,
