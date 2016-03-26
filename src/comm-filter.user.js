@@ -132,14 +132,7 @@ window.plugin.commfilter = (function() {
             var dom = document.createElement('input');
             dom.type = 'text';
             dom.placeholder = 'agent name';
-            dom.addEventListener('input', function() {
-              var channel = window.chat.getActive();
-              
-              if(inputAgent.isChanged() && comm.channels[channel].hasLogs()) {
-                renderLogs(channel);
-              }
-            });
-            
+
             this.dom = dom;
             return this;
           }
@@ -264,6 +257,16 @@ window.plugin.commfilter = (function() {
     inputAgent.create();
     dom.appendChild(inputAgent.dom);
     
+    dom.addEventListener('input', function(event) {
+      if(event.target.name === inputAgent.name) {
+        var channel = window.chat.getActive();
+        
+        if(inputAgent.isChanged() && comm.channels[channel].hasLogs()) {
+          renderLogs(channel);
+        }
+      }
+    });
+            
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
     
     $("<style>")
