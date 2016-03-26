@@ -141,6 +141,7 @@ window.plugin.commfilter = (function() {
             });
             
             this.dom = dom;
+            return this;
           }
         },
         
