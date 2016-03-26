@@ -115,82 +115,85 @@ window.plugin.commfilter = (function() {
           else return false;
         }
       },
+      inputAgent = new Input();
       
-      inputAgent = {
+  function Input() {
+    return {
+      dom: null,
+      oldValue: null,
+      get name() {return this.textbox.dom ? this.textbox.dom.name : null;},
+      set name(value) {if(this.textbox.dom) this.textbox.dom.name = value;},
+      get value() {return this.textbox.dom ? this.textbox.dom.value : null;},
+      set value(value) {if(this.textbox.dom) this.textbox.dom.value = value;},
+      get defaultValue() {return this.textbox.dom ? this.textbox.dom.defaultValue : null;},
+      set defaultValue(value) {if(this.textbox.dom) this.textbox.dom.defaultValue = value;},
+      
+      textbox: {
         dom: null,
-        oldValue: null,
-        get name() {return this.textbox.dom ? this.textbox.dom.name : null;},
-        set name(value) {if(this.textbox.dom) this.textbox.dom.name = value;},
-        get value() {return this.textbox.dom ? this.textbox.dom.value : null;},
-        set value(value) {if(this.textbox.dom) this.textbox.dom.value = value;},
-        get defaultValue() {return this.textbox.dom ? this.textbox.dom.defaultValue : null;},
-        set defaultValue(value) {if(this.textbox.dom) this.textbox.dom.defaultValue = value;},
-        
-        textbox: {
-          dom: null,
-          create: function() {
-            var dom = document.createElement('input');
-            dom.type = 'text';
-            dom.placeholder = 'agent name';
-
-            this.dom = dom;
-            return this;
-          }
-        },
-        
-        reset: {
-          dom: null,
-          create: function() {
-            var dom = document.createElement('button');
-            dom.type = 'button';
-            dom.textContent = 'X';
-            dom.addEventListener('click', function() {
-              inputAgent.clear();
-            });
-            
-            this.dom = dom;
-            return this;
-          }
-        },
-        
-        clear: function() {
-          this.oldValue = this.value;
-          this.value = this.defaultValue;
-          this.fireInputEvent();
-          
-          document.getElementById('chattext').value = '';
-        },
-        
         create: function() {
-          this.textbox.create();
-          this.reset.create();
-          
-          this.name = 'agent';
-          this.defaultValue = '';
-          this.value = this.defaultValue;
-          
-          var df = document.createDocumentFragment();
-          df.appendChild(this.textbox.dom);
-          df.appendChild(this.reset.dom);
-          
-          this.dom = df;
+          var dom = document.createElement('input');
+          dom.type = 'text';
+          dom.placeholder = 'agent name';
 
+          this.dom = dom;
           return this;
-        },
-        
-        fireInputEvent: function() {
-          if(this.textbox.dom) this.textbox.dom.dispatchEvent(new Event('input', {bubbles: true}));
-        },
-        
-        isChanged: function(){
-          if(this.value !== this.oldValue){
-            this.oldValue = this.value; 
-            return true;
-          }
-          else return false;
         }
-      };
-  
+      },
+      
+      reset: {
+        dom: null,
+        create: function() {
+          var dom = document.createElement('button');
+          dom.type = 'button';
+          dom.textContent = 'X';
+          
+          this.dom = dom;
+          return this;
+        }
+      },
+      
+      clear: function() {
+        this.oldValue = this.value;
+        this.value = this.defaultValue;
+        this.fireInputEvent();
+        
+          document.getElementById('chattext').value = '';
+      },
+      
+      create: function() {
+        this.textbox.create();
+        this.reset.create();
+        this.reset.dom.addEventListener('click', function() {
+          this.clear();
+        }.bind(this));
+        
+        this.name = 'agent';
+        this.defaultValue = '';
+        this.value = this.defaultValue;
+        
+        var df = document.createDocumentFragment();
+        df.appendChild(this.textbox.dom);
+        df.appendChild(this.reset.dom);
+        
+        this.dom = df;
+
+        return this;
+      },
+      
+      fireInputEvent: function() {
+        if(this.textbox.dom) this.textbox.dom.dispatchEvent(new Event('input', {bubbles: true}));
+      },
+      
+      isChanged: function(){
+        if(this.value !== this.oldValue){
+          this.oldValue = this.value; 
+          return true;
+        }
+        else return false;
+      }
+    };
+  }
+
   function filterAgent(logRowDom) {
     var agentDom = logRowDom.querySelector('.nickname'); 
     if(!agentDom) {
@@ -266,7 +269,7 @@ window.plugin.commfilter = (function() {
         }
       }
     });
-            
+    
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
     
     $("<style>")
