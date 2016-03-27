@@ -119,56 +119,64 @@ window.plugin.commfilter = (function() {
       
   var Input = (function Input() {
     var Input = function(prop) {
-      var df = document.createDocumentFragment();
-      
-      this.textbox = {
-        dom: null,
-        create: function(prop) {
-          var dom = document.createElement('input');
-          dom.type = 'text';
-          dom.placeholder = prop.placeholder || '';
+      var df = document.createDocumentFragment(),
+          textbox = {
+            dom: null,
+            create: function(prop) {
+              var dom = document.createElement('input');
+              dom.type = 'text';
+              dom.placeholder = prop.placeholder || '';
 
-          this.dom = dom;
-          return this;
-        }
-      };
-    
-      this.reset = {
-        dom: null,
-        create: function() {
-          var dom = document.createElement('button');
-          dom.type = 'button';
-          dom.textContent = 'X';
-          
-          this.dom = dom;
-          return this;
-        }
-      };
+              this.dom = dom;
+              return this;
+            }
+          },
+          reset = {
+            dom: null,
+            create: function() {
+              var dom = document.createElement('button');
+              dom.type = 'button';
+              dom.textContent = 'X';
+              
+              this.dom = dom;
+              return this;
+            }
+          };
       
-      this.textbox.create(prop);
-      this.reset.create();
-      this.reset.dom.addEventListener('click', this.clear.bind(this));
+      textbox.create(prop);
+      reset.create();
+      reset.dom.addEventListener('click', this.clear.bind(this));
       
+      df.appendChild(textbox.dom);
+      df.appendChild(reset.dom);      
+
+      Object.defineProperties(this, {
+        name: {
+          get: function name() {return textbox.dom ? textbox.dom.name : null;},
+          set: function name(value) {if(textbox.dom) textbox.dom.name = value;}
+        },
+        value: {
+          get: function value() {return textbox.dom ? textbox.dom.value : null;},
+          set: function value(value) {if(textbox.dom) textbox.dom.value = value;},
+        },
+        defaultValue: {
+          get: function defaultValue() {return textbox.dom ? textbox.dom.defaultValue : null;},
+          set: function defaultValue(value) {if(textbox.dom) textbox.dom.defaultValue = value;},
+        }
+      });    
+
+      this.dom = df;
       this.name = prop.name || '';
       this.defaultValue = '';
       this.value = this.defaultValue;
       this.oldValue = null;
-      
-      df.appendChild(this.textbox.dom);
-      df.appendChild(this.reset.dom);
-      
-      this.dom = df;
+      this.fireInputEvent = function() {
+        if(textbox.dom) textbox.dom.dispatchEvent(new Event('input', {bubbles: true}));
+      };      
     };
     
     Input.prototype = {
       constructor: Input,
-      
-      get name() {return this.textbox.dom ? this.textbox.dom.name : null;},
-      set name(value) {if(this.textbox.dom) this.textbox.dom.name = value;},
-      get value() {return this.textbox.dom ? this.textbox.dom.value : null;},
-      set value(value) {if(this.textbox.dom) this.textbox.dom.value = value;},
-      get defaultValue() {return this.textbox.dom ? this.textbox.dom.defaultValue : null;},
-      set defaultValue(value) {if(this.textbox.dom) this.textbox.dom.defaultValue = value;},
       
       clear: function() {
         this.oldValue = this.value;
@@ -176,10 +184,6 @@ window.plugin.commfilter = (function() {
         this.fireInputEvent();
         
           document.getElementById('chattext').value = '';
-      },
-      
-      fireInputEvent: function() {
-        if(this.textbox.dom) this.textbox.dom.dispatchEvent(new Event('input', {bubbles: true}));
       },
       
       isChanged: function(){
