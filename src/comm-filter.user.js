@@ -115,32 +115,25 @@ window.plugin.commfilter = (function() {
           else return false;
         }
       },
-      inputAgent = new Input();
+      inputAgent;
       
-  function Input() {
-    return {
-      dom: null,
-      oldValue: null,
-      get name() {return this.textbox.dom ? this.textbox.dom.name : null;},
-      set name(value) {if(this.textbox.dom) this.textbox.dom.name = value;},
-      get value() {return this.textbox.dom ? this.textbox.dom.value : null;},
-      set value(value) {if(this.textbox.dom) this.textbox.dom.value = value;},
-      get defaultValue() {return this.textbox.dom ? this.textbox.dom.defaultValue : null;},
-      set defaultValue(value) {if(this.textbox.dom) this.textbox.dom.defaultValue = value;},
+  var Input = (function Input() {
+    var Input = function(prop) {
+      var df = document.createDocumentFragment();
       
-      textbox: {
+      this.textbox = {
         dom: null,
-        create: function() {
+        create: function(prop) {
           var dom = document.createElement('input');
           dom.type = 'text';
-          dom.placeholder = 'agent name';
+          dom.placeholder = prop.placeholder || '';
 
           this.dom = dom;
           return this;
         }
-      },
-      
-      reset: {
+      };
+    
+      this.reset = {
         dom: null,
         create: function() {
           var dom = document.createElement('button');
@@ -150,7 +143,32 @@ window.plugin.commfilter = (function() {
           this.dom = dom;
           return this;
         }
-      },
+      };
+      
+      this.textbox.create(prop);
+      this.reset.create();
+      this.reset.dom.addEventListener('click', this.clear.bind(this));
+      
+      this.name = prop.name || '';
+      this.defaultValue = '';
+      this.value = this.defaultValue;
+      this.oldValue = null;
+      
+      df.appendChild(this.textbox.dom);
+      df.appendChild(this.reset.dom);
+      
+      this.dom = df;
+    };
+    
+    Input.prototype = {
+      constructor: Input,
+      
+      get name() {return this.textbox.dom ? this.textbox.dom.name : null;},
+      set name(value) {if(this.textbox.dom) this.textbox.dom.name = value;},
+      get value() {return this.textbox.dom ? this.textbox.dom.value : null;},
+      set value(value) {if(this.textbox.dom) this.textbox.dom.value = value;},
+      get defaultValue() {return this.textbox.dom ? this.textbox.dom.defaultValue : null;},
+      set defaultValue(value) {if(this.textbox.dom) this.textbox.dom.defaultValue = value;},
       
       clear: function() {
         this.oldValue = this.value;
@@ -158,26 +176,6 @@ window.plugin.commfilter = (function() {
         this.fireInputEvent();
         
           document.getElementById('chattext').value = '';
-      },
-      
-      create: function() {
-        this.textbox.create();
-        this.reset.create();
-        this.reset.dom.addEventListener('click', function() {
-          this.clear();
-        }.bind(this));
-        
-        this.name = 'agent';
-        this.defaultValue = '';
-        this.value = this.defaultValue;
-        
-        var df = document.createDocumentFragment();
-        df.appendChild(this.textbox.dom);
-        df.appendChild(this.reset.dom);
-        
-        this.dom = df;
-
-        return this;
       },
       
       fireInputEvent: function() {
@@ -190,9 +188,11 @@ window.plugin.commfilter = (function() {
           return true;
         }
         else return false;
-      }
+      }      
     };
-  }
+    
+    return Input;
+  })();
 
   function filterAgent(logRowDom) {
     var agentDom = logRowDom.querySelector('.nickname'); 
@@ -257,7 +257,7 @@ window.plugin.commfilter = (function() {
     dom = document.createElement('header');
     dom.id = ID;
 
-    inputAgent.create();
+    inputAgent = new Input({name: 'agent', placeholder: 'agent name'});
     dom.appendChild(inputAgent.dom);
     
     dom.addEventListener('input', function(event) {
