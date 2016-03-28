@@ -2,11 +2,11 @@
 // @id             iitc-plugin-hello@udnp
 // @name           IITC plugin: hello
 // @category       Hello
-// @version        0.0.2.20160310.214300
+// @version        0.0.2.20160328.150652
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [local-2016-03-10-214300] Hello!
+// @description    [udnp-2016-03-28-150652] Hello!
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -25,8 +25,8 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
-plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160310.214300';
+plugin_info.buildName = 'udnp';
+plugin_info.dateTimeVersion = '20160328.150652';
 plugin_info.pluginId = 'hello';
 //END PLUGIN AUTHORS NOTE
 
