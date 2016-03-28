@@ -199,29 +199,26 @@ window.plugin.commfilter = (function() {
   })();
 
   function filterAgent(logRowDom) {
-    var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) {
-      logRowDom.hidden = false;
-      return;
-    }
+    if(!inputAgent.value) return;
     
-    if(inputAgent.value) {
-      var agentsList = inputAgent.value.split(/\s+/);
-      
-      for(var i = 0; i < agentsList.length; i++) {
-        if(agentsList[i] && logRowDom.hidden) {
-          if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
-            logRowDom.hidden = false;
-          } else {
-            logRowDom.hidden = true;
-          }
+    var agentDom = logRowDom.querySelector('.nickname'); 
+    if(!agentDom) return;
+    
+    var agentsList = inputAgent.value.split(/\s+/);
+    
+    for(var i = 0; i < agentsList.length; i++) {
+      if(agentsList[i]) {
+        if(i > 0 && !logRowDom.hidden) return;
+        
+        if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
+          logRowDom.hidden = false;
+        } else {
+          logRowDom.hidden = true;
         }
       }
-    } else {
-      logRowDom.hidden = false;
     }
   }
-  
+    
   function filterOutAlert(logRowDom) {
     var alertDom = logRowDom.querySelector('.system_narrowcast');
     if(alertDom) logRowDom.hidden = true;
