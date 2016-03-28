@@ -302,6 +302,14 @@ window.plugin.commfilter = (function() {
       }
     });
     
+    var selectorAndOrDom = document.createElement('select');
+    selectorAndOrDom.disabled = true;
+    selectorAndOrDom.options[0] = document.createElement('option');
+    selectorAndOrDom.options[0].textContent = 'AND';
+    selectorAndOrDom.options[1] = document.createElement('option');
+    selectorAndOrDom.options[1].textContent = 'OR';
+    dom.appendChild(selectorAndOrDom);
+
     inputAction = new Input({name: 'action', placeholder: 'portal name'});
     dom.appendChild(inputAction.dom);
     
