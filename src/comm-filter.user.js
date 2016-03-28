@@ -228,7 +228,7 @@ window.plugin.commfilter = (function() {
   }
   
   function resetFilter(logRowDom) {
-    logRowDom.hidden = true;
+    logRowDom.hidden = false;
   }
   
   function checkWordPrefix(prefix, word) {
