@@ -285,6 +285,7 @@ window.plugin.commfilter = (function() {
     dom.id = ID;
     
     var titleDom = document.createElement('b');
+    titleDom.className = 'title';
     titleDom.textContent = 'Filter';
     titleDom.title = DESCRIPTIONS;
     dom.appendChild(titleDom);

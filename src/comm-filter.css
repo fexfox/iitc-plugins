@@ -1,10 +1,27 @@
 #PLUGIN_COMM_FILTER {
   height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+#PLUGIN_COMM_FILTER>.title {
+  padding: 0 0.5ex;
+}
+
+#PLUGIN_COMM_FILTER>select {
+  margin: 0 1ex;
 }
 
 #PLUGIN_COMM_FILTER>input {
-  width: 30%;
   height: 24px;
+}
+
+#PLUGIN_COMM_FILTER>input[name=agent] {
+  flex: 1;
+}
+
+#PLUGIN_COMM_FILTER>input[name=action] {
+  flex: 1.5;
 }
 
 #PLUGIN_COMM_FILTER>button {
