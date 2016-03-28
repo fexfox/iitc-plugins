@@ -73,7 +73,8 @@ window.plugin.commfilter = (function() {
             //            call event.stopImmediatePropagation() in this.
             //            So IITC default action that inputs @agentname automatically 
             //            to the #chattext box is blocked.
-            event.stopImmediatePropagation()
+            //TODO related to issue#5
+            event.stopImmediatePropagation();
 
             var channel = window.chat.getActive();
             
@@ -184,7 +185,8 @@ window.plugin.commfilter = (function() {
         this.value = this.defaultValue;
         this.fireInputEvent();
         
-          document.getElementById('chattext').value = '';
+        //TODO related to issue#5
+        //document.getElementById('chattext').value = '';
       },
       
       isChanged: function(){
