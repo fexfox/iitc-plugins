@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.4.0.20160325.113843
+// @version        0.4.0.20160328.115259
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.meta.js
 // @downloadURL    https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.user.js
-// @description    [local-2016-03-25-113843] COMM Filter
+// @description    [local-2016-03-28-115259] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160325.113843';
+plugin_info.dateTimeVersion = '20160328.115259';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -44,6 +44,7 @@ window.plugin.commfilter = (function() {
       comm = { //TODO change this to singleton
         dom: null,
         channels: {}, // all, faction, alerts
+        
         Channel: function(name) {
           return {
             name: name,
@@ -57,6 +58,7 @@ window.plugin.commfilter = (function() {
             }
           };
         },
+        
         create: function() {
           var dom = document.getElementById('chat');
           if(!dom) return null;
@@ -76,7 +78,7 @@ window.plugin.commfilter = (function() {
           comm.dom = dom;
           
           // filtering by agent name clicked/tapped in COMM       
-          dom.addEventListener('click', function(){
+          dom.addEventListener('click', function(event){
             if(!event.target.classList.contains('nickname')) return;
             
             // tentative: to avoid a problem on Android that causes cached chat logs reset,
@@ -93,12 +95,13 @@ window.plugin.commfilter = (function() {
               } else {
                 inputAgent.value = inputAgent.value + ' ' + event.target.textContent;
               }
-              renderLogs(channel);
+
+              inputAgent.fireInputEvent();
             }
           });
           
           // refreshing filtered logs on COMM tabs changed
-          document.getElementById('chatcontrols').addEventListener('click', function() {
+          document.getElementById('chatcontrols').addEventListener('click', function(event) {
             if(comm.checkChannelTab(event.target)) {
               var channel = window.chat.getActive();
               if(comm.channels[channel].hasLogs()) renderLogs(channel);
@@ -112,86 +115,140 @@ window.plugin.commfilter = (function() {
           
           return comm;
         },
+        
         insertStatusViewTo: function(channelDom) {
           var dom = document.createElement('div');
           dom.className = 'status';
           channelDom.insertBefore(dom, channelDom.firstChildElement);
         },
+        
         checkChannelTab: function(tab) {
           if(tab.tagName.toLowerCase() === 'a' && tab.childElementCount === 0) return true;
           else return false;
         }
       },
-      inputAgent = {
-        oldValue: null,
-        dom: null,
-        get name() {return this.dom ? this.dom.name : null;},
-        set name(value) {if(this.dom) this.dom.name = value;},
-        get value() {return this.dom ? this.dom.value : null;},
-        set value(value) {if(this.dom) this.dom.value = value;},
-        get defaultValue() {return this.dom ? this.dom.defaultValue : null;},
-        set defaultValue(value) {if(this.dom) this.dom.defaultValue = value;},
-        create: function() {
-          var dom = document.createElement('input');
-          dom.type = 'text';
-          dom.placeholder = 'agent name';
-          dom.addEventListener('input', function() {
-            var channel = window.chat.getActive();
-            
-            if(this.isChanged() && comm.channels[channel].hasLogs()) {
-              renderLogs(channel);
-            }
-          }.bind(this));
-          
-          this.dom = dom;
-          this.name = 'agent';
-          this.defaultValue = '';
-          this.value = this.defaultValue;
-
-          return this;
-        },
-        isChanged: function(){
-          if(this.value !== this.oldValue){
-            this.oldValue = this.value; 
-            return true;
-          }
-          else return false;
-        }
-      },
-      resetAgent = {
-        dom: null,
-        create: function() {
-          var dom = document.createElement('button');
-          dom.type = 'button';
-          dom.textContent = 'X';
-          dom.addEventListener('click', resetInput);
-          
-          this.dom = dom;
-          return this;
-        }
-      };
-  
-  function filterAgent(logRowDom) {
-    var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) {
-      logRowDom.hidden = false;
-      return;
-    }
-    
-    if(inputAgent.value) {
-      var agentsList = inputAgent.value.split(/\s+/);
+      inputAgent,
+      inputAction;
       
-      for(var i = 0; i < agentsList.length; i++) {
-        if(agentsList[i] && logRowDom.hidden) {
-          if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
-            logRowDom.hidden = false;
-          } else {
-            logRowDom.hidden = true;
-          }
+  var Input = (function Input() {
+    var Input = function(prop) {
+      var df = document.createDocumentFragment(),
+          textbox = {
+            dom: null,
+            create: function(prop) {
+              var dom = document.createElement('input');
+              dom.type = 'text';
+              dom.placeholder = prop.placeholder || '';
+
+              this.dom = dom;
+              return this;
+            }
+          },
+          reset = {
+            dom: null,
+            create: function() {
+              var dom = document.createElement('button');
+              dom.type = 'button';
+              dom.textContent = 'X';
+              
+              this.dom = dom;
+              return this;
+            }
+          };
+      
+      textbox.create(prop);
+      reset.create();
+      reset.dom.addEventListener('click', this.clear.bind(this));
+      
+      df.appendChild(textbox.dom);
+      df.appendChild(reset.dom);      
+
+      Object.defineProperties(this, {
+        name: {
+          get: function name() {return textbox.dom ? textbox.dom.name : null;},
+          set: function name(value) {if(textbox.dom) textbox.dom.name = value;}
+        },
+        value: {
+          get: function value() {return textbox.dom ? textbox.dom.value : null;},
+          set: function value(value) {if(textbox.dom) textbox.dom.value = value;},
+        },
+        defaultValue: {
+          get: function defaultValue() {return textbox.dom ? textbox.dom.defaultValue : null;},
+          set: function defaultValue(value) {if(textbox.dom) textbox.dom.defaultValue = value;},
+        }
+      });    
+
+      this.dom = df;
+      this.name = prop.name || '';
+      this.defaultValue = '';
+      this.value = this.defaultValue;
+      this.oldValue = null;
+      this.fireInputEvent = function() {
+        if(textbox.dom) textbox.dom.dispatchEvent(new Event('input', {bubbles: true}));
+      };      
+    };
+    
+    Input.prototype = {
+      constructor: Input,
+      
+      clear: function() {
+        this.oldValue = this.value;
+        this.value = this.defaultValue;
+        this.fireInputEvent();
+        
+          document.getElementById('chattext').value = '';
+      },
+      
+      isChanged: function(){
+        if(this.value !== this.oldValue){
+          this.oldValue = this.value; 
+          return true;
+        }
+        else return false;
+      }      
+    };
+    
+    return Input;
+  })();
+
+  function filterAgent(logRowDom) {
+    if(!inputAgent.value) return;
+    
+    var agentDom = logRowDom.querySelector('.nickname'); 
+    if(!agentDom) return;
+    
+    var agentsList = inputAgent.value.split(/\s+/);
+    
+    for(var i = 0; i < agentsList.length; i++) {
+      if(agentsList[i]) {
+        if(i > 0 && !logRowDom.hidden) return;
+        
+        if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
+          logRowDom.hidden = false;
+        } else {
+          logRowDom.hidden = true;
         }
       }
-    } else {
-      logRowDom.hidden = false;
+    }
+  }
+  
+  function filterAction(logRowDom) {
+    if(!inputAction.value) return;
+    if(logRowDom.cells.length !== 3) return;
+    
+    var actionDom = logRowDom.cells[2];
+    var wordsList = inputAction.value.split(/\s+/);
+    
+    for(var i = 0; i < wordsList.length; i++) {
+      if(wordsList[i]) {
+        if(i > 0 && !logRowDom.hidden) return;
+        
+        if(checkWord(wordsList[i].toLowerCase(), actionDom.textContent.toLowerCase())) {
+          logRowDom.hidden = false;
+        } else {
+          logRowDom.hidden = true;
+        }
+      }
     }
   }
   
@@ -201,7 +258,12 @@ window.plugin.commfilter = (function() {
   }
   
   function resetFilter(logRowDom) {
-    logRowDom.hidden = true;
+    logRowDom.hidden = false;
+  }
+  
+  function checkWord(prefix, word) {
+    if(word.search(prefix) !== -1) return true;
+    else return false;
   }
   
   function checkWordPrefix(prefix, word) {
@@ -228,28 +290,37 @@ window.plugin.commfilter = (function() {
     }
   }
   
-  function resetInput() {
-    inputAgent.value = inputAgent.defaultValue;
-    inputAgent.oldValue = inputAgent.value;
-    
-    var channel = window.chat.getActive();
-    
-    if(comm.channels[channel].hasLogs()) renderLogs(channel);
-    
-    document.getElementById('chattext').value = '';
-  }
-
   function setup() {
     if(!comm.create()) return;
         
     dom = document.createElement('header');
     dom.id = ID;
 
-    inputAgent.create();
+    inputAgent = new Input({name: 'agent', placeholder: 'agent name'});
     dom.appendChild(inputAgent.dom);
     
-    resetAgent.create();
-    dom.appendChild(resetAgent.dom);
+    dom.addEventListener('input', function(event) {
+      if(event.target.name === inputAgent.name) {
+        var channel = window.chat.getActive();
+        
+        if(inputAgent.isChanged() && comm.channels[channel].hasLogs()) {
+          renderLogs(channel);
+        }
+      }
+    });
+    
+    inputAction = new Input({name: 'action', placeholder: 'portal name'});
+    dom.appendChild(inputAction.dom);
+    
+    dom.addEventListener('input', function(event) {
+      if(event.target.name === inputAction.name) {
+        var channel = window.chat.getActive();
+        
+        if(inputAction.isChanged() && comm.channels[channel].hasLogs()) {
+          renderLogs(channel);
+        }
+      }
+    });
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
     
@@ -261,6 +332,7 @@ window.plugin.commfilter = (function() {
 
   return {
     filterAgent: filterAgent,
+    filterAction: filterAction,
     filterOutAlert: filterOutAlert,
     resetFilter: resetFilter,
     setup: setup
@@ -367,6 +439,9 @@ var setup = function(){
 
     window.plugin.commfilter.resetFilter(rowDom);
     window.plugin.commfilter.filterAgent(rowDom);
+    
+    // AND filtering
+    if(!rowDom.hidden) window.plugin.commfilter.filterAction(rowDom);
 
     if(chat.getActive() === 'all') {
       window.plugin.commfilter.filterOutAlert(rowDom);
