@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.3.4.20160323.164602
+// @version        0.4.0.20160328.150652
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
-// @updateURL      none
-// @downloadURL    none
-// @description    [local-2016-03-23-164602] COMM Filter
+// @updateURL      https://github.com/udnp/iitc-plugins/raw/master/built/comm-filter.meta.js
+// @downloadURL    https://github.com/udnp/iitc-plugins/raw/master/built/comm-filter.user.js
+// @description    [udnp-2016-03-28-150652] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -27,8 +27,8 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
-plugin_info.buildName = 'local';
-plugin_info.dateTimeVersion = '20160323.164602';
+plugin_info.buildName = 'udnp';
+plugin_info.dateTimeVersion = '20160328.150652';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -44,6 +44,7 @@ window.plugin.commfilter = (function() {
       comm = { //TODO change this to singleton
         dom: null,
         channels: {}, // all, faction, alerts
+        
         Channel: function(name) {
           return {
             name: name,
@@ -57,6 +58,7 @@ window.plugin.commfilter = (function() {
             }
           };
         },
+        
         create: function() {
           var dom = document.getElementById('chat');
           if(!dom) return null;
@@ -76,25 +78,31 @@ window.plugin.commfilter = (function() {
           comm.dom = dom;
           
           // filtering by agent name clicked/tapped in COMM       
-          dom.addEventListener('click', function(){
+          dom.addEventListener('click', function(event){
             if(!event.target.classList.contains('nickname')) return;
             
             // tentative: to avoid a problem on Android that causes cached chat logs reset,
             //            call event.stopImmediatePropagation() in this.
             //            So IITC default action that inputs @agentname automatically 
             //            to the #chattext box is blocked.
-            event.stopImmediatePropagation()
+            //TODO related to issue#5
+            event.stopImmediatePropagation();
 
             var channel = window.chat.getActive();
             
             if(comm.channels[channel].hasLogs()) {
-              inputAgent.dom.value = event.target.textContent;
-              renderLogs(channel);
+              if(!inputAgent.value) {
+                inputAgent.value = event.target.textContent;
+              } else {
+                inputAgent.value = inputAgent.value + ' ' + event.target.textContent;
+              }
+
+              inputAgent.fireInputEvent();
             }
           });
           
           // refreshing filtered logs on COMM tabs changed
-          document.getElementById('chatcontrols').addEventListener('click', function() {
+          document.getElementById('chatcontrols').addEventListener('click', function(event) {
             if(comm.checkChannelTab(event.target)) {
               var channel = window.chat.getActive();
               if(comm.channels[channel].hasLogs()) renderLogs(channel);
@@ -108,78 +116,141 @@ window.plugin.commfilter = (function() {
           
           return comm;
         },
+        
         insertStatusViewTo: function(channelDom) {
           var dom = document.createElement('div');
           dom.className = 'status';
           channelDom.insertBefore(dom, channelDom.firstChildElement);
         },
+        
         checkChannelTab: function(tab) {
           if(tab.tagName.toLowerCase() === 'a' && tab.childElementCount === 0) return true;
           else return false;
         }
       },
-      inputAgent = {
-        oldValue: null,
-        dom: null,
-        create: function() {
-          var dom = document.createElement('input');
-          dom.type = 'text';
-          dom.name = 'agent';
-          dom.defaultValue = '';
-          dom.placeholder = 'agent name';
-          dom.addEventListener('keyup', function() {
-            var channel = window.chat.getActive();
-            
-            if(this.isChanged() && comm.channels[channel].hasLogs()) {
-              renderLogs(channel);
-            }
-          }.bind(this));
-          
-          this.dom = dom;
-          return this;
-        },
-        isChanged: function(){
-          if(this.dom && this.dom.value !== this.oldValue){
-            this.oldValue = this.dom.value; 
-            return true;
-          }
-          else return false;
-        }
-      },
-      resetAgent = {
-        dom: null,
-        create: function() {
-          var dom = document.createElement('button');
-          dom.type = 'button';
-          dom.textContent = 'X';
-          dom.addEventListener('click', resetInput);
-          
-          this.dom = dom;
-          return this;
-        }
-      };
-  
-  function filterAgent(logRowDom) {
-    var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) {
-      logRowDom.hidden = false;
-      return;
-    }
-    
-    if(inputAgent.dom && inputAgent.dom.value) {
-      var agentsList = inputAgent.dom.value.split(/\s+/);
+      inputAgent,
+      inputAction;
       
-      for(var i = 0; i < agentsList.length; i++) {
-        if(agentsList[i] && logRowDom.hidden) {
-          if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
-            logRowDom.hidden = false;
-          } else {
-            logRowDom.hidden = true;
-          }
+  var Input = (function Input() {
+    var Input = function(prop) {
+      var df = document.createDocumentFragment(),
+          textbox = {
+            dom: null,
+            create: function(prop) {
+              var dom = document.createElement('input');
+              dom.type = 'text';
+              dom.placeholder = prop.placeholder || '';
+
+              this.dom = dom;
+              return this;
+            }
+          },
+          reset = {
+            dom: null,
+            create: function() {
+              var dom = document.createElement('button');
+              dom.type = 'button';
+              dom.textContent = 'X';
+              
+              this.dom = dom;
+              return this;
+            }
+          };
+      
+      textbox.create(prop);
+      reset.create();
+      reset.dom.addEventListener('click', this.clear.bind(this));
+      
+      df.appendChild(textbox.dom);
+      df.appendChild(reset.dom);      
+
+      Object.defineProperties(this, {
+        name: {
+          get: function name() {return textbox.dom ? textbox.dom.name : null;},
+          set: function name(value) {if(textbox.dom) textbox.dom.name = value;}
+        },
+        value: {
+          get: function value() {return textbox.dom ? textbox.dom.value : null;},
+          set: function value(value) {if(textbox.dom) textbox.dom.value = value;},
+        },
+        defaultValue: {
+          get: function defaultValue() {return textbox.dom ? textbox.dom.defaultValue : null;},
+          set: function defaultValue(value) {if(textbox.dom) textbox.dom.defaultValue = value;},
+        }
+      });    
+
+      this.dom = df;
+      this.name = prop.name || '';
+      this.defaultValue = '';
+      this.value = this.defaultValue;
+      this.oldValue = null;
+      this.fireInputEvent = function() {
+        if(textbox.dom) textbox.dom.dispatchEvent(new Event('input', {bubbles: true}));
+      };      
+    };
+    
+    Input.prototype = {
+      constructor: Input,
+      
+      clear: function() {
+        this.oldValue = this.value;
+        this.value = this.defaultValue;
+        this.fireInputEvent();
+        
+        //TODO related to issue#5
+        //document.getElementById('chattext').value = '';
+      },
+      
+      isChanged: function(){
+        if(this.value !== this.oldValue){
+          this.oldValue = this.value; 
+          return true;
+        }
+        else return false;
+      }      
+    };
+    
+    return Input;
+  })();
+
+  function filterAgent(logRowDom) {
+    if(!inputAgent.value) return;
+    
+    var agentDom = logRowDom.querySelector('.nickname'); 
+    if(!agentDom) return;
+    
+    var agentsList = inputAgent.value.split(/\s+/);
+    
+    for(var i = 0; i < agentsList.length; i++) {
+      if(agentsList[i]) {
+        if(i > 0 && !logRowDom.hidden) return;
+        
+        if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
+          logRowDom.hidden = false;
+        } else {
+          logRowDom.hidden = true;
         }
       }
-    } else {
-      logRowDom.hidden = false;
+    }
+  }
+  
+  function filterAction(logRowDom) {
+    if(!inputAction.value) return;
+    if(logRowDom.cells.length !== 3) return;
+    
+    var actionDom = logRowDom.cells[2];
+    var wordsList = inputAction.value.split(/\s+/);
+    
+    for(var i = 0; i < wordsList.length; i++) {
+      if(wordsList[i]) {
+        if(i > 0 && !logRowDom.hidden) return;
+        
+        if(checkWord(wordsList[i].toLowerCase(), actionDom.textContent.toLowerCase())) {
+          logRowDom.hidden = false;
+        } else {
+          logRowDom.hidden = true;
+        }
+      }
     }
   }
   
@@ -189,7 +260,12 @@ window.plugin.commfilter = (function() {
   }
   
   function resetFilter(logRowDom) {
-    logRowDom.hidden = true;
+    logRowDom.hidden = false;
+  }
+  
+  function checkWord(prefix, word) {
+    if(word.search(prefix) !== -1) return true;
+    else return false;
   }
   
   function checkWordPrefix(prefix, word) {
@@ -216,34 +292,63 @@ window.plugin.commfilter = (function() {
     }
   }
   
-  function resetInput() {
-    inputAgent.dom.value = inputAgent.dom.defaultValue;
-    inputAgent.oldValue = inputAgent.dom.value;
-    
-    var channel = window.chat.getActive();
-    
-    if(comm.channels[channel].hasLogs()) renderLogs(channel);
-    
-    document.getElementById('chattext').value = '';
-  }
-
   function setup() {
     if(!comm.create()) return;
         
     dom = document.createElement('header');
     dom.id = ID;
+    
+    var titleDom = document.createElement('b');
+    titleDom.className = 'title';
+    titleDom.textContent = 'Filter';
+    titleDom.title = DESCRIPTIONS;
+    dom.appendChild(titleDom);
 
-    inputAgent.create();
+    inputAgent = new Input({name: 'agent', placeholder: 'agent name'});
     dom.appendChild(inputAgent.dom);
     
-    resetAgent.create();
-    dom.appendChild(resetAgent.dom);
+    dom.addEventListener('input', function(event) {
+      if(event.target.name === inputAgent.name) {
+        var channel = window.chat.getActive();
+        
+        if(inputAgent.isChanged() && comm.channels[channel].hasLogs()) {
+          renderLogs(channel);
+        }
+      }
+    });
+    
+    var selectorAndOrDom = document.createElement('select');
+    selectorAndOrDom.disabled = true;
+    selectorAndOrDom.options[0] = document.createElement('option');
+    selectorAndOrDom.options[0].textContent = 'AND';
+    selectorAndOrDom.options[1] = document.createElement('option');
+    selectorAndOrDom.options[1].textContent = 'OR';
+    dom.appendChild(selectorAndOrDom);
+
+    inputAction = new Input({name: 'action', placeholder: 'portal name'});
+    dom.appendChild(inputAction.dom);
+    
+    dom.addEventListener('input', function(event) {
+      if(event.target.name === inputAction.name) {
+        var channel = window.chat.getActive();
+        
+        if(inputAction.isChanged() && comm.channels[channel].hasLogs()) {
+          renderLogs(channel);
+        }
+      }
+    });
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
+    
+    $("<style>")
+      .prop("type", "text/css")
+      .html("#PLUGIN_COMM_FILTER {\n  height: 24px;\n  display: flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER>.title {\n  padding: 0 0.5ex;\n}\n\n#PLUGIN_COMM_FILTER>select {\n  margin: 0 1ex;\n}\n\n#PLUGIN_COMM_FILTER>input {\n  height: 24px;\n}\n\n#PLUGIN_COMM_FILTER>input[name=agent] {\n  flex: 1;\n}\n\n#PLUGIN_COMM_FILTER>input[name=action] {\n  flex: 1.5;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n\n/* tentatively to show 3 log lines on minimized */\n#chat {\n  height: 84px; /* 60px + 24px */\n}\n\n/* tentatively to show 3 log lines on minimized */\n#chatcontrols {\n  bottom: 106px; /* 82px + 24px */\n}\n\n/* hack chat.js divider */\n#chatall>table tr.divider,\n#chatfaction>table tr.divider,\n#chatalerts>table tr.divider {\n  border-top: solid 1px #bbb;\n}\n\n#chatall>table tr.divider>td,\n#chatfaction>table tr.divider>td,\n#chatalerts>table tr.divider>td {\n  padding-top: 3px;\n}\n\n#chatall>table tr.divider summary,\n#chatfaction>table tr.divider summary,\n#chatalerts>table tr.divider summary {\n  box-sizing: border-box;\n  padding-left: 2ex;\n}\n")
+      .appendTo("head");
   }
 
   return {
     filterAgent: filterAgent,
+    filterAction: filterAction,
     filterOutAlert: filterOutAlert,
     resetFilter: resetFilter,
     setup: setup
@@ -281,8 +386,8 @@ var setup = function(){
     });
 
     var scrollBefore = scrollBottom(elm);
-    //elm.html('<table>' + msgs + '</table>');
-    elm.append(chat.renderTableDom($(msgs)));
+    if(!window.plugin.commfilter) elm.html('<table>' + msgs + '</table>');    
+    else elm.append(chat.renderTableDom($(msgs)));
     chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
   }
 
@@ -346,9 +451,13 @@ var setup = function(){
 
   window.chat.filter = function(rowDom) {
     if(!rowDom) return;
+    if(!window.plugin.commfilter) return;
 
     window.plugin.commfilter.resetFilter(rowDom);
     window.plugin.commfilter.filterAgent(rowDom);
+    
+    // AND filtering
+    if(!rowDom.hidden) window.plugin.commfilter.filterAction(rowDom);
 
     if(chat.getActive() === 'all') {
       window.plugin.commfilter.filterOutAlert(rowDom);
@@ -356,11 +465,6 @@ var setup = function(){
   }
 
   window.plugin.commfilter.setup();
-    
-  $("<style>")
-    .prop("type", "text/css")
-    .html("#PLUGIN_COMM_FILTER {\n  height: 24px;\n}\n\n#PLUGIN_COMM_FILTER>input {\n  width: 30%;\n  height: 24px;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n\n/* tentatively to show 3 log lines on minimized */\n#chat {\n  height: 84px; /* 60px + 24px */\n}\n\n/* tentatively to show 3 log lines on minimized */\n#chatcontrols {\n  bottom: 106px; /* 82px + 24px */\n}\n\n/* hack chat.js divider */\n#chatall>table tr.divider,\n#chatfaction>table tr.divider,\n#chatalerts>table tr.divider {\n  border-top: solid 1px #bbb;\n}\n\n#chatall>table tr.divider>td,\n#chatfaction>table tr.divider>td,\n#chatalerts>table tr.divider>td {\n  padding-top: 3px;\n}\n\n#chatall>table tr.divider summary,\n#chatfaction>table tr.divider summary,\n#chatalerts>table tr.divider summary {\n  box-sizing: border-box;\n  padding-left: 2ex;\n}\n")
-    .appendTo("head");
 };
 
 // PLUGIN END //////////////////////////////////////////////////////////
