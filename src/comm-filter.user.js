@@ -73,7 +73,8 @@ window.plugin.commfilter = (function() {
             //            call event.stopImmediatePropagation() in this.
             //            So IITC default action that inputs @agentname automatically 
             //            to the #chattext box is blocked.
-            event.stopImmediatePropagation()
+            //TODO related to issue#5
+            event.stopImmediatePropagation();
 
             var channel = window.chat.getActive();
             
@@ -184,7 +185,8 @@ window.plugin.commfilter = (function() {
         this.value = this.defaultValue;
         this.fireInputEvent();
         
-          document.getElementById('chattext').value = '';
+        //TODO related to issue#5
+        //document.getElementById('chattext').value = '';
       },
       
       isChanged: function(){
@@ -283,6 +285,12 @@ window.plugin.commfilter = (function() {
         
     dom = document.createElement('header');
     dom.id = ID;
+    
+    var titleDom = document.createElement('b');
+    titleDom.className = 'title';
+    titleDom.textContent = 'Filter';
+    titleDom.title = DESCRIPTIONS;
+    dom.appendChild(titleDom);
 
     inputAgent = new Input({name: 'agent', placeholder: 'agent name'});
     dom.appendChild(inputAgent.dom);
@@ -297,6 +305,14 @@ window.plugin.commfilter = (function() {
       }
     });
     
+    var selectorAndOrDom = document.createElement('select');
+    selectorAndOrDom.disabled = true;
+    selectorAndOrDom.options[0] = document.createElement('option');
+    selectorAndOrDom.options[0].textContent = 'AND';
+    selectorAndOrDom.options[1] = document.createElement('option');
+    selectorAndOrDom.options[1].textContent = 'OR';
+    dom.appendChild(selectorAndOrDom);
+
     inputAction = new Input({name: 'action', placeholder: 'portal name'});
     dom.appendChild(inputAction.dom);
     
