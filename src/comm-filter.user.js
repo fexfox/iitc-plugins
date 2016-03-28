@@ -283,6 +283,11 @@ window.plugin.commfilter = (function() {
         
     dom = document.createElement('header');
     dom.id = ID;
+    
+    var titleDom = document.createElement('b');
+    titleDom.textContent = 'Filter';
+    titleDom.title = DESCRIPTIONS;
+    dom.appendChild(titleDom);
 
     inputAgent = new Input({name: 'agent', placeholder: 'agent name'});
     dom.appendChild(inputAgent.dom);
