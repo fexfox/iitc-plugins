@@ -66,7 +66,7 @@ window.plugin.commfilter = (function() {
           comm.dom = dom;
           
           // filtering by agent name clicked/tapped in COMM       
-          dom.addEventListener('click', function(){
+          dom.addEventListener('click', function(event){
             if(!event.target.classList.contains('nickname')) return;
             
             // tentative: to avoid a problem on Android that causes cached chat logs reset,
@@ -89,7 +89,7 @@ window.plugin.commfilter = (function() {
           });
           
           // refreshing filtered logs on COMM tabs changed
-          document.getElementById('chatcontrols').addEventListener('click', function() {
+          document.getElementById('chatcontrols').addEventListener('click', function(event) {
             if(comm.checkChannelTab(event.target)) {
               var channel = window.chat.getActive();
               if(comm.channels[channel].hasLogs()) renderLogs(channel);
