@@ -115,7 +115,8 @@ window.plugin.commfilter = (function() {
           else return false;
         }
       },
-      inputAgent;
+      inputAgent,
+      inputAction;
       
   var Input = (function Input() {
     var Input = function(prop) {
@@ -218,7 +219,27 @@ window.plugin.commfilter = (function() {
       }
     }
   }
+  
+  function filterAction(logRowDom) {
+    if(!inputAction.value) return;
+    if(logRowDom.cells.length !== 3) return;
     
+    var actionDom = logRowDom.cells[2];
+    var wordsList = inputAction.value.split(/\s+/);
+    
+    for(var i = 0; i < wordsList.length; i++) {
+      if(wordsList[i]) {
+        if(i > 0 && !logRowDom.hidden) return;
+        
+        if(checkWord(wordsList[i].toLowerCase(), actionDom.textContent.toLowerCase())) {
+          logRowDom.hidden = false;
+        } else {
+          logRowDom.hidden = true;
+        }
+      }
+    }
+  }
+  
   function filterOutAlert(logRowDom) {
     var alertDom = logRowDom.querySelector('.system_narrowcast');
     if(alertDom) logRowDom.hidden = true;
@@ -226,6 +247,11 @@ window.plugin.commfilter = (function() {
   
   function resetFilter(logRowDom) {
     logRowDom.hidden = false;
+  }
+  
+  function checkWord(prefix, word) {
+    if(word.search(prefix) !== -1) return true;
+    else return false;
   }
   
   function checkWordPrefix(prefix, word) {
@@ -271,6 +297,19 @@ window.plugin.commfilter = (function() {
       }
     });
     
+    inputAction = new Input({name: 'action', placeholder: 'portal name'});
+    dom.appendChild(inputAction.dom);
+    
+    dom.addEventListener('input', function(event) {
+      if(event.target.name === inputAction.name) {
+        var channel = window.chat.getActive();
+        
+        if(inputAction.isChanged() && comm.channels[channel].hasLogs()) {
+          renderLogs(channel);
+        }
+      }
+    });
+    
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
     
     $("<style>")
@@ -281,6 +320,7 @@ window.plugin.commfilter = (function() {
 
   return {
     filterAgent: filterAgent,
+    filterAction: filterAction,
     filterOutAlert: filterOutAlert,
     resetFilter: resetFilter,
     setup: setup
@@ -387,6 +427,9 @@ var setup = function(){
 
     window.plugin.commfilter.resetFilter(rowDom);
     window.plugin.commfilter.filterAgent(rowDom);
+    
+    // AND filtering
+    if(!rowDom.hidden) window.plugin.commfilter.filterAction(rowDom);
 
     if(chat.getActive() === 'all') {
       window.plugin.commfilter.filterOutAlert(rowDom);
