@@ -202,44 +202,46 @@ window.plugin.commfilter = (function() {
   })();
 
   function filterAgent(logRowDom) {
-    if(!inputAgent.value) return;
+    if(!inputAgent.value) return 0;
     
     var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return;
+    if(!agentDom) return 0;
     
     var agentsList = inputAgent.value.split(/\s+/);
     
     for(var i = 0; i < agentsList.length; i++) {
       if(agentsList[i]) {
-        if(i > 0 && !logRowDom.hidden) return;
-        
         if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
           logRowDom.hidden = false;
+          return 1;
         } else {
           logRowDom.hidden = true;
         }
       }
     }
+    
+    return 1;
   }
   
   function filterAction(logRowDom) {
-    if(!inputAction.value) return;
-    if(logRowDom.cells.length !== 3) return;
+    if(!inputAction.value) return 0;
+    if(logRowDom.cells.length !== 3) return 0;
     
     var actionDom = logRowDom.cells[2];
     var wordsList = inputAction.value.split(/\s+/);
     
     for(var i = 0; i < wordsList.length; i++) {
       if(wordsList[i]) {
-        if(i > 0 && !logRowDom.hidden) return;
-        
         if(checkWord(wordsList[i].toLowerCase(), actionDom.textContent.toLowerCase())) {
           logRowDom.hidden = false;
+          return 1;
         } else {
           logRowDom.hidden = true;
         }
       }
     }
+    
+    return 1;
   }
   
   function filterOutAlert(logRowDom) {
