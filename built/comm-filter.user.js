@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.4.1.20160328.164226
+// @version        0.4.1.20160330.15709
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.meta.js
 // @downloadURL    https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.user.js
-// @description    [udnp-2016-03-28-164226] COMM Filter
+// @description    [udnp-2016-03-30-015709] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'udnp';
-plugin_info.dateTimeVersion = '20160328.164226';
+plugin_info.dateTimeVersion = '20160330.15709';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -40,6 +40,9 @@ plugin_info.pluginId = 'comm-filter';
 window.plugin.commfilter = (function() {
   var ID = 'PLUGIN_COMM_FILTER',
       DESCRIPTIONS = "COMM Filter plug-in",
+      config = {
+        filtering_between_agents_and_actions: 'AND' // AND, OR
+      },
       dom = null,
       comm = { //TODO change this to singleton
         dom: null,
@@ -214,44 +217,46 @@ window.plugin.commfilter = (function() {
   })();
 
   function filterAgent(logRowDom) {
-    if(!inputAgent.value) return;
+    if(!inputAgent.value) return 0;
     
     var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return;
+    if(!agentDom) return 0;
     
     var agentsList = inputAgent.value.split(/\s+/);
     
     for(var i = 0; i < agentsList.length; i++) {
       if(agentsList[i]) {
-        if(i > 0 && !logRowDom.hidden) return;
-        
         if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
           logRowDom.hidden = false;
+          return 1;
         } else {
           logRowDom.hidden = true;
         }
       }
     }
+    
+    return 1;
   }
   
   function filterAction(logRowDom) {
-    if(!inputAction.value) return;
-    if(logRowDom.cells.length !== 3) return;
+    if(!inputAction.value) return 0;
+    if(logRowDom.cells.length !== 3) return 0;
     
     var actionDom = logRowDom.cells[2];
     var wordsList = inputAction.value.split(/\s+/);
     
     for(var i = 0; i < wordsList.length; i++) {
       if(wordsList[i]) {
-        if(i > 0 && !logRowDom.hidden) return;
-        
         if(checkWord(wordsList[i].toLowerCase(), actionDom.textContent.toLowerCase())) {
           logRowDom.hidden = false;
+          return 1;
         } else {
           logRowDom.hidden = true;
         }
       }
     }
+    
+    return 1;
   }
   
   function filterOutAlert(logRowDom) {
@@ -323,6 +328,8 @@ window.plugin.commfilter = (function() {
     selectorAndOrDom.options[0].textContent = 'AND';
     selectorAndOrDom.options[1] = document.createElement('option');
     selectorAndOrDom.options[1].textContent = 'OR';
+    if(config.filtering_between_agents_and_actions === 'AND') selectorAndOrDom.options[0].selected = true;
+    else if(config.filtering_between_agents_and_actions === 'OR') selectorAndOrDom.options[1].selected = true;
     dom.appendChild(selectorAndOrDom);
 
     inputAction = new Input({name: 'action', placeholder: 'portal name'});
@@ -347,6 +354,7 @@ window.plugin.commfilter = (function() {
   }
 
   return {
+    config: config,
     filterAgent: filterAgent,
     filterAction: filterAction,
     filterOutAlert: filterOutAlert,
@@ -454,11 +462,18 @@ var setup = function(){
     if(!window.plugin.commfilter) return;
 
     window.plugin.commfilter.resetFilter(rowDom);
-    window.plugin.commfilter.filterAgent(rowDom);
+    if(window.plugin.commfilter.filterAgent(rowDom)) {
+      if(window.plugin.commfilter.config.filtering_between_agents_and_actions === 'AND') {
+        // AND filtering
+        if(!rowDom.hidden) window.plugin.commfilter.filterAction(rowDom);
+      } else if(window.plugin.commfilter.config.filtering_between_agents_and_actions === 'OR') {
+        // OR filtering
+        if(rowDom.hidden) window.plugin.commfilter.filterAction(rowDom);
+      }
+    } else {
+      window.plugin.commfilter.filterAction(rowDom);
+    }
     
-    // AND filtering
-    if(!rowDom.hidden) window.plugin.commfilter.filterAction(rowDom);
-
     if(chat.getActive() === 'all') {
       window.plugin.commfilter.filterOutAlert(rowDom);
     }
