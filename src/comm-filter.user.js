@@ -29,7 +29,7 @@ window.plugin.commfilter = (function() {
   var ID = 'PLUGIN_COMM_FILTER',
       DESCRIPTIONS = "COMM Filter plug-in",
       config = {
-        filtering_between_agents_and_actions: 'AND' // AND, OR
+        filtering_between_agents_and_actions: 'OR' // AND, OR
       },
       dom = null,
       comm = { //TODO change this to singleton
@@ -82,13 +82,13 @@ window.plugin.commfilter = (function() {
             var channel = window.chat.getActive();
             
             if(comm.channels[channel].hasLogs()) {
-              if(!inputAgent.value) {
-                inputAgent.value = event.target.textContent;
+              if(!inputOmni.value) {
+                inputOmni.value = event.target.textContent;
               } else {
-                inputAgent.value = inputAgent.value + ' ' + event.target.textContent;
+                inputOmni.value = inputOmni.value + ' ' + event.target.textContent;
               }
 
-              inputAgent.fireInputEvent();
+              inputOmni.fireInputEvent();
             }
           });
           
@@ -119,8 +119,9 @@ window.plugin.commfilter = (function() {
           else return false;
         }
       },
-      inputAgent,
-      inputAction;
+      // inputAgent,
+      // inputAction,
+      inputOmni;
       
   var Input = (function Input() {
     var Input = function(prop) {
@@ -205,12 +206,12 @@ window.plugin.commfilter = (function() {
   })();
 
   function filterAgent(logRowDom) {
-    if(!inputAgent.value) return 0;
+    if(!inputOmni.value) return 0;
     
     var agentDom = logRowDom.querySelector('.nickname'); 
     if(!agentDom) return 0;
     
-    var agentsList = inputAgent.value.split(/\s+/);
+    var agentsList = inputOmni.value.split(/\s+/);
     
     for(var i = 0; i < agentsList.length; i++) {
       if(agentsList[i]) {
@@ -227,11 +228,11 @@ window.plugin.commfilter = (function() {
   }
   
   function filterAction(logRowDom) {
-    if(!inputAction.value) return 0;
+    if(!inputOmni.value) return 0;
     if(logRowDom.cells.length !== 3) return 0;
     
     var actionDom = logRowDom.cells[2];
-    var wordsList = inputAction.value.split(/\s+/);
+    var wordsList = inputOmni.value.split(/\s+/);
     
     for(var i = 0; i < wordsList.length; i++) {
       if(wordsList[i]) {
@@ -297,41 +298,41 @@ window.plugin.commfilter = (function() {
     titleDom.title = DESCRIPTIONS;
     dom.appendChild(titleDom);
 
-    inputAgent = new Input({name: 'agent', placeholder: 'agent name'});
-    dom.appendChild(inputAgent.dom);
+    inputOmni = new Input({name: 'omni', placeholder: 'agent names, or portal names'});
+    dom.appendChild(inputOmni.dom);
     
     dom.addEventListener('input', function(event) {
-      if(event.target.name === inputAgent.name) {
+      if(event.target.name === inputOmni.name) {
         var channel = window.chat.getActive();
         
-        if(inputAgent.isChanged() && comm.channels[channel].hasLogs()) {
+        if(inputOmni.isChanged() && comm.channels[channel].hasLogs()) {
           renderLogs(channel);
         }
       }
     });
     
-    var selectorAndOrDom = document.createElement('select');
-    selectorAndOrDom.disabled = true;
-    selectorAndOrDom.options[0] = document.createElement('option');
-    selectorAndOrDom.options[0].textContent = 'AND';
-    selectorAndOrDom.options[1] = document.createElement('option');
-    selectorAndOrDom.options[1].textContent = 'OR';
-    if(config.filtering_between_agents_and_actions === 'AND') selectorAndOrDom.options[0].selected = true;
-    else if(config.filtering_between_agents_and_actions === 'OR') selectorAndOrDom.options[1].selected = true;
-    dom.appendChild(selectorAndOrDom);
+    // var selectorAndOrDom = document.createElement('select');
+    // selectorAndOrDom.disabled = true;
+    // selectorAndOrDom.options[0] = document.createElement('option');
+    // selectorAndOrDom.options[0].textContent = 'AND';
+    // selectorAndOrDom.options[1] = document.createElement('option');
+    // selectorAndOrDom.options[1].textContent = 'OR';
+    // if(config.filtering_between_agents_and_actions === 'AND') selectorAndOrDom.options[0].selected = true;
+    // else if(config.filtering_between_agents_and_actions === 'OR') selectorAndOrDom.options[1].selected = true;
+    // dom.appendChild(selectorAndOrDom);
 
-    inputAction = new Input({name: 'action', placeholder: 'portal name'});
-    dom.appendChild(inputAction.dom);
+    // inputAction = new Input({name: 'action', placeholder: 'portal name'});
+    // dom.appendChild(inputAction.dom);
     
-    dom.addEventListener('input', function(event) {
-      if(event.target.name === inputAction.name) {
-        var channel = window.chat.getActive();
+    // dom.addEventListener('input', function(event) {
+    //   if(event.target.name === inputAction.name) {
+    //     var channel = window.chat.getActive();
         
-        if(inputAction.isChanged() && comm.channels[channel].hasLogs()) {
-          renderLogs(channel);
-        }
-      }
-    });
+    //     if(inputAction.isChanged() && comm.channels[channel].hasLogs()) {
+    //       renderLogs(channel);
+    //     }
+    //   }
+    // });
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
     
