@@ -128,7 +128,8 @@ window.plugin.commfilter = (function() {
       },
       // inputAgent,
       // inputAction,
-      inputOmni;
+      inputOmni,
+      filterSwitches = [];
       
   var Input = (function Input() {
     var Input = function(prop) {
@@ -210,6 +211,46 @@ window.plugin.commfilter = (function() {
     };
     
     return Input;
+  })();
+
+  var FilterSwitch = (function FilterSwitch() {
+    var FilterSwitch = function(action) {
+      if(!action) return null;
+      
+      var switchDom = document.createElement('input');
+      switchDom.type = 'checkbox';
+      
+      Object.defineProperties(this, {
+        name: {
+          get: function() {return switchDom ? switchDom.name : null;},
+          set: function(val) {if(switchDom) switchDom.name = val;}
+        },
+        checked: {
+          get: function() {return switchDom ? switchDom.checked : null;},
+          set: function(val) {if(switchDom) switchDom.checked = val;}
+        }
+      });
+      
+      this.name = action;
+      this.checked = config.filter[action];
+      
+      this.dom = document.createElement('label');
+      this.dom.textContent = action;
+      this.dom.insertBefore(switchDom, this.dom.firstChild);
+    };
+    
+    FilterSwitch.prototype = {
+      constructor: FilterSwitch,
+      
+      toggle: function() {
+        if(this.checked) config.filter[this.name] = true;
+        else config.filter[this.name] = false;
+        
+        renderLogs(window.chat.getActive());
+      }
+    };
+    
+    return FilterSwitch;
   })();
 
   function filterAgent(logRowDom) {
@@ -376,6 +417,27 @@ window.plugin.commfilter = (function() {
     //     }
     //   }
     // });
+    
+    filterSwitches = [
+      new FilterSwitch('deployed'), 
+      new FilterSwitch('captured'), 
+      new FilterSwitch('linked'), 
+      new FilterSwitch('created'), 
+      new FilterSwitch('destroyed')];
+    
+    for(var i = 0; i < filterSwitches.length; i++) {
+      dom.appendChild(filterSwitches[i].dom);
+    }
+    
+    dom.addEventListener('click', function(event){
+      for(var i = 0; i < filterSwitches.length; i++) {
+        if(event.target.name === filterSwitches[i].name) {
+          filterSwitches[i].toggle();
+          renderLogs(window.chat.getActive());
+          break;
+        }
+      }    
+    });
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
     
