@@ -29,6 +29,13 @@ window.plugin.commfilter = (function() {
   var ID = 'PLUGIN_COMM_FILTER',
       DESCRIPTIONS = "COMM Filter plug-in",
       config = {
+        filter: {
+          deployed: true,
+          captured: true,
+          linked: true,
+          created: true,
+          destroyed: true
+        },
         filtering_between_agents_and_actions: 'OR' // AND, OR
       },
       dom = null,
@@ -248,6 +255,42 @@ window.plugin.commfilter = (function() {
     return 1;
   }
   
+  function checkLogHasAction(log) {
+    if(!log) return false;
+    
+    if(config.filter.deployed) {
+      if(checkWordPrefix('deployed', log.trim())) {
+        return true;
+      }
+    }
+    
+    if(config.filter.captured) {
+      if(checkWordPrefix('captured', log.trim())) {
+        return true;
+      }
+    }
+    
+    if(config.filter.linked) {
+      if(checkWordPrefix('linked', log.trim())) {
+        return true;
+      }
+    }
+      
+    if(config.filter.created) {
+      if(checkWordPrefix('created', log.trim())) {
+        return true;
+      }
+    }
+      
+    if(config.filter.destroyed) {
+      if(checkWordPrefix('destroyed', log.trim())) {
+        return true;
+      }
+    }
+    
+    return false;      
+  }
+  
   function filterOutAlert(logRowDom) {
     var alertDom = logRowDom.querySelector('.system_narrowcast');
     if(alertDom) logRowDom.hidden = true;
@@ -344,6 +387,7 @@ window.plugin.commfilter = (function() {
 
   return {
     config: config,
+    checkLogHasAction: checkLogHasAction,
     filterAgent: filterAgent,
     filterAction: filterAction,
     filterOutAlert: filterOutAlert,
@@ -447,10 +491,14 @@ var setup = function(){
   }
 
   window.chat.filter = function(rowDom) {
+    var filter = window.plugin.commfilter;
+    
+    if(!filter) return;
     if(!rowDom) return;
-    if(!window.plugin.commfilter) return;
+    if(rowDom.classList.contains('divider')) return; // rowDom is divider
 
     window.plugin.commfilter.resetFilter(rowDom);
+    
     if(window.plugin.commfilter.filterAgent(rowDom)) {
       if(window.plugin.commfilter.config.filtering_between_agents_and_actions === 'AND') {
         // AND filtering
@@ -464,6 +512,13 @@ var setup = function(){
     }
     
     if(chat.getActive() === 'all') {
+      if(!rowDom.hidden) {
+        var actionLog = rowDom.cells[2].textContent;
+        
+        if(filter.checkLogHasAction(actionLog)) rowDom.hidden = false;
+        else rowDom.hidden = true;
+      }
+
       window.plugin.commfilter.filterOutAlert(rowDom);
     }
   }
