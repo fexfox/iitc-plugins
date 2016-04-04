@@ -34,7 +34,9 @@ window.plugin.commfilter = (function() {
           captured: true,
           linked: true,
           created: true,
-          destroyed: true
+          destroyed: true,
+          public: true,
+          faction: true
         },
         filtering_between_agents_and_actions: 'OR' // AND, OR
       },
@@ -296,42 +298,118 @@ window.plugin.commfilter = (function() {
     return 1;
   }
   
-  function checkLogHasAction(log) {
-    if(!log) return false;
+  function filterOutDeployed(log) {
+    if(!config.filter.deployed) {
+      return isDeployedLog(log);
+    }    
     
-    if(config.filter.deployed) {
-      if(checkWordPrefix('deployed', log.trim())) {
-        return true;
-      }
-    }
-    
-    if(config.filter.captured) {
-      if(checkWordPrefix('captured', log.trim())) {
-        return true;
-      }
-    }
-    
-    if(config.filter.linked) {
-      if(checkWordPrefix('linked', log.trim())) {
-        return true;
-      }
-    }
+    return false;
+  }
       
-    if(config.filter.created) {
-      if(checkWordPrefix('created', log.trim())) {
-        return true;
-      }
+  function isDeployedLog(log) {
+    if(checkWordPrefix('deployed', log.trim())) {
+      return true;
+    } else {
+      return false;
     }
-      
-    if(config.filter.destroyed) {
-      if(checkWordPrefix('destroyed', log.trim())) {
-        return true;
-      }
-    }
-    
-    return false;      
   }
   
+  function filterOutCaptured(log) {
+    if(!config.filter.captured) {
+      return isCapturedLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isCapturedLog(log) {
+    if(checkWordPrefix('captured', log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  function filterOutLinked(log) {
+    if(!config.filter.linked) {
+      return isLinkedLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isLinkedLog(log) {
+    if(checkWordPrefix('linked', log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  function filterOutCreated(log) {
+    if(!config.filter.created) {
+      return isCreatedLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isCreatedLog(log) {
+    if(checkWordPrefix('created', log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  function filterOutDestroyed(log) {
+    if(!config.filter.destroyed) {
+      return isDestroyedLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isDestroyedLog(log) {
+    if(checkWordPrefix('destroyed', log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  function filterOutFaction(log) {
+    if(!config.filter.faction) {
+      return isFactionLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isFactionLog(log) {
+    if(checkWordPrefix(/\[faction\]/, log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+      
+  function filterOutPublic(log) {
+    if(!config.filter.public) {
+      return isPublicLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isPublicLog(log) {
+    if(checkWordPrefix(/\[public\]/, log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+      
   function filterOutAlert(logRowDom) {
     var alertDom = logRowDom.querySelector('.system_narrowcast');
     if(alertDom) logRowDom.hidden = true;
@@ -449,10 +527,16 @@ window.plugin.commfilter = (function() {
 
   return {
     config: config,
-    checkLogHasAction: checkLogHasAction,
     filterAgent: filterAgent,
     filterAction: filterAction,
     filterOutAlert: filterOutAlert,
+    filterOutCaptured: filterOutCaptured,
+    filterOutCreated: filterOutCreated,
+    filterOutDeployed: filterOutDeployed,
+    filterOutDestroyed: filterOutDestroyed,
+    filterOutFaction: filterOutFaction,
+    filterOutLinked: filterOutLinked,
+    filterOutPublic: filterOutPublic,
     resetFilter: resetFilter,
     setup: setup
   };
@@ -577,11 +661,27 @@ var setup = function(){
       if(!rowDom.hidden) {
         var actionLog = rowDom.cells[2].textContent;
         
-        if(filter.checkLogHasAction(actionLog)) rowDom.hidden = false;
-        else rowDom.hidden = true;
+        if(filter.filterOutCaptured(actionLog)
+          || filter.filterOutDeployed(actionLog)
+          || filter.filterOutLinked(actionLog)
+          || filter.filterOutCreated(actionLog)
+          || filter.filterOutDestroyed(actionLog)
+          || filter.filterOutFaction(actionLog)
+          || filter.filterOutPublic(actionLog) {
+            rowDom.hidden = true;
+        }
       }
 
       window.plugin.commfilter.filterOutAlert(rowDom);
+    } else if(chat.getActive() === 'alerts') {
+      if(!rowDom.hidden) { // AND filtering
+        var actionLog = rowDom.cells[2].textContent;
+        
+        if(filter.filterOutFaction(actionLog)
+          || filter.filterOutPublic(actionLog)) {
+            rowDom.hidden = true;
+        }
+      }
     }
   }
 
