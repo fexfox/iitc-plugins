@@ -665,16 +665,16 @@ var setup = function(){
 
     window.plugin.commfilter.resetFilter(rowDom);
     
-    if(window.plugin.commfilter.filterAgent(rowDom)) {
-      if(window.plugin.commfilter.config.filtering_between_agents_and_actions === 'AND') {
+    if(filter.filterAgent(rowDom)) {
+      if(filter.config.filtering_between_agents_and_actions === 'AND') {
         // AND filtering
-        if(!rowDom.hidden) window.plugin.commfilter.filterPortal(rowDom);
-      } else if(window.plugin.commfilter.config.filtering_between_agents_and_actions === 'OR') {
+        if(!rowDom.hidden) filter.filterPortal(rowDom);
+      } else if(filter.config.filtering_between_agents_and_actions === 'OR') {
         // OR filtering
-        if(rowDom.hidden) window.plugin.commfilter.filterPortal(rowDom);
+        if(rowDom.hidden) filter.filterPortal(rowDom);
       }
     } else {
-      window.plugin.commfilter.filterPortal(rowDom);
+      filter.filterPortal(rowDom);
     }
     
     if(chat.getActive() === 'all') {
