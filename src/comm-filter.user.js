@@ -278,20 +278,25 @@ window.plugin.commfilter = (function() {
     return 1;
   }
   
-  function filterAction(logRowDom) {
+  function filterPortal(logRowDom) {
     if(!inputOmni.value) return 0;
     if(logRowDom.cells.length !== 3) return 0;
     
     var actionDom = logRowDom.cells[2];
+    var portalDomList = actionDom.querySelectorAll('.help');
+    if(!portalDomList.length) return 0;
+    
     var wordsList = inputOmni.value.split(/\s+/);
     
     for(var i = 0; i < wordsList.length; i++) {
       if(wordsList[i]) {
-        if(checkWord(wordsList[i].toLowerCase(), actionDom.textContent.toLowerCase())) {
-          logRowDom.hidden = false;
-          return 1;
-        } else {
-          logRowDom.hidden = true;
+        for(var j = 0; j < portalDomList.length; j++) {
+          if(checkWord(wordsList[i].toLowerCase(), portalDomList[j].textContent.toLowerCase())) {
+            logRowDom.hidden = false;
+            return 1;
+          } else {
+            logRowDom.hidden = true;
+          }
         }
       }
     }
@@ -543,7 +548,7 @@ window.plugin.commfilter = (function() {
   return {
     config: config,
     filterAgent: filterAgent,
-    filterAction: filterAction,
+    filterPortal: filterPortal,
     filterOutAlert: filterOutAlert,
     filterOutCaptured: filterOutCaptured,
     filterOutCreated: filterOutCreated,
@@ -663,13 +668,13 @@ var setup = function(){
     if(window.plugin.commfilter.filterAgent(rowDom)) {
       if(window.plugin.commfilter.config.filtering_between_agents_and_actions === 'AND') {
         // AND filtering
-        if(!rowDom.hidden) window.plugin.commfilter.filterAction(rowDom);
+        if(!rowDom.hidden) window.plugin.commfilter.filterPortal(rowDom);
       } else if(window.plugin.commfilter.config.filtering_between_agents_and_actions === 'OR') {
         // OR filtering
-        if(rowDom.hidden) window.plugin.commfilter.filterAction(rowDom);
+        if(rowDom.hidden) window.plugin.commfilter.filterPortal(rowDom);
       }
     } else {
-      window.plugin.commfilter.filterAction(rowDom);
+      window.plugin.commfilter.filterPortal(rowDom);
     }
     
     if(chat.getActive() === 'all') {
