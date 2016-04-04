@@ -2,26 +2,28 @@
   height: 24px;
   display: flex;
   align-items: center;
+  padding: 0 0.5ex;
 }
 
 #PLUGIN_COMM_FILTER>.title {
-  padding: 0 0.5ex;
+  padding-right: 0.5ex;
 }
 
 #PLUGIN_COMM_FILTER>select {
   margin: 0 1ex;
 }
 
+#PLUGIN_COMM_FILTER>label {
+  white-space: nowrap;
+  margin-left: 1.2ex;
+}
+
 #PLUGIN_COMM_FILTER>input {
   height: 24px;
 }
 
-#PLUGIN_COMM_FILTER>input[name=agent] {
-  flex: 1;
-}
-
-#PLUGIN_COMM_FILTER>input[name=action] {
-  flex: 1.5;
+#PLUGIN_COMM_FILTER>input[name=omni] {
+  flex: auto;
 }
 
 #PLUGIN_COMM_FILTER>button {
