@@ -36,7 +36,8 @@ window.plugin.commfilter = (function() {
           created: true,
           destroyed: true,
           public: true,
-          faction: true
+          faction: true,
+          alert: false
         },
         filtering_between_agents_and_actions: 'OR' // AND, OR
       },
@@ -410,9 +411,23 @@ window.plugin.commfilter = (function() {
     }
   }
       
-  function filterOutAlert(logRowDom) {
-    var alertDom = logRowDom.querySelector('.system_narrowcast');
-    if(alertDom) logRowDom.hidden = true;
+  function filterOutAlert(log) {
+    if(!config.filter.alert) {
+      return isAlertLog(log);
+    }    
+    
+    return false;
+  }
+  
+  function isAlertLog(log) {
+    if(checkWordPrefix('your', log.trim().toLowerCase())) {
+    // if(checkWord('attack', log.toLowerCase())) {}
+    // if(checkWord('neutralized', log.toLowerCase())) {}
+    // if(checkWord('destroyed', log.toLowerCase())) {}
+      return true;
+    } else {
+      return false;
+    }
   }
   
   function resetFilter(logRowDom) {
@@ -667,12 +682,11 @@ var setup = function(){
           || filter.filterOutCreated(actionLog)
           || filter.filterOutDestroyed(actionLog)
           || filter.filterOutFaction(actionLog)
-          || filter.filterOutPublic(actionLog) {
+          || filter.filterOutPublic(actionLog)
+          || filter.filterOutAlert(actionLog)) {
             rowDom.hidden = true;
         }
       }
-
-      window.plugin.commfilter.filterOutAlert(rowDom);
     } else if(chat.getActive() === 'alerts') {
       if(!rowDom.hidden) { // AND filtering
         var actionLog = rowDom.cells[2].textContent;
