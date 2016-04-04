@@ -435,10 +435,6 @@ window.plugin.commfilter = (function() {
     }
   }
   
-  function resetFilter(logRowDom) {
-    logRowDom.hidden = false;
-  }
-  
   function checkWord(prefix, word) {
     if(word.search(prefix) !== -1) return true;
     else return false;
@@ -557,7 +553,6 @@ window.plugin.commfilter = (function() {
     filterOutFaction: filterOutFaction,
     filterOutLinked: filterOutLinked,
     filterOutPublic: filterOutPublic,
-    resetFilter: resetFilter,
     setup: setup
   };
 
@@ -663,8 +658,6 @@ var setup = function(){
     if(!rowDom) return;
     if(rowDom.classList.contains('divider')) return; // rowDom is divider
 
-    window.plugin.commfilter.resetFilter(rowDom);
-    
     if(filter.filterAgent(rowDom)) {
       if(filter.config.filtering_between_agents_and_actions === 'AND') {
         // AND filtering
