@@ -3,7 +3,7 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.4.0.@@DATETIMEVERSION@@
+// @version        0.5.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      @@UPDATEURL@@
@@ -28,6 +28,19 @@
 window.plugin.commfilter = (function() {
   var ID = 'PLUGIN_COMM_FILTER',
       DESCRIPTIONS = "COMM Filter plug-in",
+      config = {
+        filter: {
+          deployed: true,
+          captured: true,
+          linked: true,
+          created: true,
+          destroyed: true,
+          public: true,
+          faction: true,
+          alert: false
+        },
+        filtering_between_agents_and_actions: 'OR' // AND, OR
+      },
       dom = null,
       comm = { //TODO change this to singleton
         dom: null,
@@ -79,13 +92,13 @@ window.plugin.commfilter = (function() {
             var channel = window.chat.getActive();
             
             if(comm.channels[channel].hasLogs()) {
-              if(!inputAgent.value) {
-                inputAgent.value = event.target.textContent;
+              if(!inputOmni.value) {
+                inputOmni.value = event.target.textContent;
               } else {
-                inputAgent.value = inputAgent.value + ' ' + event.target.textContent;
+                inputOmni.value = inputOmni.value + ' ' + event.target.textContent;
               }
 
-              inputAgent.fireInputEvent();
+              inputOmni.fireInputEvent();
             }
           });
           
@@ -116,8 +129,10 @@ window.plugin.commfilter = (function() {
           else return false;
         }
       },
-      inputAgent,
-      inputAction;
+      // inputAgent,
+      // inputAction,
+      inputOmni,
+      filterSwitches = [];
       
   var Input = (function Input() {
     var Input = function(prop) {
@@ -201,50 +216,223 @@ window.plugin.commfilter = (function() {
     return Input;
   })();
 
+  var FilterSwitch = (function FilterSwitch() {
+    var FilterSwitch = function(action) {
+      if(!action) return null;
+      
+      var switchDom = document.createElement('input');
+      switchDom.type = 'checkbox';
+      
+      Object.defineProperties(this, {
+        name: {
+          get: function() {return switchDom ? switchDom.name : null;},
+          set: function(val) {if(switchDom) switchDom.name = val;}
+        },
+        checked: {
+          get: function() {return switchDom ? switchDom.checked : null;},
+          set: function(val) {if(switchDom) switchDom.checked = val;}
+        }
+      });
+      
+      this.name = action;
+      this.checked = config.filter[action];
+      
+      this.dom = document.createElement('label');
+      this.dom.textContent = action;
+      this.dom.insertBefore(switchDom, this.dom.firstChild);
+    };
+    
+    FilterSwitch.prototype = {
+      constructor: FilterSwitch,
+      
+      toggle: function() {
+        if(this.checked) config.filter[this.name] = true;
+        else config.filter[this.name] = false;
+        
+        renderLogs(window.chat.getActive());
+      }
+    };
+    
+    return FilterSwitch;
+  })();
+
   function filterAgent(logRowDom) {
-    if(!inputAgent.value) return;
+    if(!inputOmni.value) return 0;
     
     var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return;
+    if(!agentDom) return 0;
     
-    var agentsList = inputAgent.value.split(/\s+/);
+    var agentsList = inputOmni.value.split(/\s+/);
     
     for(var i = 0; i < agentsList.length; i++) {
       if(agentsList[i]) {
-        if(i > 0 && !logRowDom.hidden) return;
-        
         if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
           logRowDom.hidden = false;
+          return 1;
         } else {
           logRowDom.hidden = true;
         }
       }
     }
+    
+    return 1;
   }
   
-  function filterAction(logRowDom) {
-    if(!inputAction.value) return;
-    if(logRowDom.cells.length !== 3) return;
+  function filterPortal(logRowDom) {
+    if(!inputOmni.value) return 0;
+    if(logRowDom.cells.length !== 3) return 0;
     
     var actionDom = logRowDom.cells[2];
-    var wordsList = inputAction.value.split(/\s+/);
+    var portalDomList = actionDom.querySelectorAll('.help');
+    if(!portalDomList.length) return 0;
+    
+    var wordsList = inputOmni.value.split(/\s+/);
     
     for(var i = 0; i < wordsList.length; i++) {
       if(wordsList[i]) {
-        if(i > 0 && !logRowDom.hidden) return;
-        
-        if(checkWord(wordsList[i].toLowerCase(), actionDom.textContent.toLowerCase())) {
-          logRowDom.hidden = false;
-        } else {
-          logRowDom.hidden = true;
+        for(var j = 0; j < portalDomList.length; j++) {
+          if(checkWord(wordsList[i].toLowerCase(), portalDomList[j].textContent.toLowerCase())) {
+            logRowDom.hidden = false;
+            return 1;
+          } else {
+            logRowDom.hidden = true;
+          }
         }
       }
     }
+    
+    return 1;
   }
   
-  function filterOutAlert(logRowDom) {
-    var alertDom = logRowDom.querySelector('.system_narrowcast');
-    if(alertDom) logRowDom.hidden = true;
+  function filterOutDeployed(log) {
+    if(!config.filter.deployed) {
+      return isDeployedLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isDeployedLog(log) {
+    if(checkWordPrefix('deployed', log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  function filterOutCaptured(log) {
+    if(!config.filter.captured) {
+      return isCapturedLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isCapturedLog(log) {
+    if(checkWordPrefix('captured', log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  function filterOutLinked(log) {
+    if(!config.filter.linked) {
+      return isLinkedLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isLinkedLog(log) {
+    if(checkWordPrefix('linked', log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  function filterOutCreated(log) {
+    if(!config.filter.created) {
+      return isCreatedLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isCreatedLog(log) {
+    if(checkWordPrefix('created', log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  function filterOutDestroyed(log) {
+    if(!config.filter.destroyed) {
+      return isDestroyedLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isDestroyedLog(log) {
+    if(checkWordPrefix('destroyed', log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  function filterOutFaction(log) {
+    if(!config.filter.faction) {
+      return isFactionLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isFactionLog(log) {
+    if(checkWordPrefix(/\[faction\]/, log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+      
+  function filterOutPublic(log) {
+    if(!config.filter.public) {
+      return isPublicLog(log);
+    }    
+    
+    return false;
+  }
+      
+  function isPublicLog(log) {
+    if(checkWordPrefix(/\[public\]/, log.trim())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+      
+  function filterOutAlert(log) {
+    if(!config.filter.alert) {
+      return isAlertLog(log);
+    }    
+    
+    return false;
+  }
+  
+  function isAlertLog(log) {
+    if(checkWordPrefix('your', log.trim().toLowerCase())) {
+    // if(checkWord('attack', log.toLowerCase())) {}
+    // if(checkWord('neutralized', log.toLowerCase())) {}
+    // if(checkWord('destroyed', log.toLowerCase())) {}
+      return true;
+    } else {
+      return false;
+    }
   }
   
   function resetFilter(logRowDom) {
@@ -292,38 +480,61 @@ window.plugin.commfilter = (function() {
     titleDom.title = DESCRIPTIONS;
     dom.appendChild(titleDom);
 
-    inputAgent = new Input({name: 'agent', placeholder: 'agent name'});
-    dom.appendChild(inputAgent.dom);
+    inputOmni = new Input({name: 'omni', placeholder: 'agent names, or portal names'});
+    dom.appendChild(inputOmni.dom);
     
     dom.addEventListener('input', function(event) {
-      if(event.target.name === inputAgent.name) {
+      if(event.target.name === inputOmni.name) {
         var channel = window.chat.getActive();
         
-        if(inputAgent.isChanged() && comm.channels[channel].hasLogs()) {
+        if(inputOmni.isChanged() && comm.channels[channel].hasLogs()) {
           renderLogs(channel);
         }
       }
     });
     
-    var selectorAndOrDom = document.createElement('select');
-    selectorAndOrDom.disabled = true;
-    selectorAndOrDom.options[0] = document.createElement('option');
-    selectorAndOrDom.options[0].textContent = 'AND';
-    selectorAndOrDom.options[1] = document.createElement('option');
-    selectorAndOrDom.options[1].textContent = 'OR';
-    dom.appendChild(selectorAndOrDom);
+    // var selectorAndOrDom = document.createElement('select');
+    // selectorAndOrDom.disabled = true;
+    // selectorAndOrDom.options[0] = document.createElement('option');
+    // selectorAndOrDom.options[0].textContent = 'AND';
+    // selectorAndOrDom.options[1] = document.createElement('option');
+    // selectorAndOrDom.options[1].textContent = 'OR';
+    // if(config.filtering_between_agents_and_actions === 'AND') selectorAndOrDom.options[0].selected = true;
+    // else if(config.filtering_between_agents_and_actions === 'OR') selectorAndOrDom.options[1].selected = true;
+    // dom.appendChild(selectorAndOrDom);
 
-    inputAction = new Input({name: 'action', placeholder: 'portal name'});
-    dom.appendChild(inputAction.dom);
+    // inputAction = new Input({name: 'action', placeholder: 'portal name'});
+    // dom.appendChild(inputAction.dom);
     
-    dom.addEventListener('input', function(event) {
-      if(event.target.name === inputAction.name) {
-        var channel = window.chat.getActive();
+    // dom.addEventListener('input', function(event) {
+    //   if(event.target.name === inputAction.name) {
+    //     var channel = window.chat.getActive();
         
-        if(inputAction.isChanged() && comm.channels[channel].hasLogs()) {
-          renderLogs(channel);
+    //     if(inputAction.isChanged() && comm.channels[channel].hasLogs()) {
+    //       renderLogs(channel);
+    //     }
+    //   }
+    // });
+    
+    filterSwitches = [
+      new FilterSwitch('deployed'), 
+      new FilterSwitch('captured'), 
+      new FilterSwitch('linked'), 
+      new FilterSwitch('created'), 
+      new FilterSwitch('destroyed')];
+    
+    for(var i = 0; i < filterSwitches.length; i++) {
+      dom.appendChild(filterSwitches[i].dom);
+    }
+    
+    dom.addEventListener('click', function(event){
+      for(var i = 0; i < filterSwitches.length; i++) {
+        if(event.target.name === filterSwitches[i].name) {
+          filterSwitches[i].toggle();
+          renderLogs(window.chat.getActive());
+          break;
         }
-      }
+      }    
     });
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
@@ -335,9 +546,17 @@ window.plugin.commfilter = (function() {
   }
 
   return {
+    config: config,
     filterAgent: filterAgent,
-    filterAction: filterAction,
+    filterPortal: filterPortal,
     filterOutAlert: filterOutAlert,
+    filterOutCaptured: filterOutCaptured,
+    filterOutCreated: filterOutCreated,
+    filterOutDeployed: filterOutDeployed,
+    filterOutDestroyed: filterOutDestroyed,
+    filterOutFaction: filterOutFaction,
+    filterOutLinked: filterOutLinked,
+    filterOutPublic: filterOutPublic,
     resetFilter: resetFilter,
     setup: setup
   };
@@ -438,17 +657,50 @@ var setup = function(){
   }
 
   window.chat.filter = function(rowDom) {
+    var filter = window.plugin.commfilter;
+    
+    if(!filter) return;
     if(!rowDom) return;
-    if(!window.plugin.commfilter) return;
+    if(rowDom.classList.contains('divider')) return; // rowDom is divider
 
     window.plugin.commfilter.resetFilter(rowDom);
-    window.plugin.commfilter.filterAgent(rowDom);
     
-    // AND filtering
-    if(!rowDom.hidden) window.plugin.commfilter.filterAction(rowDom);
-
+    if(filter.filterAgent(rowDom)) {
+      if(filter.config.filtering_between_agents_and_actions === 'AND') {
+        // AND filtering
+        if(!rowDom.hidden) filter.filterPortal(rowDom);
+      } else if(filter.config.filtering_between_agents_and_actions === 'OR') {
+        // OR filtering
+        if(rowDom.hidden) filter.filterPortal(rowDom);
+      }
+    } else {
+      filter.filterPortal(rowDom);
+    }
+    
     if(chat.getActive() === 'all') {
-      window.plugin.commfilter.filterOutAlert(rowDom);
+      if(!rowDom.hidden) {
+        var actionLog = rowDom.cells[2].textContent;
+        
+        if(filter.filterOutCaptured(actionLog)
+          || filter.filterOutDeployed(actionLog)
+          || filter.filterOutLinked(actionLog)
+          || filter.filterOutCreated(actionLog)
+          || filter.filterOutDestroyed(actionLog)
+          || filter.filterOutFaction(actionLog)
+          || filter.filterOutPublic(actionLog)
+          || filter.filterOutAlert(actionLog)) {
+            rowDom.hidden = true;
+        }
+      }
+    } else if(chat.getActive() === 'alerts') {
+      if(!rowDom.hidden) { // AND filtering
+        var actionLog = rowDom.cells[2].textContent;
+        
+        if(filter.filterOutFaction(actionLog)
+          || filter.filterOutPublic(actionLog)) {
+            rowDom.hidden = true;
+        }
+      }
     }
   }
 
