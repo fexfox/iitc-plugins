@@ -403,8 +403,8 @@ window.plugin.commfilter = (function() {
     }
   }
   
-  function checkWord(prefix, word) {
-    if(word.search(prefix) !== -1) return true;
+  function checkWord(s, word) {
+    if(word.search(s) !== -1) return true;
     else return false;
   }
   
