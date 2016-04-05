@@ -257,34 +257,30 @@ window.plugin.commfilter = (function() {
   })();
 
   function filterAgent(logRowDom) {
-    if(!inputOmni.value) return 0;
+    if(!inputOmni.value) return true;
     
     var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return 0;
+    if(!agentDom) return false;
     
     var agentsList = inputOmni.value.split(/\s+/);
     
     for(var i = 0; i < agentsList.length; i++) {
       if(agentsList[i]) {
         if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
-          logRowDom.hidden = false;
-          return 1;
-        } else {
-          logRowDom.hidden = true;
+          return true;
         }
       }
     }
     
-    return 1;
+    return false;
   }
   
   function filterPortal(logRowDom) {
-    if(!inputOmni.value) return 0;
-    if(logRowDom.cells.length !== 3) return 0;
+    if(!inputOmni.value) return true;
     
     var actionDom = logRowDom.cells[2];
     var portalDomList = actionDom.querySelectorAll('.help');
-    if(!portalDomList.length) return 0;
+    if(!portalDomList.length) return false;
     
     var wordsList = inputOmni.value.split(/\s+/);
     
@@ -292,16 +288,13 @@ window.plugin.commfilter = (function() {
       if(wordsList[i]) {
         for(var j = 0; j < portalDomList.length; j++) {
           if(checkWord(wordsList[i].toLowerCase(), portalDomList[j].textContent.toLowerCase())) {
-            logRowDom.hidden = false;
-            return 1;
-          } else {
-            logRowDom.hidden = true;
+            return true;
           }
         }
       }
     }
     
-    return 1;
+    return false;
   }
   
   function filterOutDeployed(log) {
@@ -659,15 +652,29 @@ var setup = function(){
     if(rowDom.classList.contains('divider')) return; // rowDom is divider
 
     if(filter.filterAgent(rowDom)) {
-      if(filter.config.filtering_between_agents_and_actions === 'AND') {
-        // AND filtering
-        if(!rowDom.hidden) filter.filterPortal(rowDom);
-      } else if(filter.config.filtering_between_agents_and_actions === 'OR') {
-        // OR filtering
-        if(rowDom.hidden) filter.filterPortal(rowDom);
-      }
+      rowDom.hidden = false;
     } else {
-      filter.filterPortal(rowDom);
+      rowDom.hidden = true;
+    }
+    
+    if(filter.config.filtering_between_agents_and_actions === 'AND') {
+      // AND filtering
+      if(!rowDom.hidden) {
+        if(filter.filterPortal(rowDom)) {
+          rowDom.hidden = false;
+        } else {
+          rowDom.hidden = true;
+        }
+      }
+    } else if(filter.config.filtering_between_agents_and_actions === 'OR') {
+      // OR filtering
+      if(rowDom.hidden) {
+        if(filter.filterPortal(rowDom)) {
+          rowDom.hidden = false;
+        } else {
+          rowDom.hidden = true;
+        }
+      }
     }
     
     if(chat.getActive() === 'all') {
