@@ -93,9 +93,9 @@ window.plugin.commfilter = (function() {
             
             if(comm.channels[channel].hasLogs()) {
               if(!inputOmni.value) {
-                inputOmni.value = event.target.textContent;
+                inputOmni.value = event.target.textContent + ' ';
               } else {
-                inputOmni.value = inputOmni.value + ' ' + event.target.textContent;
+                inputOmni.value = inputOmni.value + ' ' + event.target.textContent + ' ';
               }
 
               inputOmni.fireInputEvent();
