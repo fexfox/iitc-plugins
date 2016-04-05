@@ -38,8 +38,8 @@ window.plugin.commfilter = (function() {
           public: true,
           faction: true,
           alert: false
-        },
-        filtering_between_agents_and_actions: 'OR' // AND, OR
+        }
+        // filtering_between_agents_and_actions: 'OR' // AND, OR
       },
       dom = null,
       comm = { //TODO change this to singleton
@@ -256,45 +256,20 @@ window.plugin.commfilter = (function() {
     return FilterSwitch;
   })();
 
-  function filterAgent(logRowDom) {
-    if(!inputOmni.value) return true;
-    
-    var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return false;
-    
-    var agentsList = inputOmni.value.split(/\s+/);
-    
-    for(var i = 0; i < agentsList.length; i++) {
-      if(agentsList[i]) {
-        if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
-          return true;
-        }
-      }
+  function filterAgent(log, agent) {
+    if(checkWordPrefix(agent.toLowerCase(), log.toLowerCase())) {
+      return true;
+    } else {
+      return false;
     }
-    
-    return false;
   }
   
-  function filterPortal(logRowDom) {
-    if(!inputOmni.value) return true;
-    
-    var actionDom = logRowDom.cells[2];
-    var portalDomList = actionDom.querySelectorAll('.help');
-    if(!portalDomList.length) return false;
-    
-    var wordsList = inputOmni.value.split(/\s+/);
-    
-    for(var i = 0; i < wordsList.length; i++) {
-      if(wordsList[i]) {
-        for(var j = 0; j < portalDomList.length; j++) {
-          if(checkWord(wordsList[i].toLowerCase(), portalDomList[j].textContent.toLowerCase())) {
-            return true;
-          }
-        }
-      }
+  function filterPortal(log, portal) {
+    if(checkWord(portal.toLowerCase(), log.toLowerCase())) {
+      return true;
+    } else {
+      return false;
     }
-    
-    return false;
   }
   
   function filterOutDeployed(log) {
@@ -535,7 +510,6 @@ window.plugin.commfilter = (function() {
   }
 
   return {
-    config: config,
     filterAgent: filterAgent,
     filterPortal: filterPortal,
     filterOutAlert: filterOutAlert,
@@ -546,6 +520,7 @@ window.plugin.commfilter = (function() {
     filterOutFaction: filterOutFaction,
     filterOutLinked: filterOutLinked,
     filterOutPublic: filterOutPublic,
+    get input() {return inputOmni;},
     setup: setup
   };
 
@@ -647,33 +622,36 @@ var setup = function(){
   window.chat.filter = function(rowDom) {
     var filter = window.plugin.commfilter;
     
-    if(!filter) return;
-    if(!rowDom) return;
-    if(rowDom.classList.contains('divider')) return; // rowDom is divider
-
-    if(filter.filterAgent(rowDom)) {
-      rowDom.hidden = false;
-    } else {
-      rowDom.hidden = true;
-    }
+    if(!filter || !filter.input) return;
+    if(!rowDom || rowDom.classList.contains('divider')) return;
     
-    if(filter.config.filtering_between_agents_and_actions === 'AND') {
-      // AND filtering
-      if(!rowDom.hidden) {
-        if(filter.filterPortal(rowDom)) {
+    var wordsList = filter.input.value.split(/\s+/);
+    var agentLogDom = rowDom.cells[1].querySelector('.nickname');
+    var portalsDomList = rowDom.cells[2].querySelectorAll('.help');
+
+    for(var i = wordsList.length - 1; -1 < i; i--) {
+      if(wordsList[i]) {
+        // filtering agent
+        if(agentLogDom && filter.filterAgent(agentLogDom.textContent, wordsList[i])) {
           rowDom.hidden = false;
-        } else {
-          rowDom.hidden = true;
+          break;
         }
-      }
-    } else if(filter.config.filtering_between_agents_and_actions === 'OR') {
-      // OR filtering
-      if(rowDom.hidden) {
-        if(filter.filterPortal(rowDom)) {
-          rowDom.hidden = false;
-        } else {
-          rowDom.hidden = true;
+        
+        // filtering portal
+        // OR filtering
+        if(portalsDomList.length) {
+          var hit = false;
+          for(var j = 0; j < portalsDomList.length; j++) {
+            if(filter.filterPortal(portalsDomList[j].textContent, wordsList[i])) {
+              rowDom.hidden = false;
+              hit = true;
+              break;
+            }
+          }
+          if(hit) break;
         }
+        
+        rowDom.hidden = true;
       }
     }
     
