@@ -627,6 +627,7 @@ var setup = function(){
     
     var wordsList = filter.input.value.split(/\s+/);
     var agentLogDom = rowDom.cells[1].querySelector('.nickname');
+    var actionLogAgentsDomList = rowDom.cells[2].querySelectorAll('.pl_nudge_player, .pl_nudge_me');
     var portalsDomList = rowDom.cells[2].querySelectorAll('.help');
 
     for(var i = wordsList.length - 1; -1 < i; i--) {
@@ -635,6 +636,17 @@ var setup = function(){
         if(agentLogDom && filter.filterAgent(agentLogDom.textContent, wordsList[i])) {
           rowDom.hidden = false;
           break;
+        }
+        if(actionLogAgentsDomList.length) {
+          var hit = false;
+          for(var j = 0; j < actionLogAgentsDomList.length; j++) {
+            if(filter.filterAgent(actionLogAgentsDomList[j].textContent, '@' + wordsList[i])) {
+              rowDom.hidden = false;
+              hit = true;
+              break;
+            }
+          }
+          if(hit) break;
         }
         
         // filtering portal
