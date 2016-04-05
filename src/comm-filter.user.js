@@ -195,6 +195,10 @@ window.plugin.commfilter = (function() {
     Input.prototype = {
       constructor: Input,
       
+      get wordsList() {
+        return this.value.trim().split(/\s+/);
+      },
+      
       clear: function() {
         this.oldValue = this.value;
         this.value = this.defaultValue;
@@ -625,46 +629,44 @@ var setup = function(){
     if(!filter || !filter.input) return;
     if(!rowDom || rowDom.classList.contains('divider')) return;
     
-    var wordsList = filter.input.value.split(/\s+/);
+    var wordsList = filter.input.wordsList;
     var agentLogDom = rowDom.cells[1].querySelector('.nickname');
     var actionLogAgentsDomList = rowDom.cells[2].querySelectorAll('.pl_nudge_player, .pl_nudge_me');
     var portalsDomList = rowDom.cells[2].querySelectorAll('.help');
 
     for(var i = wordsList.length - 1; -1 < i; i--) {
-      if(wordsList[i]) {
-        // filtering agent
-        if(agentLogDom && filter.filterAgent(agentLogDom.textContent, wordsList[i])) {
-          rowDom.hidden = false;
-          break;
-        }
-        if(actionLogAgentsDomList.length) {
-          var hit = false;
-          for(var j = 0; j < actionLogAgentsDomList.length; j++) {
-            if(filter.filterAgent(actionLogAgentsDomList[j].textContent, '@' + wordsList[i])) {
-              rowDom.hidden = false;
-              hit = true;
-              break;
-            }
-          }
-          if(hit) break;
-        }
-        
-        // filtering portal
-        // OR filtering
-        if(portalsDomList.length) {
-          var hit = false;
-          for(var j = 0; j < portalsDomList.length; j++) {
-            if(filter.filterPortal(portalsDomList[j].textContent, wordsList[i])) {
-              rowDom.hidden = false;
-              hit = true;
-              break;
-            }
-          }
-          if(hit) break;
-        }
-        
-        rowDom.hidden = true;
+      // filtering agent
+      if(agentLogDom && filter.filterAgent(agentLogDom.textContent, wordsList[i])) {
+        rowDom.hidden = false;
+        break;
       }
+      if(actionLogAgentsDomList.length) {
+        var hit = false;
+        for(var j = 0; j < actionLogAgentsDomList.length; j++) {
+          if(filter.filterAgent(actionLogAgentsDomList[j].textContent, '@' + wordsList[i])) {
+            rowDom.hidden = false;
+            hit = true;
+            break;
+          }
+        }
+        if(hit) break;
+      }
+      
+      // filtering portal
+      // OR filtering
+      if(portalsDomList.length) {
+        var hit = false;
+        for(var j = 0; j < portalsDomList.length; j++) {
+          if(filter.filterPortal(portalsDomList[j].textContent, wordsList[i])) {
+            rowDom.hidden = false;
+            hit = true;
+            break;
+          }
+        }
+        if(hit) break;
+      }
+      
+      rowDom.hidden = true;
     }
     
     if(chat.getActive() === 'all') {
