@@ -208,12 +208,29 @@ window.plugin.commfilter = (function() {
         //document.getElementById('chattext').value = '';
       },
       
-      isChanged: function(){
+      isValueChanged: function(){
         if(this.value !== this.oldValue){
           this.oldValue = this.value; 
           return true;
         }
         else return false;
+      },
+      
+      isWordsListChanged: function(){
+        var oldWordsList = (this.oldValue !== null) ? this.oldValue.trim().split(/\s+/) : null;
+        
+        if(!this.isValueChanged()) return false;
+        if(!oldWordsList) return (this.value.trim() === '') ? false : true;
+                
+        if(oldWordsList.length !== this.wordsList.length) {
+          return true;
+        } else {
+          for(var i = 0; i < oldWordsList.length; i++) {
+            if(oldWordsList[i] !== this.wordsList[i]) return true;
+          }
+          
+          return false;
+        }
       }      
     };
     
@@ -455,7 +472,7 @@ window.plugin.commfilter = (function() {
       if(event.target.name === inputOmni.name) {
         var channel = window.chat.getActive();
         
-        if(inputOmni.isChanged() && comm.channels[channel].hasLogs()) {
+        if(inputOmni.isWordsListChanged() && comm.channels[channel].hasLogs()) {
           renderLogs(channel);
         }
       }
@@ -478,7 +495,7 @@ window.plugin.commfilter = (function() {
     //   if(event.target.name === inputAction.name) {
     //     var channel = window.chat.getActive();
         
-    //     if(inputAction.isChanged() && comm.channels[channel].hasLogs()) {
+    //     if(inputAction.isWordsListChanged() && comm.channels[channel].hasLogs()) {
     //       renderLogs(channel);
     //     }
     //   }
