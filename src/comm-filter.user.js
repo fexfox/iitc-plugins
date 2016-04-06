@@ -3,7 +3,7 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.5.0.@@DATETIMEVERSION@@
+// @version        0.5.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      @@UPDATEURL@@
@@ -38,8 +38,8 @@ window.plugin.commfilter = (function() {
           public: true,
           faction: true,
           alert: false
-        },
-        filtering_between_agents_and_actions: 'OR' // AND, OR
+        }
+        // filtering_between_agents_and_actions: 'OR' // AND, OR
       },
       dom = null,
       comm = { //TODO change this to singleton
@@ -93,9 +93,9 @@ window.plugin.commfilter = (function() {
             
             if(comm.channels[channel].hasLogs()) {
               if(!inputOmni.value) {
-                inputOmni.value = event.target.textContent;
+                inputOmni.value = event.target.textContent + ' ';
               } else {
-                inputOmni.value = inputOmni.value + ' ' + event.target.textContent;
+                inputOmni.value = inputOmni.value + ' ' + event.target.textContent + ' ';
               }
 
               inputOmni.fireInputEvent();
@@ -195,6 +195,10 @@ window.plugin.commfilter = (function() {
     Input.prototype = {
       constructor: Input,
       
+      get wordsList() {
+        return this.value.trim().split(/\s+/);
+      },
+      
       clear: function() {
         this.oldValue = this.value;
         this.value = this.defaultValue;
@@ -204,12 +208,29 @@ window.plugin.commfilter = (function() {
         //document.getElementById('chattext').value = '';
       },
       
-      isChanged: function(){
+      isValueChanged: function(){
         if(this.value !== this.oldValue){
           this.oldValue = this.value; 
           return true;
         }
         else return false;
+      },
+      
+      isWordsListChanged: function(){
+        var oldWordsList = (this.oldValue !== null) ? this.oldValue.trim().split(/\s+/) : null;
+        
+        if(!this.isValueChanged()) return false;
+        if(!oldWordsList) return (this.value.trim() === '') ? false : true;
+                
+        if(oldWordsList.length !== this.wordsList.length) {
+          return true;
+        } else {
+          for(var i = 0; i < oldWordsList.length; i++) {
+            if(oldWordsList[i] !== this.wordsList[i]) return true;
+          }
+          
+          return false;
+        }
       }      
     };
     
@@ -256,52 +277,20 @@ window.plugin.commfilter = (function() {
     return FilterSwitch;
   })();
 
-  function filterAgent(logRowDom) {
-    if(!inputOmni.value) return 0;
-    
-    var agentDom = logRowDom.querySelector('.nickname'); 
-    if(!agentDom) return 0;
-    
-    var agentsList = inputOmni.value.split(/\s+/);
-    
-    for(var i = 0; i < agentsList.length; i++) {
-      if(agentsList[i]) {
-        if(checkWordPrefix(agentsList[i].toLowerCase(), agentDom.textContent.toLowerCase())) {
-          logRowDom.hidden = false;
-          return 1;
-        } else {
-          logRowDom.hidden = true;
-        }
-      }
+  function filterAgent(log, agent) {
+    if(checkWordPrefix(agent.toLowerCase(), log.toLowerCase())) {
+      return true;
+    } else {
+      return false;
     }
-    
-    return 1;
   }
   
-  function filterPortal(logRowDom) {
-    if(!inputOmni.value) return 0;
-    if(logRowDom.cells.length !== 3) return 0;
-    
-    var actionDom = logRowDom.cells[2];
-    var portalDomList = actionDom.querySelectorAll('.help');
-    if(!portalDomList.length) return 0;
-    
-    var wordsList = inputOmni.value.split(/\s+/);
-    
-    for(var i = 0; i < wordsList.length; i++) {
-      if(wordsList[i]) {
-        for(var j = 0; j < portalDomList.length; j++) {
-          if(checkWord(wordsList[i].toLowerCase(), portalDomList[j].textContent.toLowerCase())) {
-            logRowDom.hidden = false;
-            return 1;
-          } else {
-            logRowDom.hidden = true;
-          }
-        }
-      }
+  function filterPortal(log, portal) {
+    if(checkWord(portal.toLowerCase(), log.toLowerCase())) {
+      return true;
+    } else {
+      return false;
     }
-    
-    return 1;
   }
   
   function filterOutDeployed(log) {
@@ -435,12 +424,8 @@ window.plugin.commfilter = (function() {
     }
   }
   
-  function resetFilter(logRowDom) {
-    logRowDom.hidden = false;
-  }
-  
-  function checkWord(prefix, word) {
-    if(word.search(prefix) !== -1) return true;
+  function checkWord(s, word) {
+    if(word.search(s) !== -1) return true;
     else return false;
   }
   
@@ -480,14 +465,14 @@ window.plugin.commfilter = (function() {
     titleDom.title = DESCRIPTIONS;
     dom.appendChild(titleDom);
 
-    inputOmni = new Input({name: 'omni', placeholder: 'agent names, or portal names'});
+    inputOmni = new Input({name: 'omni', placeholder: 'agents or portals'});
     dom.appendChild(inputOmni.dom);
     
     dom.addEventListener('input', function(event) {
       if(event.target.name === inputOmni.name) {
         var channel = window.chat.getActive();
         
-        if(inputOmni.isChanged() && comm.channels[channel].hasLogs()) {
+        if(inputOmni.isWordsListChanged() && comm.channels[channel].hasLogs()) {
           renderLogs(channel);
         }
       }
@@ -510,7 +495,7 @@ window.plugin.commfilter = (function() {
     //   if(event.target.name === inputAction.name) {
     //     var channel = window.chat.getActive();
         
-    //     if(inputAction.isChanged() && comm.channels[channel].hasLogs()) {
+    //     if(inputAction.isWordsListChanged() && comm.channels[channel].hasLogs()) {
     //       renderLogs(channel);
     //     }
     //   }
@@ -546,7 +531,6 @@ window.plugin.commfilter = (function() {
   }
 
   return {
-    config: config,
     filterAgent: filterAgent,
     filterPortal: filterPortal,
     filterOutAlert: filterOutAlert,
@@ -557,7 +541,7 @@ window.plugin.commfilter = (function() {
     filterOutFaction: filterOutFaction,
     filterOutLinked: filterOutLinked,
     filterOutPublic: filterOutPublic,
-    resetFilter: resetFilter,
+    get input() {return inputOmni;},
     setup: setup
   };
 
@@ -659,22 +643,47 @@ var setup = function(){
   window.chat.filter = function(rowDom) {
     var filter = window.plugin.commfilter;
     
-    if(!filter) return;
-    if(!rowDom) return;
-    if(rowDom.classList.contains('divider')) return; // rowDom is divider
-
-    window.plugin.commfilter.resetFilter(rowDom);
+    if(!filter || !filter.input) return;
+    if(!rowDom || rowDom.classList.contains('divider')) return;
     
-    if(filter.filterAgent(rowDom)) {
-      if(filter.config.filtering_between_agents_and_actions === 'AND') {
-        // AND filtering
-        if(!rowDom.hidden) filter.filterPortal(rowDom);
-      } else if(filter.config.filtering_between_agents_and_actions === 'OR') {
-        // OR filtering
-        if(rowDom.hidden) filter.filterPortal(rowDom);
+    var wordsList = filter.input.wordsList;
+    var agentLogDom = rowDom.cells[1].querySelector('.nickname');
+    var actionLogAgentsDomList = rowDom.cells[2].querySelectorAll('.pl_nudge_player, .pl_nudge_me');
+    var portalsDomList = rowDom.cells[2].querySelectorAll('.help');
+
+    for(var i = wordsList.length - 1; -1 < i; i--) {
+      // filtering agent
+      if(agentLogDom && filter.filterAgent(agentLogDom.textContent, wordsList[i])) {
+        rowDom.hidden = false;
+        break;
       }
-    } else {
-      filter.filterPortal(rowDom);
+      if(actionLogAgentsDomList.length) {
+        var hit = false;
+        for(var j = 0; j < actionLogAgentsDomList.length; j++) {
+          if(filter.filterAgent(actionLogAgentsDomList[j].textContent, '@' + wordsList[i])) {
+            rowDom.hidden = false;
+            hit = true;
+            break;
+          }
+        }
+        if(hit) break;
+      }
+      
+      // filtering portal
+      // OR filtering
+      if(portalsDomList.length) {
+        var hit = false;
+        for(var j = 0; j < portalsDomList.length; j++) {
+          if(filter.filterPortal(portalsDomList[j].textContent, wordsList[i])) {
+            rowDom.hidden = false;
+            hit = true;
+            break;
+          }
+        }
+        if(hit) break;
+      }
+      
+      rowDom.hidden = true;
     }
     
     if(chat.getActive() === 'all') {
