@@ -29,6 +29,10 @@
   min-width: 6ex;
 }
 
+#PLUGIN_COMM_FILTER>input[name=omni]:focus~label {
+  display: none;
+}
+
 #PLUGIN_COMM_FILTER>button {
   padding: 2px;
   min-width: 40px;
