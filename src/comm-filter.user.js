@@ -465,7 +465,7 @@ window.plugin.commfilter = (function() {
     titleDom.title = DESCRIPTIONS;
     dom.appendChild(titleDom);
 
-    inputOmni = new Input({name: 'omni', placeholder: 'agents or portals'});
+    inputOmni = new Input({name: 'omni', placeholder: 'agent names, or portal names'});
     dom.appendChild(inputOmni.dom);
     
     dom.addEventListener('input', function(event) {

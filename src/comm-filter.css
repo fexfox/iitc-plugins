@@ -23,10 +23,7 @@
 }
 
 #PLUGIN_COMM_FILTER>input[name=omni] {
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
-  min-width: 6ex;
+  flex: auto;
 }
 
 #PLUGIN_COMM_FILTER>input[name=omni]:focus~label {
