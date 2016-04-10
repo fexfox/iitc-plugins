@@ -259,6 +259,7 @@ window.plugin.commfilter = (function() {
       this.checked = config.filter[action];
       
       this.dom = document.createElement('label');
+      this.dom.className = 'switch';
       this.dom.textContent = action;
       this.dom.insertBefore(switchDom, this.dom.firstChild);
     };
@@ -508,9 +509,14 @@ window.plugin.commfilter = (function() {
       new FilterSwitch('created'), 
       new FilterSwitch('destroyed')];
     
+    var switchesDom = document.createElement('span');
+    switchesDom.className = 'switchgroup';
+    
     for(var i = 0; i < filterSwitches.length; i++) {
-      dom.appendChild(filterSwitches[i].dom);
+      switchesDom.appendChild(filterSwitches[i].dom);
     }
+    
+    dom.appendChild(switchesDom);
     
     dom.addEventListener('click', function(event){
       for(var i = 0; i < filterSwitches.length; i++) {

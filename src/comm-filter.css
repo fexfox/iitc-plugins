@@ -2,7 +2,6 @@
   display: flex;
   align-items: center;
   padding: 0 0.5ex;
-  overflow-x: auto;
 }
 
 #PLUGIN_COMM_FILTER .title {
@@ -14,7 +13,12 @@
   margin: 0 1ex;
 }
 
-#PLUGIN_COMM_FILTER>label {
+#PLUGIN_COMM_FILTER>.switchgroup {
+  overflow-x: auto;
+  display: inline-flex;
+}
+
+#PLUGIN_COMM_FILTER .switch {
   white-space: nowrap;
   margin-left: 1.2ex;
   flex: none; /* for Android K WebView */
@@ -27,7 +31,7 @@
   width: 16ex;
 }
 
-#PLUGIN_COMM_FILTER>input[name=omni]:focus~label {
+#PLUGIN_COMM_FILTER>input[name=omni]:focus~.switchgroup {
   display: none;
 }
 
