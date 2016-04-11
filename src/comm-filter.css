@@ -1,35 +1,39 @@
 #PLUGIN_COMM_FILTER {
-  height: 24px;
   display: flex;
   align-items: center;
   padding: 0 0.5ex;
 }
 
-#PLUGIN_COMM_FILTER>.title {
+#PLUGIN_COMM_FILTER .title {
   padding-right: 0.5ex;
+  flex: none; /* for Android K WebView */
 }
 
 #PLUGIN_COMM_FILTER>select {
   margin: 0 1ex;
 }
 
-#PLUGIN_COMM_FILTER>label {
-  white-space: nowrap;
-  margin-left: 1.2ex;
+#PLUGIN_COMM_FILTER>.switchgroup {
+  overflow-x: auto;
+  display: inline-flex;
 }
 
-#PLUGIN_COMM_FILTER>input {
-  height: 24px;
+#PLUGIN_COMM_FILTER .switch {
+  white-space: nowrap;
+  margin-left: 1.2ex;
+  flex: none; /* for Android K WebView */
+  display: inline-flex;
+  align-items: center;
 }
 
 #PLUGIN_COMM_FILTER>input[name=omni] {
   flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
-  min-width: 6ex;
+  flex-shrink: 0;
+  flex-basis: auto;
+  width: 16ex;
 }
 
-#PLUGIN_COMM_FILTER>input[name=omni]:focus~label {
+#PLUGIN_COMM_FILTER>input[name=omni]:focus~.switchgroup {
   display: none;
 }
 
