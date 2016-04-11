@@ -457,6 +457,11 @@ window.plugin.commfilter = (function() {
   function setup() {
     if(!comm.create()) return;
         
+    $("<style>")
+      .prop("type", "text/css")
+      .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
+      .appendTo("head");
+    
     dom = document.createElement('header');
     dom.id = ID;
     
@@ -529,11 +534,6 @@ window.plugin.commfilter = (function() {
     });
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
-    
-    $("<style>")
-      .prop("type", "text/css")
-      .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
-      .appendTo("head");
   }
 
   return {
