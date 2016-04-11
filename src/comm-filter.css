@@ -22,6 +22,8 @@
   white-space: nowrap;
   margin-left: 1.2ex;
   flex: none; /* for Android K WebView */
+  display: inline-flex;
+  align-items: center;
 }
 
 #PLUGIN_COMM_FILTER>input[name=omni] {
