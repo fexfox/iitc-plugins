@@ -110,8 +110,8 @@ window.plugin.commfilter = (function() {
             }
           });
           
-          // tentatively to show 3 log lines on minimized
           if(window.useAndroidPanes()) {
+            // in order to provide common UI as same as Desktop mode for Android.  
             dom.classList.add('expand');
           }
           
