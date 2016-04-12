@@ -4,9 +4,32 @@
   padding: 0 0.5ex;
 }
 
+#chat:not(.expand)>#PLUGIN_COMM_FILTER {
+    position: absolute;
+    right: 30px;
+    width: 30%;
+    z-index: 1;
+    background: rgba(8, 48, 78, 0.9);
+}
+
+#chat:not(.expand)>#PLUGIN_COMM_FILTER>.switchgroup {
+    display: none;
+}
+
+#chat:not(.expand) {
+    padding-bottom: 0;
+}
+
+#chat {
+  padding-bottom: 26px;
+}
+
 #PLUGIN_COMM_FILTER .title {
+  height: 26px;
   padding-right: 0.5ex;
   flex: none; /* for Android K WebView */
+  display: inline-flex;
+  align-items: center;
 }
 
 #PLUGIN_COMM_FILTER>select {
@@ -15,7 +38,9 @@
 
 #PLUGIN_COMM_FILTER>.switchgroup {
   overflow-x: auto;
+  align-self: stretch;
   display: inline-flex;
+  align-items: center;
 }
 
 #PLUGIN_COMM_FILTER .switch {
@@ -24,6 +49,7 @@
   flex: none; /* for Android K WebView */
   display: inline-flex;
   align-items: center;
+  padding: 0.5ex 0;
 }
 
 #PLUGIN_COMM_FILTER>input[name=omni] {
@@ -46,10 +72,6 @@
   text-align: center;
 }
 
-#chat {
-  padding-bottom: 24px;
-}
-
 #chatall>.status, #chatfaction>.status, #chatalerts>.status {
   height: 20px;
   text-align: center;
@@ -64,16 +86,6 @@
 #chatfaction>table td:nth-child(2),
 #chatalerts>table td:nth-child(2) {
   width: 15ex;
-}
-
-/* tentatively to show 3 log lines on minimized */
-#chat {
-  height: 84px; /* 60px + 24px */
-}
-
-/* tentatively to show 3 log lines on minimized */
-#chatcontrols {
-  bottom: 106px; /* 82px + 24px */
 }
 
 /* hack chat.js divider */

@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.5.3.20160411.125513
+// @version        0.5.3.20160412.83638
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.meta.js
 // @downloadURL    https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.user.js
-// @description    [udnp-2016-04-11-125513] COMM Filter
+// @description    [udnp-2016-04-12-083638] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'udnp';
-plugin_info.dateTimeVersion = '20160411.125513';
+plugin_info.dateTimeVersion = '20160412.83638';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -122,8 +122,8 @@ window.plugin.commfilter = (function() {
             }
           });
           
-          // tentatively to show 3 log lines on minimized
           if(window.useAndroidPanes()) {
+            // in order to provide common UI as same as Desktop mode for Android.  
             dom.classList.add('expand');
           }
           
@@ -469,6 +469,11 @@ window.plugin.commfilter = (function() {
   function setup() {
     if(!comm.create()) return;
         
+    $("<style>")
+      .prop("type", "text/css")
+      .html("#PLUGIN_COMM_FILTER {\n  display: flex;\n  align-items: center;\n  padding: 0 0.5ex;\n}\n\n#chat:not(.expand)>#PLUGIN_COMM_FILTER {\n    position: absolute;\n    right: 30px;\n    width: 30%;\n    z-index: 1;\n    background: rgba(8, 48, 78, 0.9);\n}\n\n#chat:not(.expand)>#PLUGIN_COMM_FILTER>.switchgroup {\n    display: none;\n}\n\n#chat:not(.expand) {\n    padding-bottom: 0;\n}\n\n#chat {\n  padding-bottom: 26px;\n}\n\n#PLUGIN_COMM_FILTER .title {\n  height: 26px;\n  padding-right: 0.5ex;\n  flex: none; /* for Android K WebView */\n  display: inline-flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER>select {\n  margin: 0 1ex;\n}\n\n#PLUGIN_COMM_FILTER>.switchgroup {\n  overflow-x: auto;\n  align-self: stretch;\n  display: inline-flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER .switch {\n  white-space: nowrap;\n  margin-left: 1.2ex;\n  flex: none; /* for Android K WebView */\n  display: inline-flex;\n  align-items: center;\n  padding: 0.5ex 0;\n}\n\n#PLUGIN_COMM_FILTER>input[name=omni] {\n  flex-grow: 1;\n  flex-shrink: 0;\n  flex-basis: auto;\n  width: 16ex;\n}\n\n#PLUGIN_COMM_FILTER>input[name=omni]:focus~.switchgroup {\n  display: none;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n\n/* hack chat.js divider */\n#chatall>table tr.divider,\n#chatfaction>table tr.divider,\n#chatalerts>table tr.divider {\n  border-top: solid 1px #bbb;\n}\n\n#chatall>table tr.divider>td,\n#chatfaction>table tr.divider>td,\n#chatalerts>table tr.divider>td {\n  padding-top: 3px;\n}\n\n#chatall>table tr.divider summary,\n#chatfaction>table tr.divider summary,\n#chatalerts>table tr.divider summary {\n  box-sizing: border-box;\n  padding-left: 2ex;\n}\n")
+      .appendTo("head");
+    
     dom = document.createElement('header');
     dom.id = ID;
     
@@ -541,11 +546,6 @@ window.plugin.commfilter = (function() {
     });
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
-    
-    $("<style>")
-      .prop("type", "text/css")
-      .html("#PLUGIN_COMM_FILTER {\n  display: flex;\n  align-items: center;\n  padding: 0 0.5ex;\n}\n\n#PLUGIN_COMM_FILTER .title {\n  padding-right: 0.5ex;\n  flex: none; /* for Android K WebView */\n}\n\n#PLUGIN_COMM_FILTER>select {\n  margin: 0 1ex;\n}\n\n#PLUGIN_COMM_FILTER>.switchgroup {\n  overflow-x: auto;\n  display: inline-flex;\n}\n\n#PLUGIN_COMM_FILTER .switch {\n  white-space: nowrap;\n  margin-left: 1.2ex;\n  flex: none; /* for Android K WebView */\n  display: inline-flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER>input[name=omni] {\n  flex-grow: 1;\n  flex-shrink: 0;\n  flex-basis: auto;\n  width: 16ex;\n}\n\n#PLUGIN_COMM_FILTER>input[name=omni]:focus~.switchgroup {\n  display: none;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chat {\n  padding-bottom: 24px;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n\n/* tentatively to show 3 log lines on minimized */\n#chat {\n  height: 84px; /* 60px + 24px */\n}\n\n/* tentatively to show 3 log lines on minimized */\n#chatcontrols {\n  bottom: 106px; /* 82px + 24px */\n}\n\n/* hack chat.js divider */\n#chatall>table tr.divider,\n#chatfaction>table tr.divider,\n#chatalerts>table tr.divider {\n  border-top: solid 1px #bbb;\n}\n\n#chatall>table tr.divider>td,\n#chatfaction>table tr.divider>td,\n#chatalerts>table tr.divider>td {\n  padding-top: 3px;\n}\n\n#chatall>table tr.divider summary,\n#chatfaction>table tr.divider summary,\n#chatalerts>table tr.divider summary {\n  box-sizing: border-box;\n  padding-left: 2ex;\n}\n")
-      .appendTo("head");
   }
 
   return {
