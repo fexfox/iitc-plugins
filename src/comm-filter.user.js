@@ -534,7 +534,6 @@ window.plugin.commfilter = (function() {
     });
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
-    comm.dom.style.paddingBottom = window.getComputedStyle(document.querySelector('#PLUGIN_COMM_FILTER')).getPropertyValue('height');    
   }
 
   return {

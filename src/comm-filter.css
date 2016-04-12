@@ -5,8 +5,11 @@
 }
 
 #PLUGIN_COMM_FILTER .title {
+  height: 26px;
   padding-right: 0.5ex;
   flex: none; /* for Android K WebView */
+  display: inline-flex;
+  align-items: center;
 }
 
 #PLUGIN_COMM_FILTER>select {
@@ -15,7 +18,9 @@
 
 #PLUGIN_COMM_FILTER>.switchgroup {
   overflow-x: auto;
+  align-self: stretch;
   display: inline-flex;
+  align-items: center;
 }
 
 #PLUGIN_COMM_FILTER .switch {
@@ -47,6 +52,10 @@
   text-align: center;
 }
 
+#chat {
+  padding-bottom: 26px;
+}
+
 #chatall>.status, #chatfaction>.status, #chatalerts>.status {
   height: 20px;
   text-align: center;
@@ -65,12 +74,12 @@
 
 /* tentatively to show 3 log lines on minimized */
 #chat {
-  height: 84px; /* 60px + 24px */
+  height: 86px; /* 60px + 26px */
 }
 
 /* tentatively to show 3 log lines on minimized */
 #chatcontrols {
-  bottom: 106px; /* 82px + 24px */
+  bottom: 108px; /* 82px + 26px */
 }
 
 /* hack chat.js divider */
