@@ -270,8 +270,6 @@ window.plugin.commfilter = (function() {
       toggle: function() {
         if(this.checked) config.filter[this.name] = true;
         else config.filter[this.name] = false;
-        
-        renderLogs(window.chat.getActive());
       }
     };
     
