@@ -3,7 +3,7 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.5.2.@@DATETIMEVERSION@@
+// @version        0.5.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      @@UPDATEURL@@
@@ -110,8 +110,8 @@ window.plugin.commfilter = (function() {
             }
           });
           
-          // tentatively to show 3 log lines on minimized
           if(window.useAndroidPanes()) {
+            // in order to provide common UI as same as Desktop mode for Android.  
             dom.classList.add('expand');
           }
           
@@ -270,8 +270,6 @@ window.plugin.commfilter = (function() {
       toggle: function() {
         if(this.checked) config.filter[this.name] = true;
         else config.filter[this.name] = false;
-        
-        renderLogs(window.chat.getActive());
       }
     };
     
@@ -457,6 +455,11 @@ window.plugin.commfilter = (function() {
   function setup() {
     if(!comm.create()) return;
         
+    $("<style>")
+      .prop("type", "text/css")
+      .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
+      .appendTo("head");
+    
     dom = document.createElement('header');
     dom.id = ID;
     
@@ -529,11 +532,6 @@ window.plugin.commfilter = (function() {
     });
     
     comm.dom.insertBefore(dom, comm.dom.firstElementChild);
-    
-    $("<style>")
-      .prop("type", "text/css")
-      .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
-      .appendTo("head");
   }
 
   return {
@@ -654,69 +652,62 @@ var setup = function(){
     
     var wordsList = filter.input.wordsList;
     var agentLogDom = rowDom.cells[1].querySelector('.nickname');
-    var actionLogAgentsDomList = rowDom.cells[2].querySelectorAll('.pl_nudge_player, .pl_nudge_me');
+    var actionLogDom = rowDom.cells[2];
+    var actionLogAgentsDomList = actionLogDom.querySelectorAll('.pl_nudge_player, .pl_nudge_me');
     var portalsDomList = rowDom.cells[2].querySelectorAll('.help');
 
+    if(chat.getActive() === 'all') {
+      var actionLog = actionLogDom.textContent;
+      if(filter.filterOutCaptured(actionLog)
+        || filter.filterOutDeployed(actionLog)
+        || filter.filterOutLinked(actionLog)
+        || filter.filterOutCreated(actionLog)
+        || filter.filterOutDestroyed(actionLog)
+        || filter.filterOutFaction(actionLog)
+        || filter.filterOutPublic(actionLog)
+        || filter.filterOutAlert(actionLog)) {
+          rowDom.hidden = true;
+          // AND filtering
+          return;
+      }
+    } else if(chat.getActive() === 'alerts') {
+      var actionLog = actionLogDom.textContent;
+      if(filter.filterOutFaction(actionLog)
+        || filter.filterOutPublic(actionLog)) {
+          rowDom.hidden = true;
+          // AND filtering
+          return;
+      }
+    }
+    
     for(var i = wordsList.length - 1; -1 < i; i--) {
       // filtering agent
       if(agentLogDom && filter.filterAgent(agentLogDom.textContent, wordsList[i])) {
         rowDom.hidden = false;
-        break;
+        return;
       }
       if(actionLogAgentsDomList.length) {
-        var hit = false;
         for(var j = 0; j < actionLogAgentsDomList.length; j++) {
           if(filter.filterAgent(actionLogAgentsDomList[j].textContent, '@' + wordsList[i])) {
             rowDom.hidden = false;
-            hit = true;
-            break;
+            return;
           }
         }
-        if(hit) break;
       }
       
       // filtering portal
       // OR filtering
       if(portalsDomList.length) {
-        var hit = false;
         for(var j = 0; j < portalsDomList.length; j++) {
           if(filter.filterPortal(portalsDomList[j].textContent, wordsList[i])) {
             rowDom.hidden = false;
-            hit = true;
-            break;
+            return;
           }
         }
-        if(hit) break;
       }
       
       rowDom.hidden = true;
-    }
-    
-    if(chat.getActive() === 'all') {
-      if(!rowDom.hidden) {
-        var actionLog = rowDom.cells[2].textContent;
-        
-        if(filter.filterOutCaptured(actionLog)
-          || filter.filterOutDeployed(actionLog)
-          || filter.filterOutLinked(actionLog)
-          || filter.filterOutCreated(actionLog)
-          || filter.filterOutDestroyed(actionLog)
-          || filter.filterOutFaction(actionLog)
-          || filter.filterOutPublic(actionLog)
-          || filter.filterOutAlert(actionLog)) {
-            rowDom.hidden = true;
-        }
-      }
-    } else if(chat.getActive() === 'alerts') {
-      if(!rowDom.hidden) { // AND filtering
-        var actionLog = rowDom.cells[2].textContent;
-        
-        if(filter.filterOutFaction(actionLog)
-          || filter.filterOutPublic(actionLog)) {
-            rowDom.hidden = true;
-        }
-      }
-    }
+    }    
   }
 
   window.plugin.commfilter.setup();
