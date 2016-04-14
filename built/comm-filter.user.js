@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.5.3.20160412.83638
+// @version        0.5.3.20160414.103220
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.meta.js
 // @downloadURL    https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.user.js
-// @description    [udnp-2016-04-12-083638] COMM Filter
+// @description    [udnp-2016-04-14-103220] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'udnp';
-plugin_info.dateTimeVersion = '20160412.83638';
+plugin_info.dateTimeVersion = '20160414.103220';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -282,8 +282,6 @@ window.plugin.commfilter = (function() {
       toggle: function() {
         if(this.checked) config.filter[this.name] = true;
         else config.filter[this.name] = false;
-        
-        renderLogs(window.chat.getActive());
       }
     };
     
@@ -666,69 +664,62 @@ var setup = function(){
     
     var wordsList = filter.input.wordsList;
     var agentLogDom = rowDom.cells[1].querySelector('.nickname');
-    var actionLogAgentsDomList = rowDom.cells[2].querySelectorAll('.pl_nudge_player, .pl_nudge_me');
+    var actionLogDom = rowDom.cells[2];
+    var actionLogAgentsDomList = actionLogDom.querySelectorAll('.pl_nudge_player, .pl_nudge_me');
     var portalsDomList = rowDom.cells[2].querySelectorAll('.help');
 
+    if(chat.getActive() === 'all') {
+      var actionLog = actionLogDom.textContent;
+      if(filter.filterOutCaptured(actionLog)
+        || filter.filterOutDeployed(actionLog)
+        || filter.filterOutLinked(actionLog)
+        || filter.filterOutCreated(actionLog)
+        || filter.filterOutDestroyed(actionLog)
+        || filter.filterOutFaction(actionLog)
+        || filter.filterOutPublic(actionLog)
+        || filter.filterOutAlert(actionLog)) {
+          rowDom.hidden = true;
+          // AND filtering
+          return;
+      }
+    } else if(chat.getActive() === 'alerts') {
+      var actionLog = actionLogDom.textContent;
+      if(filter.filterOutFaction(actionLog)
+        || filter.filterOutPublic(actionLog)) {
+          rowDom.hidden = true;
+          // AND filtering
+          return;
+      }
+    }
+    
     for(var i = wordsList.length - 1; -1 < i; i--) {
       // filtering agent
       if(agentLogDom && filter.filterAgent(agentLogDom.textContent, wordsList[i])) {
         rowDom.hidden = false;
-        break;
+        return;
       }
       if(actionLogAgentsDomList.length) {
-        var hit = false;
         for(var j = 0; j < actionLogAgentsDomList.length; j++) {
           if(filter.filterAgent(actionLogAgentsDomList[j].textContent, '@' + wordsList[i])) {
             rowDom.hidden = false;
-            hit = true;
-            break;
+            return;
           }
         }
-        if(hit) break;
       }
       
       // filtering portal
       // OR filtering
       if(portalsDomList.length) {
-        var hit = false;
         for(var j = 0; j < portalsDomList.length; j++) {
           if(filter.filterPortal(portalsDomList[j].textContent, wordsList[i])) {
             rowDom.hidden = false;
-            hit = true;
-            break;
+            return;
           }
         }
-        if(hit) break;
       }
       
       rowDom.hidden = true;
-    }
-    
-    if(chat.getActive() === 'all') {
-      if(!rowDom.hidden) {
-        var actionLog = rowDom.cells[2].textContent;
-        
-        if(filter.filterOutCaptured(actionLog)
-          || filter.filterOutDeployed(actionLog)
-          || filter.filterOutLinked(actionLog)
-          || filter.filterOutCreated(actionLog)
-          || filter.filterOutDestroyed(actionLog)
-          || filter.filterOutFaction(actionLog)
-          || filter.filterOutPublic(actionLog)
-          || filter.filterOutAlert(actionLog)) {
-            rowDom.hidden = true;
-        }
-      }
-    } else if(chat.getActive() === 'alerts') {
-      if(!rowDom.hidden) { // AND filtering
-        var actionLog = rowDom.cells[2].textContent;
-        
-        if(filter.filterOutFaction(actionLog)
-          || filter.filterOutPublic(actionLog)) {
-            rowDom.hidden = true;
-        }
-      }
-    }
+    }    
   }
 
   window.plugin.commfilter.setup();
