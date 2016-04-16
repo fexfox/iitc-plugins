@@ -521,7 +521,7 @@ window.plugin.commfilter = (function() {
     
     dom.appendChild(switchesDom);
     
-    dom.addEventListener('click', function(event){
+    dom.addEventListener('change', function(event){
       for(var i = 0; i < filterSwitches.length; i++) {
         if(event.target.name === filterSwitches[i].name) {
           filterSwitches[i].toggle();
