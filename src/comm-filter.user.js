@@ -41,92 +41,94 @@ window.plugin.commfilter = (function() {
         }
         // filtering_between_agents_and_actions: 'OR' // AND, OR
       },
+      comm = null,
       dom = null,
-      comm = { //TODO change this to singleton
-        dom: null,
-        channels: {}, // all, faction, alerts
-        
-        Channel: function(name) {
-          return {
-            name: name,
-            dom: null,
-            hasLogs: function() {
-              if(this.dom && this.dom.querySelector('table')) {
-                return true;
-              } else {
-                return false;
-              }
-            }
-          };
-        },
-        
-        create: function() {
-          var dom = document.getElementById('chat');
-          if(!dom) return null;
-          
-          var channels = [new comm.Channel('all'), new comm.Channel('faction'), new comm.Channel('alerts')];
-          
-          for(var i = 0; i < channels.length; i++) {
-            channels[i].dom = dom.querySelector('#chat' + channels[i].name);
-            
-            if(channels[i].dom) {
-              comm.insertStatusViewTo(channels[i].dom);
-            }
-            
-            comm.channels[channels[i].name] = channels[i];
-          }
-          
-          comm.dom = dom;
-          
-          // filtering by agent name clicked/tapped in COMM       
-          dom.addEventListener('click', function(event){
-            if(!event.target.classList.contains('nickname')) return;
-            
-            // tentative: to avoid a problem on Android that causes cached chat logs reset,
-            //            call event.stopImmediatePropagation() in this.
-            //            So IITC default action that inputs @agentname automatically 
-            //            to the #chattext box is blocked.
-            //TODO related to issue#5
-            event.stopImmediatePropagation();
-
-            var channel = window.chat.getActive();
-            
-            if(comm.channels[channel] && comm.channels[channel].hasLogs()) {
-              if(!inputOmni.value) {
-                inputOmni.value = event.target.textContent + ' ';
-              } else {
-                inputOmni.value = inputOmni.value + ' ' + event.target.textContent + ' ';
-              }
-
-              inputOmni.fireInputEvent();
-            }
-          });
-          
-          // refreshing filtered logs on COMM tabs changed
-          document.getElementById('chatcontrols').addEventListener('click', function(event) {
-            var channel = window.chat.getActive();
-            if(comm.channels[channel] && comm.channels[channel].hasLogs()) renderLogs(channel);
-          });
-          
-          if(window.useAndroidPanes()) {
-            // in order to provide common UI as same as Desktop mode for Android.  
-            dom.classList.add('expand');
-          }
-          
-          return comm;
-        },
-        
-        insertStatusViewTo: function(channelDom) {
-          var dom = document.createElement('div');
-          dom.className = 'status';
-          channelDom.insertBefore(dom, channelDom.firstChildElement);
-        }
-      },
       // inputAgent,
       // inputAction,
       inputOmni,
       filterSwitches = [];
+  
+  comm = { //TODO change this to singleton
+    dom: null,
+    channels: {}, // all, faction, alerts
+    
+    Channel: function(name) {
+      return {
+        name: name,
+        dom: null,
+        hasLogs: function() {
+          if(this.dom && this.dom.querySelector('table')) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      };
+    },
+    
+    create: function() {
+      var dom = document.getElementById('chat');
+      if(!dom) return null;
       
+      var channels = [new comm.Channel('all'), new comm.Channel('faction'), new comm.Channel('alerts')];
+      
+      for(var i = 0; i < channels.length; i++) {
+        channels[i].dom = dom.querySelector('#chat' + channels[i].name);
+        
+        if(channels[i].dom) {
+          comm.insertStatusViewTo(channels[i].dom);
+        }
+        
+        comm.channels[channels[i].name] = channels[i];
+      }
+      
+      comm.dom = dom;
+      
+      // filtering by agent name clicked/tapped in COMM       
+      dom.addEventListener('click', function(event){
+        if(!event.target.classList.contains('nickname')) return;
+        
+        // tentative: to avoid a problem on Android that causes cached chat logs reset,
+        //            call event.stopImmediatePropagation() in this.
+        //            So IITC default action that inputs @agentname automatically 
+        //            to the #chattext box is blocked.
+        //TODO related to issue#5
+        event.stopImmediatePropagation();
+
+        var channel = window.chat.getActive();
+        
+        if(comm.channels[channel] && comm.channels[channel].hasLogs()) {
+          if(!inputOmni.value) {
+            inputOmni.value = event.target.textContent + ' ';
+          } else {
+            inputOmni.value = inputOmni.value + ' ' + event.target.textContent + ' ';
+          }
+
+          inputOmni.fireInputEvent();
+        }
+      });
+      
+      // refreshing filtered logs on COMM tabs changed
+      document.getElementById('chatcontrols').addEventListener('click', function(event) {
+        var channel = window.chat.getActive();
+        if(comm.channels[channel] && comm.channels[channel].hasLogs()) renderLogs(channel);
+      });
+      
+      if(window.useAndroidPanes()) {
+        // in order to provide common UI as same as Desktop mode for Android.  
+        dom.classList.add('expand');
+      }
+      
+      return comm;
+    },
+    
+    insertStatusViewTo: function(channelDom) {
+      var dom = document.createElement('div');
+      dom.className = 'status';
+      channelDom.insertBefore(dom, channelDom.firstChildElement);
+    }
+  }
+  
   var Input = (function Input() {
     var Input = function(prop) {
       var df = document.createDocumentFragment(),
