@@ -104,10 +104,8 @@ window.plugin.commfilter = (function() {
           
           // refreshing filtered logs on COMM tabs changed
           document.getElementById('chatcontrols').addEventListener('click', function(event) {
-            if(comm.checkChannelTab(event.target)) {
-              var channel = window.chat.getActive();
-              if(comm.channels[channel].hasLogs()) renderLogs(channel);
-            }
+            var channel = window.chat.getActive();
+            if(comm.channels[channel] && comm.channels[channel].hasLogs()) renderLogs(channel);
           });
           
           if(window.useAndroidPanes()) {
@@ -122,11 +120,6 @@ window.plugin.commfilter = (function() {
           var dom = document.createElement('div');
           dom.className = 'status';
           channelDom.insertBefore(dom, channelDom.firstChildElement);
-        },
-        
-        checkChannelTab: function(tab) {
-          if(tab.tagName.toLowerCase() === 'a' && tab.childElementCount === 0) return true;
-          else return false;
         }
       },
       // inputAgent,
