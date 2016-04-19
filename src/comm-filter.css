@@ -82,10 +82,6 @@
   table-layout: auto;
 }
 
-#chat:not(.expand)>#chatall>table, #chat:not(.expand)>#chatfaction>table, #chat:not(.expand)>#chatalerts>table {
-  margin-bottom: 0 !important;
-}
-
 #chatall>table td:nth-child(2),
 #chatfaction>table td:nth-child(2),
 #chatalerts>table td:nth-child(2) {

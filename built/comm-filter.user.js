@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.5.3.20160414.130115
+// @version        0.5.3.20160419.73045
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      https://github.com/udnp/iitc-plugins/raw/master/built/comm-filter.meta.js
 // @downloadURL    https://github.com/udnp/iitc-plugins/raw/master/built/comm-filter.user.js
-// @description    [udnp-2016-04-14-130115] COMM Filter
+// @description    [udnp-2016-04-19-073045] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'udnp';
-plugin_info.dateTimeVersion = '20160414.130115';
+plugin_info.dateTimeVersion = '20160419.73045';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -469,7 +469,7 @@ window.plugin.commfilter = (function() {
         
     $("<style>")
       .prop("type", "text/css")
-      .html("#PLUGIN_COMM_FILTER {\n  display: flex;\n  align-items: center;\n  padding: 0 0.5ex;\n}\n\n#chat:not(.expand)>#PLUGIN_COMM_FILTER {\n    position: absolute;\n    right: 30px;\n    width: 30%;\n    z-index: 1;\n    background: rgba(8, 48, 78, 0.9);\n}\n\n#chat:not(.expand)>#PLUGIN_COMM_FILTER>.switchgroup {\n    display: none;\n}\n\n#chat:not(.expand) {\n    padding-bottom: 0;\n}\n\n#chat {\n  padding-bottom: 26px;\n}\n\n#PLUGIN_COMM_FILTER .title {\n  height: 26px;\n  padding-right: 0.5ex;\n  flex: none; /* for Android K WebView */\n  display: inline-flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER>select {\n  margin: 0 1ex;\n}\n\n#PLUGIN_COMM_FILTER>.switchgroup {\n  overflow-x: auto;\n  align-self: stretch;\n  display: inline-flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER .switch {\n  white-space: nowrap;\n  margin-left: 1.2ex;\n  flex: none; /* for Android K WebView */\n  display: inline-flex;\n  align-items: center;\n  padding: 0.5ex 0;\n}\n\n#PLUGIN_COMM_FILTER>input[name=omni] {\n  flex-grow: 1;\n  flex-shrink: 0;\n  flex-basis: auto;\n  width: 16ex;\n}\n\n#PLUGIN_COMM_FILTER>input[name=omni]:focus~.switchgroup {\n  display: none;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chat:not(.expand)>#chatall>table, #chat:not(.expand)>#chatfaction>table, #chat:not(.expand)>#chatalerts>table {\n  margin-bottom: 0 !important;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n\n/* hack chat.js divider */\n#chatall>table tr.divider,\n#chatfaction>table tr.divider,\n#chatalerts>table tr.divider {\n  border-top: solid 1px #bbb;\n}\n\n#chatall>table tr.divider>td,\n#chatfaction>table tr.divider>td,\n#chatalerts>table tr.divider>td {\n  padding-top: 3px;\n}\n\n#chatall>table tr.divider summary,\n#chatfaction>table tr.divider summary,\n#chatalerts>table tr.divider summary {\n  box-sizing: border-box;\n  padding-left: 2ex;\n}\n")
+      .html("#PLUGIN_COMM_FILTER {\n  display: flex;\n  align-items: center;\n  padding: 0 0.5ex;\n}\n\n#chat:not(.expand)>#PLUGIN_COMM_FILTER {\n    position: absolute;\n    right: 30px;\n    width: 30%;\n    z-index: 1;\n    background: rgba(8, 48, 78, 0.9);\n}\n\n#chat:not(.expand)>#PLUGIN_COMM_FILTER>.switchgroup {\n    display: none;\n}\n\n#chat:not(.expand) {\n    padding-bottom: 0;\n}\n\n#chat {\n  padding-bottom: 26px;\n}\n\n#PLUGIN_COMM_FILTER .title {\n  height: 26px;\n  padding-right: 0.5ex;\n  flex: none; /* for Android K WebView */\n  display: inline-flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER>select {\n  margin: 0 1ex;\n}\n\n#PLUGIN_COMM_FILTER>.switchgroup {\n  overflow-x: auto;\n  align-self: stretch;\n  display: inline-flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER .switch {\n  white-space: nowrap;\n  margin-left: 1.2ex;\n  flex: none; /* for Android K WebView */\n  display: inline-flex;\n  align-items: center;\n  padding: 0.5ex 0;\n}\n\n#PLUGIN_COMM_FILTER>input[name=omni] {\n  flex-grow: 1;\n  flex-shrink: 0;\n  flex-basis: auto;\n  width: 16ex;\n}\n\n#PLUGIN_COMM_FILTER>input[name=omni]:focus~.switchgroup {\n  display: none;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n\n/* hack chat.js divider */\n#chatall>table tr.divider,\n#chatfaction>table tr.divider,\n#chatalerts>table tr.divider {\n  border-top: solid 1px #bbb;\n}\n\n#chatall>table tr.divider>td,\n#chatfaction>table tr.divider>td,\n#chatalerts>table tr.divider>td {\n  padding-top: 3px;\n}\n\n#chatall>table tr.divider summary,\n#chatfaction>table tr.divider summary,\n#chatalerts>table tr.divider summary {\n  box-sizing: border-box;\n  padding-left: 2ex;\n}\n")
       .appendTo("head");
     
     dom = document.createElement('header');
@@ -566,8 +566,9 @@ window.plugin.commfilter = (function() {
 var setup = function(){
   if(!window.chat) return; 
   
-  // override and append functions following:
-  
+  /*
+   * override following functions for the window.chat 
+   */
   //// based on original iitc/code/chat.js @ rev.5298c98
   // renders data from the data-hash to the element defined by the given
   // ID. Set 3rd argument to true if it is likely that old data has been
@@ -612,13 +613,7 @@ var setup = function(){
       return;
     }
 
-    var logsTable = $('table', box);
-    // box[0].offsetHeight - logsTable[0].offsetHeight
-    var offset = box.outerHeight() - logsTable.outerHeight();
-
-    if(offset > 0) {
-      logsTable.css('margin-bottom', offset + 'px');
-    }
+    chat.fitLogsTableToBox(box);
 
     var statusView = $('.status', box); 
     statusView.text('');
@@ -635,6 +630,27 @@ var setup = function(){
   window.chat.renderDivider = function(text) {
     return '<tr class="divider"><td colspan="3"><summary>' + text + '</summary></td></tr>';
   }
+  
+  /*
+   * append following functions for the window.chat 
+   */
+  window.chat.fitLogsTableToBox = function(box) {
+    var logsTable = $('table', box);
+    if(!logsTable) return;
+    
+    // box[0].offsetHeight - logsTable[0].offsetHeight
+    var offset = box.outerHeight() - logsTable.outerHeight();
+
+    if(offset > 0) {
+      logsTable.css('margin-bottom', offset + 'px');
+    } else {
+      logsTable.css('margin-bottom', '0');
+    }
+  }
+  
+  $('#chatcontrols a:first').click(function(){
+    window.chat.fitLogsTableToBox($('#chat > div:visible'));
+  });
   
   window.chat.renderTableDom = function(rowDoms) {
     var dF = document.createDocumentFragment();
