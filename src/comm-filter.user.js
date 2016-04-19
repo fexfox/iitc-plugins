@@ -135,7 +135,7 @@ window.plugin.commfilter = (function() {
   })();
 
   var Input = (function Input() {
-    var Input = function(prop) {
+    var Constr = function(prop) {
       var df = document.createDocumentFragment(),
           textbox = {
             dom: null,
@@ -192,7 +192,7 @@ window.plugin.commfilter = (function() {
       };      
     };
     
-    Input.prototype = {
+    Constr.prototype = {
       constructor: Input,
       
       get wordsList() {
@@ -233,12 +233,12 @@ window.plugin.commfilter = (function() {
         }
       }      
     };
-    
-    return Input;
+
+    return Constr;
   })();
 
   var FilterSwitch = (function FilterSwitch() {
-    var FilterSwitch = function(action) {
+    var Constr = function(action) {
       if(!action) return null;
       
       var switchDom = document.createElement('input');
@@ -264,7 +264,7 @@ window.plugin.commfilter = (function() {
       this.dom.insertBefore(switchDom, this.dom.firstChild);
     };
     
-    FilterSwitch.prototype = {
+    Constr.prototype = {
       constructor: FilterSwitch,
       
       toggle: function() {
@@ -273,7 +273,7 @@ window.plugin.commfilter = (function() {
       }
     };
     
-    return FilterSwitch;
+    return Constr;
   })();
 
   function filterAgent(log, agent) {
