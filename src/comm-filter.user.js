@@ -45,7 +45,7 @@ window.plugin.commfilter = (function() {
       dom = null,
       // inputAgent,
       // inputAction,
-      inputOmni,
+      inputAgentsOrPortals,
       filterSwitches = [];
   
   comm = (function() {
@@ -96,13 +96,13 @@ window.plugin.commfilter = (function() {
         var channel = window.chat.getActive();
         
         if(channels[channel] && channels[channel].hasLogs()) {
-          if(!inputOmni.value) {
-            inputOmni.value = event.target.textContent + ' ';
+          if(!inputAgentsOrPortals.value) {
+            inputAgentsOrPortals.value = event.target.textContent + ' ';
           } else {
-            inputOmni.value = inputOmni.value + ' ' + event.target.textContent + ' ';
+            inputAgentsOrPortals.value = inputAgentsOrPortals.value + ' ' + event.target.textContent + ' ';
           }
 
-          inputOmni.fireInputEvent();
+          inputAgentsOrPortals.fireInputEvent();
         }
       });
       
@@ -469,15 +469,15 @@ window.plugin.commfilter = (function() {
     titleDom.title = DESCRIPTIONS;
     dom.appendChild(titleDom);
 
-    inputOmni = new Input({name: 'omni', placeholder: 'agents or portals'});
-    dom.appendChild(inputOmni.dom);
+    inputAgentsOrPortals = new Input({name: 'agents_or_portals', placeholder: 'agents or portals'});
+    dom.appendChild(inputAgentsOrPortals.dom);
     
     dom.addEventListener('input', function(event) {
-      if(event.target.name === inputOmni.name) {
+      if(event.target.name === inputAgentsOrPortals.name) {
         var channel = window.chat.getActive();
         
         if((comm.channels[channel] && comm.channels[channel].hasLogs()) 
-          && inputOmni.isWordsListChanged()) {
+          && inputAgentsOrPortals.isWordsListChanged()) {
             renderLogs(channel);
         }
       }
@@ -547,7 +547,7 @@ window.plugin.commfilter = (function() {
     filterOutFaction: filterOutFaction,
     filterOutLinked: filterOutLinked,
     filterOutPublic: filterOutPublic,
-    get input() {return inputOmni;},
+    get input() {return inputAgentsOrPortals;},
     setup: setup
   };
 

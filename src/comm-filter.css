@@ -52,14 +52,14 @@
   padding: 0.5ex 0;
 }
 
-#PLUGIN_COMM_FILTER>input[name=omni] {
+#PLUGIN_COMM_FILTER>input[name=agents_or_portals] {
   flex-grow: 1;
   flex-shrink: 0;
   flex-basis: auto;
   width: 16ex;
 }
 
-#PLUGIN_COMM_FILTER>input[name=omni]:focus~.switchgroup {
+#PLUGIN_COMM_FILTER>input[name=agents_or_portals]:focus~.switchgroup {
   display: none;
 }
 
