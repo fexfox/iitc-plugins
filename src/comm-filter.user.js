@@ -554,8 +554,9 @@ window.plugin.commfilter = (function() {
 var setup = function(){
   if(!window.chat) return; 
   
-  // override and append functions following:
-  
+  /*
+   * override following functions for the window.chat 
+   */
   //// based on original iitc/code/chat.js @ rev.5298c98
   // renders data from the data-hash to the element defined by the given
   // ID. Set 3rd argument to true if it is likely that old data has been
@@ -600,13 +601,7 @@ var setup = function(){
       return;
     }
 
-    var logsTable = $('table', box);
-    // box[0].offsetHeight - logsTable[0].offsetHeight
-    var offset = box.outerHeight() - logsTable.outerHeight();
-
-    if(offset > 0) {
-      logsTable.css('margin-bottom', offset + 'px');
-    }
+    chat.fitLogsTableToBox(box);
 
     var statusView = $('.status', box); 
     statusView.text('');
@@ -623,6 +618,27 @@ var setup = function(){
   window.chat.renderDivider = function(text) {
     return '<tr class="divider"><td colspan="3"><summary>' + text + '</summary></td></tr>';
   }
+  
+  /*
+   * append following functions for the window.chat 
+   */
+  window.chat.fitLogsTableToBox = function(box) {
+    var logsTable = $('table', box);
+    if(!logsTable) return;
+    
+    // box[0].offsetHeight - logsTable[0].offsetHeight
+    var offset = box.outerHeight() - logsTable.outerHeight();
+
+    if(offset > 0) {
+      logsTable.css('margin-bottom', offset + 'px');
+    } else {
+      logsTable.css('margin-bottom', '0');
+    }
+  }
+  
+  $('#chatcontrols a:first').click(function(){
+    window.chat.fitLogsTableToBox($('#chat > div:visible'));
+  });
   
   window.chat.renderTableDom = function(rowDoms) {
     var dF = document.createDocumentFragment();
