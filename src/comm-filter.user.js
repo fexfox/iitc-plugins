@@ -26,6 +26,8 @@
 
 // use own namespace for plugin
 window.plugin.commfilter = (function() {
+  'use strict';
+  
   var ID = 'PLUGIN_COMM_FILTER',
       DESCRIPTIONS = "COMM Filter plug-in",
       config = {
