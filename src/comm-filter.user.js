@@ -26,6 +26,8 @@
 
 // use own namespace for plugin
 window.plugin.commfilter = (function() {
+  'use strict';
+  
   var ID = 'PLUGIN_COMM_FILTER',
       DESCRIPTIONS = "COMM Filter plug-in",
       config = {
@@ -41,101 +43,101 @@ window.plugin.commfilter = (function() {
         }
         // filtering_between_agents_and_actions: 'OR' // AND, OR
       },
+      comm = null,
       dom = null,
-      comm = { //TODO change this to singleton
-        dom: null,
-        channels: {}, // all, faction, alerts
-        
-        Channel: function(name) {
-          return {
-            name: name,
-            dom: null,
-            hasLogs: function() {
-              if(this.dom && this.dom.querySelector('table')) {
-                return true;
-              } else {
-                return false;
-              }
-            }
-          };
-        },
-        
-        create: function() {
-          var dom = document.getElementById('chat');
-          if(!dom) return null;
-          
-          var channels = [new comm.Channel('all'), new comm.Channel('faction'), new comm.Channel('alerts')];
-          
-          for(var i = 0; i < channels.length; i++) {
-            channels[i].dom = dom.querySelector('#chat' + channels[i].name);
-            
-            if(channels[i].dom) {
-              comm.insertStatusViewTo(channels[i].dom);
-            }
-            
-            comm.channels[channels[i].name] = channels[i];
-          }
-          
-          comm.dom = dom;
-          
-          // filtering by agent name clicked/tapped in COMM       
-          dom.addEventListener('click', function(event){
-            if(!event.target.classList.contains('nickname')) return;
-            
-            // tentative: to avoid a problem on Android that causes cached chat logs reset,
-            //            call event.stopImmediatePropagation() in this.
-            //            So IITC default action that inputs @agentname automatically 
-            //            to the #chattext box is blocked.
-            //TODO related to issue#5
-            event.stopImmediatePropagation();
-
-            var channel = window.chat.getActive();
-            
-            if(comm.channels[channel].hasLogs()) {
-              if(!inputOmni.value) {
-                inputOmni.value = event.target.textContent + ' ';
-              } else {
-                inputOmni.value = inputOmni.value + ' ' + event.target.textContent + ' ';
-              }
-
-              inputOmni.fireInputEvent();
-            }
-          });
-          
-          // refreshing filtered logs on COMM tabs changed
-          document.getElementById('chatcontrols').addEventListener('click', function(event) {
-            if(comm.checkChannelTab(event.target)) {
-              var channel = window.chat.getActive();
-              if(comm.channels[channel].hasLogs()) renderLogs(channel);
-            }
-          });
-          
-          if(window.useAndroidPanes()) {
-            // in order to provide common UI as same as Desktop mode for Android.  
-            dom.classList.add('expand');
-          }
-          
-          return comm;
-        },
-        
-        insertStatusViewTo: function(channelDom) {
-          var dom = document.createElement('div');
-          dom.className = 'status';
-          channelDom.insertBefore(dom, channelDom.firstChildElement);
-        },
-        
-        checkChannelTab: function(tab) {
-          if(tab.tagName.toLowerCase() === 'a' && tab.childElementCount === 0) return true;
-          else return false;
-        }
-      },
       // inputAgent,
       // inputAction,
-      inputOmni,
+      inputAgentsOrPortals,
       filterSwitches = [];
+  
+  comm = (function() {
+    var dom = null,
+        channels = {}; // all, faction, alerts
+    
+    function Channel(name) {
+      return {
+        name: name,
+        dom: null,
+        hasLogs: function() {
+          if(this.dom && this.dom.querySelector('table')) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      };
+    }
+    
+    function create() {
+      dom = document.getElementById('chat');
+      if(!dom) return null;
       
+      channels = [new Channel('all'), new Channel('faction'), new Channel('alerts')];
+      
+      for(var i = 0; i < channels.length; i++) {
+        channels[i].dom = dom.querySelector('#chat' + channels[i].name);
+        
+        if(channels[i].dom) {
+          insertStatusViewTo(channels[i].dom);
+        }
+        
+        channels[channels[i].name] = channels[i];
+      }
+      
+      // filtering by agent name clicked/tapped in COMM       
+      dom.addEventListener('click', function(event){
+        if(!event.target.classList.contains('nickname')) return;
+        
+        // tentative: to avoid a problem on Android that causes cached chat logs reset,
+        //            call event.stopImmediatePropagation() in this.
+        //            So IITC default action that inputs @agentname automatically 
+        //            to the #chattext box is blocked.
+        //TODO related to issue#5
+        event.stopImmediatePropagation();
+
+        var channel = window.chat.getActive();
+        
+        if(channels[channel] && channels[channel].hasLogs()) {
+          if(!inputAgentsOrPortals.value) {
+            inputAgentsOrPortals.value = event.target.textContent + ' ';
+          } else {
+            inputAgentsOrPortals.value = inputAgentsOrPortals.value + ' ' + event.target.textContent + ' ';
+          }
+
+          inputAgentsOrPortals.fireInputEvent();
+        }
+      });
+      
+      // refreshing filtered logs on COMM tabs changed
+      document.getElementById('chatcontrols').addEventListener('click', function(event) {
+        var channel = window.chat.getActive();
+        if(channels[channel] && channels[channel].hasLogs()) renderLogs(channel);
+      });
+      
+      if(window.useAndroidPanes()) {
+        // in order to provide common UI as same as Desktop mode for Android.  
+        dom.classList.add('expand');
+      }
+      
+      return comm;
+    }
+    
+    function insertStatusViewTo(channelDom) {
+      var dom = document.createElement('div');
+      dom.className = 'status';
+      channelDom.insertBefore(dom, channelDom.firstChildElement);
+    }
+    
+    return {
+      get dom() {return dom;},
+      get channels() {return channels;},
+      create: create
+    };
+    
+  })();
+
   var Input = (function Input() {
-    var Input = function(prop) {
+    var Constr = function(prop) {
       var df = document.createDocumentFragment(),
           textbox = {
             dom: null,
@@ -192,7 +194,7 @@ window.plugin.commfilter = (function() {
       };      
     };
     
-    Input.prototype = {
+    Constr.prototype = {
       constructor: Input,
       
       get wordsList() {
@@ -233,12 +235,12 @@ window.plugin.commfilter = (function() {
         }
       }      
     };
-    
-    return Input;
+
+    return Constr;
   })();
 
   var FilterSwitch = (function FilterSwitch() {
-    var FilterSwitch = function(action) {
+    var Constr = function(action) {
       if(!action) return null;
       
       var switchDom = document.createElement('input');
@@ -264,7 +266,7 @@ window.plugin.commfilter = (function() {
       this.dom.insertBefore(switchDom, this.dom.firstChild);
     };
     
-    FilterSwitch.prototype = {
+    Constr.prototype = {
       constructor: FilterSwitch,
       
       toggle: function() {
@@ -273,7 +275,7 @@ window.plugin.commfilter = (function() {
       }
     };
     
-    return FilterSwitch;
+    return Constr;
   })();
 
   function filterAgent(log, agent) {
@@ -469,15 +471,16 @@ window.plugin.commfilter = (function() {
     titleDom.title = DESCRIPTIONS;
     dom.appendChild(titleDom);
 
-    inputOmni = new Input({name: 'omni', placeholder: 'agents or portals'});
-    dom.appendChild(inputOmni.dom);
+    inputAgentsOrPortals = new Input({name: 'agents_or_portals', placeholder: 'agents or portals'});
+    dom.appendChild(inputAgentsOrPortals.dom);
     
     dom.addEventListener('input', function(event) {
-      if(event.target.name === inputOmni.name) {
+      if(event.target.name === inputAgentsOrPortals.name) {
         var channel = window.chat.getActive();
         
-        if(inputOmni.isWordsListChanged() && comm.channels[channel].hasLogs()) {
-          renderLogs(channel);
+        if((comm.channels[channel] && comm.channels[channel].hasLogs()) 
+          && inputAgentsOrPortals.isWordsListChanged()) {
+            renderLogs(channel);
         }
       }
     });
@@ -499,8 +502,9 @@ window.plugin.commfilter = (function() {
     //   if(event.target.name === inputAction.name) {
     //     var channel = window.chat.getActive();
         
-    //     if(inputAction.isWordsListChanged() && comm.channels[channel].hasLogs()) {
-    //       renderLogs(channel);
+    //     if((comm.channels[channel] && comm.channels[channel].hasLogs()) 
+    //       && inputAction.isWordsListChanged()) {
+    //         renderLogs(channel);
     //     }
     //   }
     // });
@@ -521,7 +525,7 @@ window.plugin.commfilter = (function() {
     
     dom.appendChild(switchesDom);
     
-    dom.addEventListener('click', function(event){
+    dom.addEventListener('change', function(event){
       for(var i = 0; i < filterSwitches.length; i++) {
         if(event.target.name === filterSwitches[i].name) {
           filterSwitches[i].toggle();
@@ -545,7 +549,7 @@ window.plugin.commfilter = (function() {
     filterOutFaction: filterOutFaction,
     filterOutLinked: filterOutLinked,
     filterOutPublic: filterOutPublic,
-    get input() {return inputOmni;},
+    get input() {return inputAgentsOrPortals;},
     setup: setup
   };
 

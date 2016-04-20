@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.5.5.20160419.75256
+// @version        0.5.5.20160420.30722
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.meta.js
 // @downloadURL    https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.user.js
-// @description    [udnp-2016-04-19-075256] COMM Filter
+// @description    [udnp-2016-04-20-030722] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'udnp';
-plugin_info.dateTimeVersion = '20160419.75256';
+plugin_info.dateTimeVersion = '20160420.30722';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -38,6 +38,8 @@ plugin_info.pluginId = 'comm-filter';
 
 // use own namespace for plugin
 window.plugin.commfilter = (function() {
+  'use strict';
+  
   var ID = 'PLUGIN_COMM_FILTER',
       DESCRIPTIONS = "COMM Filter plug-in",
       config = {
@@ -53,101 +55,101 @@ window.plugin.commfilter = (function() {
         }
         // filtering_between_agents_and_actions: 'OR' // AND, OR
       },
+      comm = null,
       dom = null,
-      comm = { //TODO change this to singleton
-        dom: null,
-        channels: {}, // all, faction, alerts
-        
-        Channel: function(name) {
-          return {
-            name: name,
-            dom: null,
-            hasLogs: function() {
-              if(this.dom && this.dom.querySelector('table')) {
-                return true;
-              } else {
-                return false;
-              }
-            }
-          };
-        },
-        
-        create: function() {
-          var dom = document.getElementById('chat');
-          if(!dom) return null;
-          
-          var channels = [new comm.Channel('all'), new comm.Channel('faction'), new comm.Channel('alerts')];
-          
-          for(var i = 0; i < channels.length; i++) {
-            channels[i].dom = dom.querySelector('#chat' + channels[i].name);
-            
-            if(channels[i].dom) {
-              comm.insertStatusViewTo(channels[i].dom);
-            }
-            
-            comm.channels[channels[i].name] = channels[i];
-          }
-          
-          comm.dom = dom;
-          
-          // filtering by agent name clicked/tapped in COMM       
-          dom.addEventListener('click', function(event){
-            if(!event.target.classList.contains('nickname')) return;
-            
-            // tentative: to avoid a problem on Android that causes cached chat logs reset,
-            //            call event.stopImmediatePropagation() in this.
-            //            So IITC default action that inputs @agentname automatically 
-            //            to the #chattext box is blocked.
-            //TODO related to issue#5
-            event.stopImmediatePropagation();
-
-            var channel = window.chat.getActive();
-            
-            if(comm.channels[channel].hasLogs()) {
-              if(!inputOmni.value) {
-                inputOmni.value = event.target.textContent + ' ';
-              } else {
-                inputOmni.value = inputOmni.value + ' ' + event.target.textContent + ' ';
-              }
-
-              inputOmni.fireInputEvent();
-            }
-          });
-          
-          // refreshing filtered logs on COMM tabs changed
-          document.getElementById('chatcontrols').addEventListener('click', function(event) {
-            if(comm.checkChannelTab(event.target)) {
-              var channel = window.chat.getActive();
-              if(comm.channels[channel].hasLogs()) renderLogs(channel);
-            }
-          });
-          
-          if(window.useAndroidPanes()) {
-            // in order to provide common UI as same as Desktop mode for Android.  
-            dom.classList.add('expand');
-          }
-          
-          return comm;
-        },
-        
-        insertStatusViewTo: function(channelDom) {
-          var dom = document.createElement('div');
-          dom.className = 'status';
-          channelDom.insertBefore(dom, channelDom.firstChildElement);
-        },
-        
-        checkChannelTab: function(tab) {
-          if(tab.tagName.toLowerCase() === 'a' && tab.childElementCount === 0) return true;
-          else return false;
-        }
-      },
       // inputAgent,
       // inputAction,
-      inputOmni,
+      inputAgentsOrPortals,
       filterSwitches = [];
+  
+  comm = (function() {
+    var dom = null,
+        channels = {}; // all, faction, alerts
+    
+    function Channel(name) {
+      return {
+        name: name,
+        dom: null,
+        hasLogs: function() {
+          if(this.dom && this.dom.querySelector('table')) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      };
+    }
+    
+    function create() {
+      dom = document.getElementById('chat');
+      if(!dom) return null;
       
+      channels = [new Channel('all'), new Channel('faction'), new Channel('alerts')];
+      
+      for(var i = 0; i < channels.length; i++) {
+        channels[i].dom = dom.querySelector('#chat' + channels[i].name);
+        
+        if(channels[i].dom) {
+          insertStatusViewTo(channels[i].dom);
+        }
+        
+        channels[channels[i].name] = channels[i];
+      }
+      
+      // filtering by agent name clicked/tapped in COMM       
+      dom.addEventListener('click', function(event){
+        if(!event.target.classList.contains('nickname')) return;
+        
+        // tentative: to avoid a problem on Android that causes cached chat logs reset,
+        //            call event.stopImmediatePropagation() in this.
+        //            So IITC default action that inputs @agentname automatically 
+        //            to the #chattext box is blocked.
+        //TODO related to issue#5
+        event.stopImmediatePropagation();
+
+        var channel = window.chat.getActive();
+        
+        if(channels[channel] && channels[channel].hasLogs()) {
+          if(!inputAgentsOrPortals.value) {
+            inputAgentsOrPortals.value = event.target.textContent + ' ';
+          } else {
+            inputAgentsOrPortals.value = inputAgentsOrPortals.value + ' ' + event.target.textContent + ' ';
+          }
+
+          inputAgentsOrPortals.fireInputEvent();
+        }
+      });
+      
+      // refreshing filtered logs on COMM tabs changed
+      document.getElementById('chatcontrols').addEventListener('click', function(event) {
+        var channel = window.chat.getActive();
+        if(channels[channel] && channels[channel].hasLogs()) renderLogs(channel);
+      });
+      
+      if(window.useAndroidPanes()) {
+        // in order to provide common UI as same as Desktop mode for Android.  
+        dom.classList.add('expand');
+      }
+      
+      return comm;
+    }
+    
+    function insertStatusViewTo(channelDom) {
+      var dom = document.createElement('div');
+      dom.className = 'status';
+      channelDom.insertBefore(dom, channelDom.firstChildElement);
+    }
+    
+    return {
+      get dom() {return dom;},
+      get channels() {return channels;},
+      create: create
+    };
+    
+  })();
+
   var Input = (function Input() {
-    var Input = function(prop) {
+    var Constr = function(prop) {
       var df = document.createDocumentFragment(),
           textbox = {
             dom: null,
@@ -204,7 +206,7 @@ window.plugin.commfilter = (function() {
       };      
     };
     
-    Input.prototype = {
+    Constr.prototype = {
       constructor: Input,
       
       get wordsList() {
@@ -245,12 +247,12 @@ window.plugin.commfilter = (function() {
         }
       }      
     };
-    
-    return Input;
+
+    return Constr;
   })();
 
   var FilterSwitch = (function FilterSwitch() {
-    var FilterSwitch = function(action) {
+    var Constr = function(action) {
       if(!action) return null;
       
       var switchDom = document.createElement('input');
@@ -276,7 +278,7 @@ window.plugin.commfilter = (function() {
       this.dom.insertBefore(switchDom, this.dom.firstChild);
     };
     
-    FilterSwitch.prototype = {
+    Constr.prototype = {
       constructor: FilterSwitch,
       
       toggle: function() {
@@ -285,7 +287,7 @@ window.plugin.commfilter = (function() {
       }
     };
     
-    return FilterSwitch;
+    return Constr;
   })();
 
   function filterAgent(log, agent) {
@@ -469,7 +471,7 @@ window.plugin.commfilter = (function() {
         
     $("<style>")
       .prop("type", "text/css")
-      .html("#PLUGIN_COMM_FILTER {\n  display: flex;\n  align-items: center;\n  padding: 0 0.5ex;\n}\n\n#chat:not(.expand)>#PLUGIN_COMM_FILTER {\n    position: absolute;\n    right: 30px;\n    width: 30%;\n    z-index: 1;\n    background: rgba(8, 48, 78, 0.9);\n}\n\n#chat:not(.expand)>#PLUGIN_COMM_FILTER>.switchgroup {\n    display: none;\n}\n\n#chat:not(.expand) {\n    padding-bottom: 0;\n}\n\n#chat {\n  padding-bottom: 26px;\n}\n\n#PLUGIN_COMM_FILTER .title {\n  height: 26px;\n  padding-right: 0.5ex;\n  flex: none; /* for Android K WebView */\n  display: inline-flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER>select {\n  margin: 0 1ex;\n}\n\n#PLUGIN_COMM_FILTER>.switchgroup {\n  overflow-x: auto;\n  align-self: stretch;\n  display: inline-flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER .switch {\n  white-space: nowrap;\n  margin-left: 1.2ex;\n  flex: none; /* for Android K WebView */\n  display: inline-flex;\n  align-items: center;\n  padding: 0.5ex 0;\n}\n\n#PLUGIN_COMM_FILTER>input[name=omni] {\n  flex-grow: 1;\n  flex-shrink: 0;\n  flex-basis: auto;\n  width: 16ex;\n}\n\n#PLUGIN_COMM_FILTER>input[name=omni]:focus~.switchgroup {\n  display: none;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n\n/* hack chat.js divider */\n#chatall>table tr.divider,\n#chatfaction>table tr.divider,\n#chatalerts>table tr.divider {\n  border-top: solid 1px #bbb;\n}\n\n#chatall>table tr.divider>td,\n#chatfaction>table tr.divider>td,\n#chatalerts>table tr.divider>td {\n  padding-top: 3px;\n}\n\n#chatall>table tr.divider summary,\n#chatfaction>table tr.divider summary,\n#chatalerts>table tr.divider summary {\n  box-sizing: border-box;\n  padding-left: 2ex;\n}\n")
+      .html("#PLUGIN_COMM_FILTER {\n  display: flex;\n  align-items: center;\n  padding: 0 0.5ex;\n}\n\n#chat:not(.expand)>#PLUGIN_COMM_FILTER {\n    position: absolute;\n    right: 30px;\n    width: 30%;\n    z-index: 1;\n    background: rgba(8, 48, 78, 0.9);\n}\n\n#chat:not(.expand)>#PLUGIN_COMM_FILTER>.switchgroup {\n    display: none;\n}\n\n#chat:not(.expand) {\n    padding-bottom: 0;\n}\n\n#chat {\n  padding-bottom: 26px;\n}\n\n#PLUGIN_COMM_FILTER .title {\n  height: 26px;\n  padding-right: 0.5ex;\n  flex: none; /* for Android K WebView */\n  display: inline-flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER>select {\n  margin: 0 1ex;\n}\n\n#PLUGIN_COMM_FILTER>.switchgroup {\n  overflow-x: auto;\n  align-self: stretch;\n  display: inline-flex;\n  align-items: center;\n}\n\n#PLUGIN_COMM_FILTER .switch {\n  white-space: nowrap;\n  margin-left: 1.2ex;\n  flex: none; /* for Android K WebView */\n  display: inline-flex;\n  align-items: center;\n  padding: 0.5ex 0;\n}\n\n#PLUGIN_COMM_FILTER>input[name=agents_or_portals] {\n  flex-grow: 1;\n  flex-shrink: 0;\n  flex-basis: auto;\n  width: 16ex;\n}\n\n#PLUGIN_COMM_FILTER>input[name=agents_or_portals]:focus~.switchgroup {\n  display: none;\n}\n\n#PLUGIN_COMM_FILTER>button {\n  padding: 2px;\n  min-width: 40px;\n  color: #FFCE00;\n  border: 1px solid #FFCE00;\n  background-color: rgba(8, 48, 78, 0.9);\n  text-align: center;\n}\n\n#chatall>.status, #chatfaction>.status, #chatalerts>.status {\n  height: 20px;\n  text-align: center;\n  font-style: italic;\n}\n\n#chatall>table, #chatfaction>table, #chatalerts>table {\n  table-layout: auto;\n}\n\n#chatall>table td:nth-child(2),\n#chatfaction>table td:nth-child(2),\n#chatalerts>table td:nth-child(2) {\n  width: 15ex;\n}\n\n/* hack chat.js divider */\n#chatall>table tr.divider,\n#chatfaction>table tr.divider,\n#chatalerts>table tr.divider {\n  border-top: solid 1px #bbb;\n}\n\n#chatall>table tr.divider>td,\n#chatfaction>table tr.divider>td,\n#chatalerts>table tr.divider>td {\n  padding-top: 3px;\n}\n\n#chatall>table tr.divider summary,\n#chatfaction>table tr.divider summary,\n#chatalerts>table tr.divider summary {\n  box-sizing: border-box;\n  padding-left: 2ex;\n}\n")
       .appendTo("head");
     
     dom = document.createElement('header');
@@ -481,15 +483,16 @@ window.plugin.commfilter = (function() {
     titleDom.title = DESCRIPTIONS;
     dom.appendChild(titleDom);
 
-    inputOmni = new Input({name: 'omni', placeholder: 'agents or portals'});
-    dom.appendChild(inputOmni.dom);
+    inputAgentsOrPortals = new Input({name: 'agents_or_portals', placeholder: 'agents or portals'});
+    dom.appendChild(inputAgentsOrPortals.dom);
     
     dom.addEventListener('input', function(event) {
-      if(event.target.name === inputOmni.name) {
+      if(event.target.name === inputAgentsOrPortals.name) {
         var channel = window.chat.getActive();
         
-        if(inputOmni.isWordsListChanged() && comm.channels[channel].hasLogs()) {
-          renderLogs(channel);
+        if((comm.channels[channel] && comm.channels[channel].hasLogs()) 
+          && inputAgentsOrPortals.isWordsListChanged()) {
+            renderLogs(channel);
         }
       }
     });
@@ -511,8 +514,9 @@ window.plugin.commfilter = (function() {
     //   if(event.target.name === inputAction.name) {
     //     var channel = window.chat.getActive();
         
-    //     if(inputAction.isWordsListChanged() && comm.channels[channel].hasLogs()) {
-    //       renderLogs(channel);
+    //     if((comm.channels[channel] && comm.channels[channel].hasLogs()) 
+    //       && inputAction.isWordsListChanged()) {
+    //         renderLogs(channel);
     //     }
     //   }
     // });
@@ -533,7 +537,7 @@ window.plugin.commfilter = (function() {
     
     dom.appendChild(switchesDom);
     
-    dom.addEventListener('click', function(event){
+    dom.addEventListener('change', function(event){
       for(var i = 0; i < filterSwitches.length; i++) {
         if(event.target.name === filterSwitches[i].name) {
           filterSwitches[i].toggle();
@@ -557,7 +561,7 @@ window.plugin.commfilter = (function() {
     filterOutFaction: filterOutFaction,
     filterOutLinked: filterOutLinked,
     filterOutPublic: filterOutPublic,
-    get input() {return inputOmni;},
+    get input() {return inputAgentsOrPortals;},
     setup: setup
   };
 
