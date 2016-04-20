@@ -48,11 +48,11 @@ window.plugin.commfilter = (function() {
       inputOmni,
       filterSwitches = [];
   
-  comm = { //TODO change this to singleton
-    dom: null,
-    channels: {}, // all, faction, alerts
+  comm = (function() {
+    var dom = null,
+        channels = {}; // all, faction, alerts
     
-    Channel: function(name) {
+    function Channel(name) {
       return {
         name: name,
         dom: null,
@@ -64,25 +64,23 @@ window.plugin.commfilter = (function() {
           }
         }
       };
-    },
+    }
     
-    create: function() {
-      var dom = document.getElementById('chat');
+    function create() {
+      dom = document.getElementById('chat');
       if(!dom) return null;
       
-      var channels = [new comm.Channel('all'), new comm.Channel('faction'), new comm.Channel('alerts')];
+      channels = [new Channel('all'), new Channel('faction'), new Channel('alerts')];
       
       for(var i = 0; i < channels.length; i++) {
         channels[i].dom = dom.querySelector('#chat' + channels[i].name);
         
         if(channels[i].dom) {
-          comm.insertStatusViewTo(channels[i].dom);
+          insertStatusViewTo(channels[i].dom);
         }
         
-        comm.channels[channels[i].name] = channels[i];
+        channels[channels[i].name] = channels[i];
       }
-      
-      comm.dom = dom;
       
       // filtering by agent name clicked/tapped in COMM       
       dom.addEventListener('click', function(event){
@@ -97,7 +95,7 @@ window.plugin.commfilter = (function() {
 
         var channel = window.chat.getActive();
         
-        if(comm.channels[channel] && comm.channels[channel].hasLogs()) {
+        if(channels[channel] && channels[channel].hasLogs()) {
           if(!inputOmni.value) {
             inputOmni.value = event.target.textContent + ' ';
           } else {
@@ -111,7 +109,7 @@ window.plugin.commfilter = (function() {
       // refreshing filtered logs on COMM tabs changed
       document.getElementById('chatcontrols').addEventListener('click', function(event) {
         var channel = window.chat.getActive();
-        if(comm.channels[channel] && comm.channels[channel].hasLogs()) renderLogs(channel);
+        if(channels[channel] && channels[channel].hasLogs()) renderLogs(channel);
       });
       
       if(window.useAndroidPanes()) {
@@ -120,15 +118,22 @@ window.plugin.commfilter = (function() {
       }
       
       return comm;
-    },
+    }
     
-    insertStatusViewTo: function(channelDom) {
+    function insertStatusViewTo(channelDom) {
       var dom = document.createElement('div');
       dom.className = 'status';
       channelDom.insertBefore(dom, channelDom.firstChildElement);
     }
-  }
-  
+    
+    return {
+      get dom() {return dom;},
+      get channels() {return channels;},
+      create: create
+    };
+    
+  })();
+
   var Input = (function Input() {
     var Input = function(prop) {
       var df = document.createDocumentFragment(),
