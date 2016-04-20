@@ -91,7 +91,7 @@ window.plugin.commfilter = (function() {
 
             var channel = window.chat.getActive();
             
-            if(comm.channels[channel].hasLogs()) {
+            if(comm.channels[channel] && comm.channels[channel].hasLogs()) {
               if(!inputOmni.value) {
                 inputOmni.value = event.target.textContent + ' ';
               } else {
@@ -469,8 +469,9 @@ window.plugin.commfilter = (function() {
       if(event.target.name === inputOmni.name) {
         var channel = window.chat.getActive();
         
-        if(inputOmni.isWordsListChanged() && comm.channels[channel].hasLogs()) {
-          renderLogs(channel);
+        if((comm.channels[channel] && comm.channels[channel].hasLogs()) 
+          && inputOmni.isWordsListChanged()) {
+            renderLogs(channel);
         }
       }
     });
@@ -492,8 +493,9 @@ window.plugin.commfilter = (function() {
     //   if(event.target.name === inputAction.name) {
     //     var channel = window.chat.getActive();
         
-    //     if(inputAction.isWordsListChanged() && comm.channels[channel].hasLogs()) {
-    //       renderLogs(channel);
+    //     if((comm.channels[channel] && comm.channels[channel].hasLogs()) 
+    //       && inputAction.isWordsListChanged()) {
+    //         renderLogs(channel);
     //     }
     //   }
     // });
