@@ -44,7 +44,6 @@ window.plugin.commfilter = (function() {
         // filtering_between_agents_and_actions: 'OR' // AND, OR
       },
       comm = null,
-      dom = null,
       // inputAgent,
       // inputAction,
       inputAgentsOrPortals,
@@ -462,19 +461,19 @@ window.plugin.commfilter = (function() {
       .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
       .appendTo("head");
     
-    dom = document.createElement('header');
-    dom.id = ID;
+    var rootDom = document.createElement('header');
+    rootDom.id = ID;
     
     var titleDom = document.createElement('b');
     titleDom.className = 'title';
     titleDom.textContent = 'Filter';
     titleDom.title = DESCRIPTIONS;
-    dom.appendChild(titleDom);
+    rootDom.appendChild(titleDom);
 
     inputAgentsOrPortals = new Input({name: 'agents_or_portals', placeholder: 'agents or portals'});
-    dom.appendChild(inputAgentsOrPortals.dom);
+    rootDom.appendChild(inputAgentsOrPortals.dom);
     
-    dom.addEventListener('input', function(event) {
+    rootDom.addEventListener('input', function(event) {
       if(event.target.name === inputAgentsOrPortals.name) {
         var channel = window.chat.getActive();
         
@@ -493,12 +492,12 @@ window.plugin.commfilter = (function() {
     // selectorAndOrDom.options[1].textContent = 'OR';
     // if(config.filtering_between_agents_and_actions === 'AND') selectorAndOrDom.options[0].selected = true;
     // else if(config.filtering_between_agents_and_actions === 'OR') selectorAndOrDom.options[1].selected = true;
-    // dom.appendChild(selectorAndOrDom);
+    // rootDom.appendChild(selectorAndOrDom);
 
     // inputAction = new Input({name: 'action', placeholder: 'portal name'});
-    // dom.appendChild(inputAction.dom);
+    // rootDom.appendChild(inputAction.dom);
     
-    // dom.addEventListener('input', function(event) {
+    // rootDom.addEventListener('input', function(event) {
     //   if(event.target.name === inputAction.name) {
     //     var channel = window.chat.getActive();
         
@@ -523,9 +522,8 @@ window.plugin.commfilter = (function() {
       switchesDom.appendChild(filterSwitches[i].dom);
     }
     
-    dom.appendChild(switchesDom);
-    
-    dom.addEventListener('change', function(event){
+    rootDom.appendChild(switchesDom);
+    rootDom.addEventListener('change', function(event){
       for(var i = 0; i < filterSwitches.length; i++) {
         if(event.target.name === filterSwitches[i].name) {
           filterSwitches[i].toggle();
@@ -535,7 +533,7 @@ window.plugin.commfilter = (function() {
       }    
     });
     
-    comm.dom.insertBefore(dom, comm.dom.firstElementChild);
+    comm.dom.insertBefore(rootDom, comm.dom.firstElementChild);
   }
 
   return {
