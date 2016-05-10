@@ -136,37 +136,10 @@ window.plugin.commfilter = (function() {
   })();
 
   var Input = (function Input() {
-    var Constr = function(prop) {
-      var df = document.createDocumentFragment(),
-          textbox = {
-            dom: null,
-            create: function(prop) {
-              var dom = document.createElement('input');
-              dom.type = 'text';
-              dom.placeholder = prop.placeholder || '';
-
-              this.dom = dom;
-              return this;
-            }
-          },
-          reset = {
-            dom: null,
-            create: function() {
-              var dom = document.createElement('button');
-              dom.type = 'button';
-              dom.textContent = 'X';
-              
-              this.dom = dom;
-              return this;
-            }
+    var Constr = function(textboxDom) {
+      var textbox = {
+            dom: textboxDom
           };
-      
-      textbox.create(prop);
-      reset.create();
-      reset.dom.addEventListener('click', this.clear.bind(this));
-      
-      df.appendChild(textbox.dom);
-      df.appendChild(reset.dom);      
 
       Object.defineProperties(this, {
         name: {
@@ -183,8 +156,6 @@ window.plugin.commfilter = (function() {
         }
       });    
 
-      this.dom = df;
-      this.name = prop.name || '';
       this.defaultValue = '';
       this.value = this.defaultValue;
       this.oldValue = null;
@@ -469,12 +440,14 @@ window.plugin.commfilter = (function() {
     titleDom.textContent = 'Filter';
     titleDom.title = DESCRIPTIONS;
     rootDom.appendChild(titleDom);
-
-    inputAgentsOrPortals = new Input({name: 'agents_or_portals', placeholder: 'agents or portals'});
-    rootDom.appendChild(inputAgentsOrPortals.dom);
     
+    var textboxDom = document.createElement('input');
+    textboxDom.type = 'text';
+    textboxDom.name = 'agents_or_portals';
+    textboxDom.placeholder = 'agents or portals';
+    rootDom.appendChild(textboxDom);
     rootDom.addEventListener('input', function(event) {
-      if(event.target.name === inputAgentsOrPortals.name) {
+      if(event.target === textboxDom) {
         var channel = window.chat.getActive();
         
         if((comm.channels[channel] && comm.channels[channel].hasLogs()) 
@@ -484,6 +457,16 @@ window.plugin.commfilter = (function() {
       }
     });
     
+    var resetButtonDom = document.createElement('button');
+    resetButtonDom.type = 'button';
+    resetButtonDom.textContent = 'X';
+    rootDom.appendChild(resetButtonDom);
+    resetButtonDom.addEventListener('click', function() {
+      inputAgentsOrPortals.clear();
+    });
+
+    inputAgentsOrPortals = new Input(textboxDom);
+
     // var selectorAndOrDom = document.createElement('select');
     // selectorAndOrDom.disabled = true;
     // selectorAndOrDom.options[0] = document.createElement('option');
