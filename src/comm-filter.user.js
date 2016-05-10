@@ -43,85 +43,11 @@ window.plugin.commfilter = (function() {
         }
         // filtering_between_agents_and_actions: 'OR' // AND, OR
       },
-      comm = null,
       // inputAgent,
       // inputAction,
       inputAgentsOrPortals,
       filterSwitches = [];
   
-  comm = (function() {
-    var dom = null,
-        channels = {}; // all, faction, alerts
-    
-    function Channel(name) {
-      return {
-        name: name,
-        dom: null
-      };
-    }
-    
-    function create() {
-      dom = document.getElementById('chat');
-      if(!dom) return null;
-      
-      channels = [new Channel('all'), new Channel('faction'), new Channel('alerts')];
-      
-      for(var i = 0; i < channels.length; i++) {
-        channels[i].dom = dom.querySelector('#chat' + channels[i].name);
-        
-        if(channels[i].dom) {
-          insertStatusViewTo(channels[i].dom);
-        }
-        
-        channels[channels[i].name] = channels[i];
-      }
-      
-      // filtering by agent name clicked/tapped in COMM       
-      dom.addEventListener('click', function(event){
-        if(!event.target.classList.contains('nickname')) return;
-        
-        // tentative: to avoid a problem on Android that causes cached chat logs reset,
-        //            call event.stopImmediatePropagation() in this.
-        //            So IITC default action that inputs @agentname automatically 
-        //            to the #chattext box is blocked.
-        //TODO related to issue#5
-        event.stopImmediatePropagation();
-
-        if(!inputAgentsOrPortals.value) {
-          inputAgentsOrPortals.value = event.target.textContent + ' ';
-        } else {
-          inputAgentsOrPortals.value = inputAgentsOrPortals.value + ' ' + event.target.textContent + ' ';
-        }
-
-        inputAgentsOrPortals.fireInputEvent();
-      });
-      
-      // refreshing filtered logs on COMM tabs changed
-      document.getElementById('chatcontrols').addEventListener('click', function() {
-        renderLogs(window.chat.getActive());
-      });
-      
-      if(window.useAndroidPanes()) {
-        // in order to provide common UI as same as Desktop mode for Android.  
-        dom.classList.add('expand');
-      }
-      
-      return comm;
-    }
-    
-    function insertStatusViewTo(channelDom) {
-      var dom = document.createElement('div');
-      dom.className = 'status';
-      channelDom.insertBefore(dom, channelDom.firstChildElement);
-    }
-    
-    return {
-      get dom() {return dom;},
-      create: create
-    };
-    
-  })();
-
   var Input = (function Input() {
     var Constr = function(textboxDom) {
       var textbox = {
@@ -411,13 +337,60 @@ window.plugin.commfilter = (function() {
     }
   }
   
+  function insertStatusViewTo(channelDom) {
+    var dom = document.createElement('div');
+    dom.className = 'status';
+    channelDom.insertBefore(dom, channelDom.firstChildElement);
+  }
+    
   function setup() {
-    if(!comm.create()) return;
+    var commDom = document.getElementById('chat');
+    if(!commDom) return;
         
     $("<style>")
       .prop("type", "text/css")
       .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
       .appendTo("head");
+    
+    if(window.useAndroidPanes()) {
+      // in order to provide common UI as same as Desktop mode for Android.  
+      commDom.classList.add('expand');
+    }
+    
+    var channelsDoms = [commDom.querySelector('#chatall'), 
+                        commDom.querySelector('#chatfaction'), 
+                        commDom.querySelector('#chatalerts')];
+      
+    for(var i = 0; i < channelsDoms.length; i++) {
+      if(channelsDoms[i]) {
+        insertStatusViewTo(channelsDoms[i]);
+      }
+    }
+    
+    // filtering by agent name clicked/tapped in COMM       
+    commDom.addEventListener('click', function(event){
+      if(!event.target.classList.contains('nickname')) return;
+      
+      // tentative: to avoid a problem on Android that causes cached chat logs reset,
+      //            call event.stopImmediatePropagation() in this.
+      //            So IITC default action that inputs @agentname automatically 
+      //            to the #chattext box is blocked.
+      //TODO related to issue#5
+      event.stopImmediatePropagation();
+
+      if(!inputAgentsOrPortals.value) {
+        inputAgentsOrPortals.value = event.target.textContent + ' ';
+      } else {
+        inputAgentsOrPortals.value = inputAgentsOrPortals.value + ' ' + event.target.textContent + ' ';
+      }
+
+      inputAgentsOrPortals.fireInputEvent();
+    });
+    
+    // refreshing filtered logs on COMM tabs changed
+    document.getElementById('chatcontrols').addEventListener('click', function() {
+      renderLogs(window.chat.getActive());
+    });
     
     var rootDom = document.createElement('header');
     rootDom.id = ID;
@@ -496,7 +469,7 @@ window.plugin.commfilter = (function() {
       }    
     });
     
-    comm.dom.insertBefore(rootDom, comm.dom.firstElementChild);
+    commDom.insertBefore(rootDom, commDom.firstElementChild);
   }
 
   return {
