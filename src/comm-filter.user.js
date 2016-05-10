@@ -56,14 +56,7 @@ window.plugin.commfilter = (function() {
     function Channel(name) {
       return {
         name: name,
-        dom: null,
-        hasLogs: function() {
-          if(this.dom && this.dom.querySelector('table')) {
-            return true;
-          } else {
-            return false;
-          }
-        }
+        dom: null
       };
     }
     
@@ -94,23 +87,18 @@ window.plugin.commfilter = (function() {
         //TODO related to issue#5
         event.stopImmediatePropagation();
 
-        var channel = window.chat.getActive();
-        
-        if(channels[channel] && channels[channel].hasLogs()) {
-          if(!inputAgentsOrPortals.value) {
-            inputAgentsOrPortals.value = event.target.textContent + ' ';
-          } else {
-            inputAgentsOrPortals.value = inputAgentsOrPortals.value + ' ' + event.target.textContent + ' ';
-          }
-
-          inputAgentsOrPortals.fireInputEvent();
+        if(!inputAgentsOrPortals.value) {
+          inputAgentsOrPortals.value = event.target.textContent + ' ';
+        } else {
+          inputAgentsOrPortals.value = inputAgentsOrPortals.value + ' ' + event.target.textContent + ' ';
         }
+
+        inputAgentsOrPortals.fireInputEvent();
       });
       
       // refreshing filtered logs on COMM tabs changed
-      document.getElementById('chatcontrols').addEventListener('click', function(event) {
-        var channel = window.chat.getActive();
-        if(channels[channel] && channels[channel].hasLogs()) renderLogs(channel);
+      document.getElementById('chatcontrols').addEventListener('click', function() {
+        renderLogs(window.chat.getActive());
       });
       
       if(window.useAndroidPanes()) {
@@ -129,7 +117,6 @@ window.plugin.commfilter = (function() {
     
     return {
       get dom() {return dom;},
-      get channels() {return channels;},
       create: create
     };
     
@@ -448,11 +435,8 @@ window.plugin.commfilter = (function() {
     rootDom.appendChild(textboxDom);
     rootDom.addEventListener('input', function(event) {
       if(event.target === textboxDom) {
-        var channel = window.chat.getActive();
-        
-        if((comm.channels[channel] && comm.channels[channel].hasLogs()) 
-          && inputAgentsOrPortals.isWordsListChanged()) {
-            renderLogs(channel);
+        if(inputAgentsOrPortals.isWordsListChanged()) {
+          renderLogs(window.chat.getActive());
         }
       }
     });
@@ -479,14 +463,10 @@ window.plugin.commfilter = (function() {
 
     // inputAction = new Input({name: 'action', placeholder: 'portal name'});
     // rootDom.appendChild(inputAction.dom);
-    
     // rootDom.addEventListener('input', function(event) {
     //   if(event.target.name === inputAction.name) {
-    //     var channel = window.chat.getActive();
-        
-    //     if((comm.channels[channel] && comm.channels[channel].hasLogs()) 
-    //       && inputAction.isWordsListChanged()) {
-    //         renderLogs(channel);
+    //     if(inputAction.isWordsListChanged()) {
+    //         renderLogs(window.chat.getActive());
     //     }
     //   }
     // });
