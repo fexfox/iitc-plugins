@@ -352,11 +352,41 @@ window.plugin.commfilter = (function() {
       .html("@@INCLUDESTRING:plugins/comm-filter.css@@")
       .appendTo("head");
     
+    // View-DOM
+    // 
+    // #chatcontrols
+    // #chat
+    //   header#ID
+    //     b.title[title=DESCRIPTIONS] Filter
+    //     input[type=text][name=agents_or_portals][placeholder="agents or portals"]
+    //     button[type=button]
+    //     span.switchgroup
+    //       input[type=checkbox]
+    //       ...
+    //   #chatall
+    //     .status
+    //     table
+    //   #chatfaction
+    //     .status
+    //     table
+    //   #chatalerts
+    //     .status
+    //     table
+    //   ...
+    
+    /* #chatcontrols */
+    // refreshing filtered logs on COMM tabs changed
+    document.getElementById('chatcontrols').addEventListener('click', function() {
+      renderLogs(window.chat.getActive());
+    });
+    
+    /* #chat */    
     if(window.useAndroidPanes()) {
       // in order to provide common UI as same as Desktop mode for Android.  
       commDom.classList.add('expand');
     }
-    
+
+    /* #chatall, #chatfaction, #chatalerts */
     var channelsDoms = [commDom.querySelector('#chatall'), 
                         commDom.querySelector('#chatfaction'), 
                         commDom.querySelector('#chatalerts')];
@@ -387,20 +417,18 @@ window.plugin.commfilter = (function() {
       inputAgentsOrPortals.fireInputEvent();
     });
     
-    // refreshing filtered logs on COMM tabs changed
-    document.getElementById('chatcontrols').addEventListener('click', function() {
-      renderLogs(window.chat.getActive());
-    });
-    
+    /* header#ID */
     var rootDom = document.createElement('header');
     rootDom.id = ID;
     
+    /* b.title[title=DESCRIPTIONS] Filter */
     var titleDom = document.createElement('b');
     titleDom.className = 'title';
     titleDom.textContent = 'Filter';
     titleDom.title = DESCRIPTIONS;
     rootDom.appendChild(titleDom);
     
+    /* input[type=text][name=agents_or_portals][placeholder="agents or portals"] */
     var textboxDom = document.createElement('input');
     textboxDom.type = 'text';
     textboxDom.name = 'agents_or_portals';
@@ -414,6 +442,7 @@ window.plugin.commfilter = (function() {
       }
     });
     
+    /* button[type=button] */
     var resetButtonDom = document.createElement('button');
     resetButtonDom.type = 'button';
     resetButtonDom.textContent = 'X';
@@ -423,36 +452,18 @@ window.plugin.commfilter = (function() {
     });
 
     inputAgentsOrPortals = new Input(textboxDom);
-
-    // var selectorAndOrDom = document.createElement('select');
-    // selectorAndOrDom.disabled = true;
-    // selectorAndOrDom.options[0] = document.createElement('option');
-    // selectorAndOrDom.options[0].textContent = 'AND';
-    // selectorAndOrDom.options[1] = document.createElement('option');
-    // selectorAndOrDom.options[1].textContent = 'OR';
-    // if(config.filtering_between_agents_and_actions === 'AND') selectorAndOrDom.options[0].selected = true;
-    // else if(config.filtering_between_agents_and_actions === 'OR') selectorAndOrDom.options[1].selected = true;
-    // rootDom.appendChild(selectorAndOrDom);
-
-    // inputAction = new Input({name: 'action', placeholder: 'portal name'});
-    // rootDom.appendChild(inputAction.dom);
-    // rootDom.addEventListener('input', function(event) {
-    //   if(event.target.name === inputAction.name) {
-    //     if(inputAction.isWordsListChanged()) {
-    //         renderLogs(window.chat.getActive());
-    //     }
-    //   }
-    // });
     
+    /* span.switchgroup */
+    var switchesDom = document.createElement('span');
+    switchesDom.className = 'switchgroup';
+    
+    /* input[type=text][name=agents_or_portals][placeholder="agents or portals"] */
     filterSwitches = [
       new FilterSwitch('deployed'), 
       new FilterSwitch('captured'), 
       new FilterSwitch('linked'), 
       new FilterSwitch('created'), 
       new FilterSwitch('destroyed')];
-    
-    var switchesDom = document.createElement('span');
-    switchesDom.className = 'switchgroup';
     
     for(var i = 0; i < filterSwitches.length; i++) {
       switchesDom.appendChild(filterSwitches[i].dom);
