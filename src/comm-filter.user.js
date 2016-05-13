@@ -390,12 +390,10 @@ window.plugin.commfilter = (function() {
     var channelsDoms = [commDom.querySelector('#chatall'), 
                         commDom.querySelector('#chatfaction'), 
                         commDom.querySelector('#chatalerts')];
-      
-    for(var i = 0; i < channelsDoms.length; i++) {
-      if(channelsDoms[i]) {
-        insertStatusViewTo(channelsDoms[i]);
-      }
-    }
+    
+    channelsDoms.forEach(function(dom){
+      if(dom) insertStatusViewTo(dom);
+    });
     
     // filtering by agent name clicked/tapped in COMM       
     commDom.addEventListener('click', function(event){
