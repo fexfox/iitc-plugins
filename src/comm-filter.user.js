@@ -400,11 +400,11 @@ window.plugin.commfilter = (function() {
       if(!event.target.classList.contains('nickname')) return;
       
       // tentative: to avoid a problem on Android that causes cached chat logs reset,
-      //            call event.stopImmediatePropagation() in this.
-      //            So IITC default action that inputs @agentname automatically 
+      //            call event.stopPropagation() in this.
+      //            So IITC original action that inputs @AGENT_NAME automatically 
       //            to the #chattext box is blocked.
       //TODO related to issue#5
-      event.stopImmediatePropagation();
+      event.stopPropagation();
 
       if(!inputAgentsOrPortals.value) {
         inputAgentsOrPortals.value = event.target.textContent + ' ';
