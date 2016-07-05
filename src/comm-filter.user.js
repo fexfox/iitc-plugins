@@ -381,7 +381,7 @@ window.plugin.commfilter = (function() {
     });
     
     /* #chat */    
-    if(window.useAndroidPanes()) {
+    if(window.isSmartphone()) {
       // in order to provide common UI as same as Desktop mode for Android.  
       commDom.classList.add('expand');
     }
