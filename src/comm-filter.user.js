@@ -56,16 +56,16 @@ window.plugin.commfilter = (function() {
 
       Object.defineProperties(this, {
         name: {
-          get: function name() {return textbox.dom ? textbox.dom.name : null;},
-          set: function name(value) {if(textbox.dom) textbox.dom.name = value;}
+          get: function() {return textbox.dom ? textbox.dom.name : null;},
+          set: function(value) {if(textbox.dom) textbox.dom.name = value;}
         },
         value: {
-          get: function value() {return textbox.dom ? textbox.dom.value : null;},
-          set: function value(value) {if(textbox.dom) textbox.dom.value = value;},
+          get: function() {return textbox.dom ? textbox.dom.value : null;},
+          set: function(value) {if(textbox.dom) textbox.dom.value = value;},
         },
         defaultValue: {
-          get: function defaultValue() {return textbox.dom ? textbox.dom.defaultValue : null;},
-          set: function defaultValue(value) {if(textbox.dom) textbox.dom.defaultValue = value;},
+          get: function() {return textbox.dom ? textbox.dom.defaultValue : null;},
+          set: function(value) {if(textbox.dom) textbox.dom.defaultValue = value;},
         }
       });    
 
@@ -381,7 +381,7 @@ window.plugin.commfilter = (function() {
     });
     
     /* #chat */    
-    if(window.useAndroidPanes()) {
+    if(window.isSmartphone()) {
       // in order to provide common UI as same as Desktop mode for Android.  
       commDom.classList.add('expand');
     }

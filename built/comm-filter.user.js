@@ -3,12 +3,12 @@
 // @name           IITC plugin: COMM Filter
 // @author         udnp
 // @category       COMM
-// @version        0.5.5.20160705.63546
+// @version        0.5.5.20160720.60019
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @source         https://github.com/udnp/iitc-plugins
 // @updateURL      https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.meta.js
 // @downloadURL    https://github.com/udnp/iitc-plugins/raw/comm-filter-plugin/develop/built/comm-filter.user.js
-// @description    [udnp-2016-07-05-063546] COMM Filter
+// @description    [udnp-2016-07-20-060019] COMM Filter
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,7 +28,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'udnp';
-plugin_info.dateTimeVersion = '20160705.63546';
+plugin_info.dateTimeVersion = '20160720.60019';
 plugin_info.pluginId = 'comm-filter';
 //END PLUGIN AUTHORS NOTE
 
@@ -68,16 +68,16 @@ window.plugin.commfilter = (function() {
 
       Object.defineProperties(this, {
         name: {
-          get: function name() {return textbox.dom ? textbox.dom.name : null;},
-          set: function name(value) {if(textbox.dom) textbox.dom.name = value;}
+          get: function() {return textbox.dom ? textbox.dom.name : null;},
+          set: function(value) {if(textbox.dom) textbox.dom.name = value;}
         },
         value: {
-          get: function value() {return textbox.dom ? textbox.dom.value : null;},
-          set: function value(value) {if(textbox.dom) textbox.dom.value = value;},
+          get: function() {return textbox.dom ? textbox.dom.value : null;},
+          set: function(value) {if(textbox.dom) textbox.dom.value = value;},
         },
         defaultValue: {
-          get: function defaultValue() {return textbox.dom ? textbox.dom.defaultValue : null;},
-          set: function defaultValue(value) {if(textbox.dom) textbox.dom.defaultValue = value;},
+          get: function() {return textbox.dom ? textbox.dom.defaultValue : null;},
+          set: function(value) {if(textbox.dom) textbox.dom.defaultValue = value;},
         }
       });    
 
@@ -393,7 +393,7 @@ window.plugin.commfilter = (function() {
     });
     
     /* #chat */    
-    if(window.useAndroidPanes()) {
+    if(window.isSmartphone()) {
       // in order to provide common UI as same as Desktop mode for Android.  
       commDom.classList.add('expand');
     }
